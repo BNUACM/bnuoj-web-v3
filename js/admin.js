@@ -33,11 +33,11 @@ function probload(pid) {
             $("input[name='case_time_limit']").val(data.ctl);
             $("input[name='memory_limit']").val(data.ml);
             $("input[name='noc']").val(data.noc);
-            $("textarea[name='sample_in']").text(data.sinp);
-            $("textarea[name='sample_out']").text(data.sout);
-            $("textarea[name='hint']").text(data.hint);
-            $("textarea[name='source']").text(data.source);
-            $("textarea[name='author']").text(data.author);
+            $("textarea[name='sample_in']").html(data.sinp);
+            $("textarea[name='sample_out']").html(data.sout);
+            $("textarea[name='hint']").html(data.hint);
+            $("textarea[name='source']").html(data.source);
+            $("textarea[name='author']").html(data.author);
             $("input[name='p_hide']").each(function() {
                 if (this.value==data.p_hide) this.checked=true;
             });
