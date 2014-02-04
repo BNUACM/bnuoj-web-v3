@@ -1,2 +1,6 @@
 # ignore composer vendor
 /vendor/*
+
+# ignore upload files
+/uploadstand/*
+/external/*
