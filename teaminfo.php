@@ -90,8 +90,17 @@ include_once("functions/sidebars.php");
   <tr><td>刘芳</td><td>2010级本</td><td>信科</td><td></td></tr>
   <tr><td>焦璐</td><td>2010级本</td><td>信科</td><td></td></tr>
   <tr><td>盛乔一</td><td>2010级本</td><td>信科</td><td></td></tr>
+  <tr><td>周奕洋</td><td>2010级本</td><td>信科</td><td></td></tr>
   <tr><td>董自鸣</td><td>2011级本</td><td>信科</td><td>2013年腾讯编程马拉松北京赛区冠军队成员。</td></tr>
   <tr><td>袁伟舜</td><td>2011级本</td><td>地遥</td><td></td></tr>
+  <tr><td>李安然</td><td>2011级本</td><td>信科</td><td></td></tr>
+  <tr><td>李奕</td><td>2011级本</td><td>信科</td><td></td></tr>
+  <tr><td>马凌霄</td><td>2011级本</td><td>信科</td><td></td></tr>
+  <tr><td>郑培凯</td><td>2012级本</td><td>信科</td><td></td></tr>
+  <tr><td>陈高翔</td><td>2012级本</td><td>信科</td><td></td></tr>
+  <tr><td>吴雷</td><td>2012级本</td><td>信科</td><td></td></tr>
+  <tr><td>何伟强</td><td>2012级本</td><td>信科</td><td></td></tr>
+  <tr><td>段兰君</td><td>2012级本</td><td>信科</td><td></td></tr>
                   </tbody>
                 </table>
                 <p style="align:right;text-align:right;padding:0;">
