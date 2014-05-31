@@ -90,7 +90,7 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
             for($i=0;$i<$n;$i++){
                 if($pid[$i] == "")continue;
                 if (!problem_exist($pid[$i])||problem_hidden($pid[$i])) $pd=true;
-                else {
+                else if ($ctype!=0){
                     if ($ptype[$i]==1||$ptype[$i]==3) {
                         if (!is_numeric($base[$i])||!is_numeric($minp[$i])||!is_numeric($paraa[$i])||!is_numeric($parab[$i])) {
     //                        echo $base[$i].is_numeric($base[$i]);

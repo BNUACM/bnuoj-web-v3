@@ -59,9 +59,8 @@ class Problem {
         else if ($vname=="SCU")  $this->info["to_url"]="<a href='http://cstest.scu.edu.cn/soj/problem.action?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="HUST")  $this->info["to_url"]="<a href='http://acm.hust.edu.cn/problem.php?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="UVALive")  {
-            if (intval($vid)>5722) $svid=intval($vid)+10;
-            else $svid=$vid;
-            $this->info["to_url"]="<a href='http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=".(intval($svid)-1999)."' target='_blank'>$vid</a>";
+            list($url)=$db->get_row("select url from vurl where voj='$vname' and vid='$vid'",ARRAY_N);
+            $this->info["to_url"]="<a href='$url' target='_blank'>$vid</a>";
         }
         else {
             list($url)=$db->get_row("select url from vurl where voj='$vname' and vid='$vid'",ARRAY_N);
@@ -150,6 +149,13 @@ class Problem {
         $this->get_col("memory_limit");
         if ($this->info["memory_limit"]=="0") $this->info["memory_limit"]="Unknown ";
         return $this->info["memory_limit"];
+    }
+    function get_description() {
+        if (!$this->valid) return null;
+        if (isset($this->info["description"])) return $this->info["description"];
+        $this->get_col("description");
+        $this->info["description"]=preg_replace('/<head[\s\S]*\/head>/', "", $this->info["description"]);
+        return $this->info["description"];
     }
     function get_col($str) {
         global $db;

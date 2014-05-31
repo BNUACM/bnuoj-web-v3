@@ -1,6 +1,6 @@
 <?php
 include_once('functions/problems.php');
-$pid = convert_str($_GET['pid']);
+$pid = intval(convert_str($_GET['pid']));
 if ($pid=="") $pid="0";
 $show_problem=new Problem;
 $show_problem->set_problem($pid);
@@ -142,7 +142,7 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
 ?>
             <h3> Sample Input </h3>
 <?php
-    if (stristr($sin,'<br')==null&&stristr($sin,'<pre')==null&&stristr($sin,'<p')==null) {
+    if (stristr($sin,'<br')==null&&stristr($sin,'<pre')==null&&stristr($sin,'<p>')==null) {
 ?>
             <pre class="content-wrapper"><?=$sin?></pre>
 <?php
@@ -154,7 +154,7 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
 ?>
             <h3> Sample Output </h3>
 <?php
-    if (stristr($sout,'<br')==null&&stristr($sout,'<pre')==null&&stristr($sout,'<p')==null) {
+    if (stristr($sout,'<br')==null&&stristr($sout,'<pre')==null&&stristr($sout,'<p>')==null) {
 ?>
             <pre class="content-wrapper"><?=$sout?></pre>
 <?php
