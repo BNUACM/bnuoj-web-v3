@@ -315,13 +315,13 @@ function check_scu() {
 
 function check_hust() {
     global $maxwaitnum;
-    $html=file_get_html("http://acm.hust.edu.cn/status.php");
-    if ($html==null||$html->find("table",1)==null) return "Down: cannot connect.";
+    $html=file_get_html("http://acm.hust.edu.cn/status");
+    if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
-        $res=$html->find("table",1)->find("tr");
+        $res=$html->find("table",0)->find("tr");
         foreach ($res as $row) {
-            $result=$row->find("td font",0)->plaintext;
+            $result=$row->find("td",3)->plaintext;
             // echo $result;
             if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
         }
@@ -339,42 +339,6 @@ foreach ($ojs as $one) {
     $db->query("update ojinfo set lastcheck=now(), status='$stat' where name='".$one[0]."'");
 }
 
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_pku())."' where name='PKU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_hdu())."' where name='HDU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_uvalive())."' where name='UVALive'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_cf())."' where name='CodeForces'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_sgu())."' where name='SGU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_lightoj())."' where name='LightOJ'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_ural())."' where name='Ural'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_zju())."' where name='ZJU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_uva())."' where name='UVA'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_spoj())."' where name='SPOJ'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_uestc())."' where name='UESTC'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_fzu())."' where name='FZU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_nbut())."' where name='NBUT'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_whu())."' where name='WHU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_sysu())."' where name='SYSU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_openjudge())."' where name='OpenJudge'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_scu())."' where name='SCU'";
-// mysql_query($sql);
-// $sql="update ojinfo set lastcheck=now(), status='".convert_str(check_hust())."' where name='HUST'";
-// mysql_query($sql);
 
 // echo check_pku();
 // echo check_hdu();
