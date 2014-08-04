@@ -21,7 +21,7 @@ function sidebar_item_content_news($haswell=true) {
     $value=sidebar_item_top($haswell)."            <h3>Latest News <span style='font-size:12px'><a href='news.php'>[more...]</a></span></h3>\n";
     $sql="select * from news order by time_added desc limit 0,".$config["limits"]["news_on_index"];
     $none=true;
-    foreach ($db->get_results($sql,ARRAY_A) as $row) {
+    foreach ((array)$db->get_results($sql,ARRAY_A) as $row) {
         $none=false;
         $row['title']=strip_tags($row['title']);
         if (strlen($row['title'])>$config["limits"]["news_on_index_title_len"])
@@ -54,7 +54,7 @@ function sidebar_item_content_vjstatus() {
                 </thead>
                 <tbody>\n";
     $sql="select * from ojinfo where name not like 'BNU'";
-    foreach ($db->get_results($sql,ARRAY_A) as $row) {
+    foreach ((array)$db->get_results($sql,ARRAY_A) as $row) {
         $statinfo="";
         $stitle="Last Check: ".$row['lastcheck'].", ".$row['status'];
         if ($row['status']=="Normal") {
@@ -93,7 +93,7 @@ function sidebar_item_content_vjstatus_index() {
                 </thead>
                 <tbody>\n";
     $sql="select * from ojinfo where name not like 'BNU'";
-    foreach ($db->get_results($sql,ARRAY_A) as $row) {
+    foreach ((array)$db->get_results($sql,ARRAY_A) as $row) {
         $statinfo="";
         $stitle="Last Check: ".$row['lastcheck'].", ".$row['status'];
         if ($row['status']=="Normal") {

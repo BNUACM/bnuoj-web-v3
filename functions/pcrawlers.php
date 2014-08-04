@@ -467,6 +467,7 @@ function pcrawler_pku($pid){
         if (preg_match('/<p class="pst">Sample Input<\/p><pre class="sio">(.*)<\/pre><p class="pst">Sample Output<\/p>/sU', $content, $matches)) $ret["sample_in"] = trim($matches[1]);
         if (preg_match('/<p class="pst">Sample Output<\/p><pre class="sio">(.*)<\/pre><p class="pst">Source<\/p>/sU', $content, $matches)) $ret["sample_out"] = trim($matches[1]);
         if (preg_match('/<p class="pst">Source<\/p><div class="ptx" lang="en-US">(.*)<\/div>/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
+        if (preg_match('/<p class="pst">Hint<\/p><div class="ptx" lang="en-US">(.*)<\/div><p class="pst">Source/sU', $content, $matches)) $ret["hint"] = trim($matches[1]);
         if (strpos($content, '<td style="font-weight:bold; color:red;">Special Judge</td>') !== false) $ret["special_judge_status"] = 1;
         else $ret["special_judge_status"] = 0;
 
@@ -533,8 +534,7 @@ function pcrawler_uestc($pid){
     $content = file_get_contents($url);
     $ret = array();
 
-    if (strpos($content, '<h2><center>ERROR!</center></h2>
-') !== false) return "No problem called UESTC $pid.<br>";
+    if (strpos($content, '<h2><center>ERROR!</center></h2>') !== false) return "No problem called UESTC $pid.<br>";
     if (stripos($content, "Can not find problem") === false){
         if (preg_match('/<div id="big_title">.*<h2>(.*)<\/h2>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
         if (preg_match('/<h3>Time Limit: <span class="h4">(.*)ms<\/span>/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1]));
@@ -581,12 +581,229 @@ function pcrawler_ural($pid){
 
         $ret = pcrawler_process_info($ret, "ural", "http://acm.ural.edu.cn/");
         $id = pcrawler_insert_problem($ret, "Ural", $pid);
-        return "ural $pid has been crawled as $id.<br>";
+        return "Ural $pid has been crawled as $id.<br>";
     }
     else{
-        return "No problem called ural $pid.<br>";
+        return "No problem called Ural $pid.<br>";
     }
 }
 
+function pcrawler_uva_urls() {
+    global $db;
+    $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
+    $html = file_get_html($url);
+    $main_a = $html->find("#col3_content_wrapper table a");
+    foreach($main_a as $lone_a) {
+        $l2url = $lone_a->href;
+        $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
+        for ($i = 1; $i < sizeof($rows); $i++) {
+            $row = $rows[$i];
+            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+            $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+            $pid = substr($pid, 0, -2);
+            $db->query("select * from vurl where voj='UVA' and vid='$pid'");
+            if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
+            else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
+        }
+    }
+
+    $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=2";
+    $html = file_get_html($url);
+    $main_a = $html->find("#col3_content_wrapper table a");
+    foreach($main_a as $lone_a) {
+        $l2url = $lone_a->href;
+        $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
+        for ($i = 1; $i < sizeof($rows); $i++) {
+            $row = $rows[$i];
+            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+            $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+            $pid = substr($pid, 0, -2);
+            $db->query("select * from vurl where voj='UVA' and vid='$pid'");
+            if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
+            else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
+        }
+    }
+    return "Updated UVA urls.<br>";
+}
+
+function pcrawler_uvalive_urls() {
+    global $db;
+    $url = "https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8&category=1";
+    $html = file_get_html($url);
+    $main_a = $html->find(".maincontent table a");
+    foreach($main_a as $lone_a) {
+        $l2url = $lone_a->href;
+        $l2url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $rows = $html2->find(".maincontent table", 0)->find("tr");
+        for ($i = 1; $i < sizeof($rows); $i++) {
+            $row = $rows[$i];
+            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+            $pid = substr($pid, 0, -2);
+            $db->query("select * from vurl where voj='UVALive' and vid='$pid'");
+            if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVALive' and vid='$pid'");
+            else $db->query("insert into vurl set voj='UVALive', vid='$pid', url='$url'");
+        }
+    }
+    return "Updated UVALive urls.<br>";
+}
+
+function pcrawler_uva_sources() {
+    global $db;
+    $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8";
+    $html = file_get_html($url);
+    $main_a = $html->find("#col3_content_wrapper table a");
+    $fir = 0;
+    $trans = array(" :: "=>", ");
+    foreach($main_a as $lone_a) {
+        $l2url = $lone_a->href;
+        $fir++;
+        if ($fir < 4 || $fir > 6) continue;
+        $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $l2main_a = $html2->find("#col3_content_wrapper table a");
+        foreach($l2main_a as $ltow_a) {
+            $l3url = $ltow_a->href;
+            $l3url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l3url)."&limit=2000&limitstart=0";
+            $html3 = file_get_html($l3url);
+            $source = $html3->find(".contentheading", 0)->plaintext;
+            $source = substr($source, 8);
+            $source = trim(strtr($source, $trans));
+            $probs = $html3->find("#col3_content_wrapper table a");
+            foreach($probs as $prob) {
+                $pid = html_entity_decode(trim($prob->plaintext));
+                $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+                $sql = "update problem set source='$source' where vid='$pid' and vname='UVA'";
+                $db->query($sql);
+            }
+        }
+    }
+    return "Updated UVA sources.<br>";
+}
+
+function pcrawler_uvalive_sources() {
+    global $db;
+    $url = "https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8";
+    $html = file_get_html($url);
+    $main_a = $html->find(".maincontent table a");
+    $fir = 1;
+    $trans = array(" :: "=>", ");
+    foreach($main_a as $lone_a) {
+        $l2url = $lone_a->href;
+        if ($fir > 0) {
+            $fir--;
+            continue;
+        }
+        $l2url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $l2main_a = $html2->find(".maincontent table a");
+        foreach($l2main_a as $ltow_a) {
+            $l3url = $ltow_a->href;
+            $l3url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l3url);
+            $html3 = file_get_html($l3url);
+            $source = $html3->find(".contentheading", 0)->plaintext;
+            $source = substr($source, 8);
+            $source = trim(strtr($source, $trans));
+            $probs = $html3->find(".maincontent table a");
+            foreach($probs as $prob) {
+                $pid = substr($prob->plaintext, 0, 4);
+                $sql = "update problem set source='$source' where vid='$pid' and vname='UVALive'";
+                $db->query($sql);
+            }
+        }
+    }
+    return "Updated UVALive sources.<br>";
+}
+
+function pcrawler_uva($pid){
+    global $db;
+    $ret = array();
+    list($url) = $db->get_row("select url from vurl where voj='UVA' and vid='$pid'", ARRAY_N);
+    $content = file_get_contents($url);
+    
+    if ($url == "") return "No problem called UVA $pid.<br>";
+    if (stripos($content, "<h3>") !== false){
+        if (preg_match('/<!-- #col3: Main Content.*?<h3>(.*)<\/h3>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
+        $ret["title"] = trim(substr($ret["title"], strpos($ret["title"], '-') + 1));
+        if (preg_match('/Time limit: ([\d\.]*) seconds/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1])) * 1000;
+        $ret["case_time_limit"] = $ret["time_limit"];
+        $ret["memory_limit"] = 0;
+        preg_match('/<iframe src="(external\/([\d]*)\/.*)"/sU', $content, $matches);
+        $cate = $matches[2];
+        $purl = $matches[1];
+
+        preg_match('/<a href="(external.*)"/sU', $content, $matches);
+        $pdflink = $matches[1];
+
+        if ($purl != "")  {
+            $content = file_get_contents("https://icpcarchive.ecs.baylor.edu/".$purl);
+        } else {
+            $content = "";
+        }
+        $content = file_get_contents("http://uva.onlinejudge.org/".$purl);
+        $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
+        $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
+        
+        file_put_contents("/var/www/contest/".$pdflink, file_get_contents("http://uva.onlinejudge.org/".$pdflink));
+        $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
+
+        $ret = pcrawler_process_info($ret, "uva/".$cate, "http://uva.onlinejudge.org/external/".$cate."/");
+        $id = pcrawler_insert_problem($ret, "UVA", $pid);
+        return "UVA $pid has been crawled as $id.<br>";
+    }
+    else{
+        return "No problem called UVA $pid.<br>";
+    }
+}
+
+function pcrawler_uvalive($pid){
+    global $db;
+    $ret = array();
+    list($url) = $db->get_row("select url from vurl where voj='UVALive' and vid='$pid'", ARRAY_N);
+    $content = file_get_contents($url);
+    
+    if ($url == "") return "No problem called UVALive $pid.<br>";
+    if (stripos($content, "<h3>") !== false){
+        if (preg_match('/<h3>(.*)<\/h3>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
+        $ret["title"] = trim(substr($ret["title"], strpos($ret["title"], '-') + 1));
+        if (preg_match('/Time limit: ([\d\.]*) seconds/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1])) * 1000;
+        $ret["case_time_limit"] = $ret["time_limit"];
+        $ret["memory_limit"] = 0;
+        preg_match('/<iframe src="(external\/([\d]*)\/.*)"/sU', $content, $matches);
+        $cate = $matches[2];
+        $purl = $matches[1];
+
+        preg_match('/<a href="(external.*)"/sU', $content, $matches);
+        $pdflink = $matches[1];
+
+        if ($purl != "")  {
+            $content = file_get_contents("https://icpcarchive.ecs.baylor.edu/".$purl);
+        } else {
+            $content = "";
+        }
+        $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
+        $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
+        
+        file_put_contents("/var/www/contest/".$pdflink, file_get_contents("https://icpcarchive.ecs.baylor.edu/".$pdflink));
+        $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
+
+        $ret = pcrawler_process_info($ret, "uvalive/".$cate, "https://icpcarchive.ecs.baylor.edu/external/".$cate."/");
+        $id = pcrawler_insert_problem($ret, "UVALive", $pid);
+        return "UVALive $pid has been crawled as $id.<br>";
+    }
+    else{
+        return "No problem called UVALive $pid.<br>";
+    }
+}
 
 ?>

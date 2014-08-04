@@ -42,6 +42,9 @@ $config["contact"]["challenge"]                 =   "yourchallengestring";
 $config["contact"]["pretest"]                   =   "yourpreteststring";
 $config["contact"]["test_all"]                  =   "yourtestallstring";
 
+// please manually uncomment the following line if you need external functions
+// $config["contact"]["dispatcher_token"]          =   "3492yTGef8RhwGrujYGHUJ190ipo2rwmfSWwde";
+
 //contact port
 $config["contact"]["server"]                    =   "127.0.0.1";
 $config["contact"]["port"]                      =   5907;
