@@ -180,7 +180,7 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
   }
   if ($show_problem->get_val("author")!="") {
 ?>
-            <h2> Author </h2>
+            <h3> Author </h3>
             <div class="content-wrapper well">
 <?=$show_problem->get_val("author")?>
             </div>

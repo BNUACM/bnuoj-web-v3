@@ -5,11 +5,15 @@ include_once(dirname(__FILE__)."/../functions/simple_html_dom.php");
 include_once(dirname(__FILE__)."/../functions/global.php");
 
 $maxwaitnum=8;
-set_time_limit(120);
+$timeoutopts = stream_context_create(array('http' =>
+    array(
+        'timeout' => 120 
+    )
+));
 
 function check_pku() {
-    global $maxwaitnum;
-    $html=file_get_html("http://poj.org/status");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://poj.org/status", false, $timeoutopts);
     if ($html==null||$html->find("table",4)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -25,8 +29,8 @@ function check_pku() {
 }
 
 function check_hdu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.hdu.edu.cn/status.php");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.hdu.edu.cn/status.php", false, $timeoutopts);
     if ($html==null||$html->find("table.table_text",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -42,8 +46,8 @@ function check_hdu() {
 }
 
 function check_uvalive() {
-    global $maxwaitnum;
-    $html=file_get_html("http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=19");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=19", false, $timeoutopts);
     if ($html==null||$html->find("td.maincontent table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -59,8 +63,8 @@ function check_uvalive() {
 }
 
 function check_codeforces() {
-    global $maxwaitnum;
-    $html=file_get_html("http://www.codeforces.com/problemset/status");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://www.codeforces.com/problemset/status", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -76,8 +80,8 @@ function check_codeforces() {
 }
 
 function check_sgu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.sgu.ru/status.php");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.sgu.ru/status.php", false, $timeoutopts);
     if ($html==null||$html->find("table",12)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -102,6 +106,8 @@ function check_lightoj() {
     curl_setopt($ch, CURLOPT_COOKIEJAR, "lightoj.cookie");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($ojuser)."&mypassword=".urlencode($ojpass)."&Submit=Login");
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
     $content = curl_exec($ch);
     curl_close($ch);
     $ch = curl_init();
@@ -127,8 +133,8 @@ function check_lightoj() {
 }
 
 function check_ural() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.timus.ru/status.aspx");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.timus.ru/status.aspx", false, $timeoutopts);
     if ($html==null||$html->find("table.status",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -144,8 +150,8 @@ function check_ural() {
 }
 
 function check_zju() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showRuns.do?contestId=1");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showRuns.do?contestId=1", false, $timeoutopts);
     if ($html==null||$html->find("table.list",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -161,8 +167,8 @@ function check_zju() {
 }
 
 function check_uva() {
-    global $maxwaitnum;
-    $html=file_get_html("http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=19");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=19", false, $timeoutopts);
     if ($html==null||$html->find("div#col3_content_wrapper table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -178,8 +184,8 @@ function check_uva() {
 }
 
 function check_spoj() {
-    global $maxwaitnum;
-    $html=file_get_html("http://www.spoj.pl/status/");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://www.spoj.pl/status/", false, $timeoutopts);
     if ($html==null||$html->find("table.problems",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -195,8 +201,8 @@ function check_spoj() {
 }
 
 function check_uestc() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.uestc.edu.cn/status.php");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.uestc.edu.cn/status.php", false, $timeoutopts);
     if ($html==null||$html->find("div.list",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -212,8 +218,8 @@ function check_uestc() {
 }
 
 function check_fzu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.fzu.edu.cn/log.php");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.fzu.edu.cn/log.php", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -229,8 +235,8 @@ function check_fzu() {
 }
 
 function check_nbut() {
-    global $maxwaitnum;
-    $html=file_get_html("http://ac.nbutoj.com/Problem/status.xhtml");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://ac.nbutoj.com/Problem/status.xhtml", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -246,8 +252,8 @@ function check_nbut() {
 }
 
 function check_whu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.whu.edu.cn/land/status");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.whu.edu.cn/land/status", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -263,8 +269,8 @@ function check_whu() {
 }
 
 function check_sysu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://soj.me/status.php");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://soj.me/status.php", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -280,8 +286,8 @@ function check_sysu() {
 }
 
 function check_openjudge() {
-    global $maxwaitnum;
-    $html=file_get_html("http://poj.openjudge.cn/practice/status");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://poj.openjudge.cn/practice/status", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -297,8 +303,8 @@ function check_openjudge() {
 }
 
 function check_scu() {
-    global $maxwaitnum;
-    $html=file_get_html("http://cstest.scu.edu.cn/soj/solutions.action");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://cstest.scu.edu.cn/soj/solutions.action", false, $timeoutopts);
     if ($html==null||$html->find("table",1)==null) return "Down: cannot connect.";
     else {
         $num=0;
@@ -314,8 +320,8 @@ function check_scu() {
 }
 
 function check_hust() {
-    global $maxwaitnum;
-    $html=file_get_html("http://acm.hust.edu.cn/status");
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.hust.edu.cn/status", false, $timeoutopts);
     if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;

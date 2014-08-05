@@ -3,6 +3,12 @@ include_once(dirname(__FILE__)."/global.php");
 include_once(dirname(__FILE__)."/simple_html_dom.php");
 include_once(dirname(__FILE__)."/normalize_url.php");
 
+
+$timeoutopts = stream_context_create(array('http' =>
+    array(
+        'timeout' => 120
+    )
+));
 $crawled=array();
 function process_and_get_image($ori,$path,$baseurl,$space_deli,$cookie) {
     $para["path"]=$path;$para["base"]=$baseurl;$para["trans"]=!$space_deli;$para["cookie"]=$cookie;
@@ -61,8 +67,8 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     $db->query("select pid from problem where vname like '$vname' and vid like '$vid'");
     if ($db->num_rows==0) {
         $sql_add_pro = "insert into problem 
-        (title,description,input,output,sample_in,sample_out,hint,source,hide,memory_limit,time_limit,special_judge_status,case_time_limit,basic_solver_value,number_of_testcase,isvirtual,vname,vid) values
-        ('".$db->escape($ret["title"])."','".$db->escape($ret["description"])."','".$db->escape($ret["input"])."','".$db->escape($ret["output"])."','".$db->escape($ret["sample_in"])."','".$db->escape($ret["sample_out"])."','".$db->escape($ret["hint"])."','".$db->escape($ret["source"])."','0','".$ret["memory_limit"]."','".$ret["time_limit"]."','".$ret["special_judge_status"]."','".$ret["case_time_limit"]."','0','0',1,'$vname','$vid')";
+        (title,description,input,output,sample_in,sample_out,hint,source,author,hide,memory_limit,time_limit,special_judge_status,case_time_limit,basic_solver_value,number_of_testcase,isvirtual,vname,vid) values
+        ('".$db->escape($ret["title"])."','".$db->escape($ret["description"])."','".$db->escape($ret["input"])."','".$db->escape($ret["output"])."','".$db->escape($ret["sample_in"])."','".$db->escape($ret["sample_out"])."','".$db->escape($ret["hint"])."','".$db->escape($ret["source"])."','".$db->escape($ret["author"])."','0','".$ret["memory_limit"]."','".$ret["time_limit"]."','".$ret["special_judge_status"]."','".$ret["case_time_limit"]."','0','0',1,'$vname','$vid')";
         $db->query($sql_add_pro);
         $gnum=$db->insert_id;
     }
@@ -77,6 +83,7 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
                             sample_out='".$db->escape($ret["sample_out"])."',
                             hint='".$db->escape($ret["hint"])."',
                             source='".$db->escape($ret["source"])."',
+                            author='".$db->escape($ret["author"])."',
                             hide='0',
                             memory_limit='".$ret["memory_limit"]."',
                             time_limit='".$ret["time_limit"]."',
@@ -290,7 +297,7 @@ function pcrawler_openjudge_num() {
         $html=file_get_html("http://poj.openjudge.cn/practice/?page=$i");
         $table=$html->find("table",0);
         $rows=$table->find("tr");
-        if ($got[$rows[1]->find("td",0)->plaintext]==true) break;
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
         for ($j=1;$j<sizeof($rows);$j++) {
             $row=$rows[$j];
             //echo htmlspecialchars($row);
@@ -299,7 +306,7 @@ function pcrawler_openjudge_num() {
             $acnum=$row->find("td",3)->plaintext;
             $totnum=$row->find("td",4)->plaintext;
             //echo "$pid $acnum $totnum<br>";die();
-            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='OpenJudge' and vid='$pid'");
+            $db->query("update problem set vacpnum='$acnum', vtotalpnum='$totnum' where vname='OpenJudge' and vid='$pid'");
         }
         $i++;
     }
@@ -400,26 +407,26 @@ function pcrawler_scu_num() {
 }
 
 function pcrawler_hust($pid) {
-    $url="http://acm.hust.edu.cn/problem.php?id=$pid";
+    $url="http://acm.hust.edu.cn/problem/show/$pid";
     $content=file_get_contents($url);
     $ret=array();
 
-    if (stripos($content,"<h2>No Such Problem!</h2>")===false) {
-        if (preg_match('/<h2>(.*)<\/h2></sU', $content,$matches)) $ret["title"]=trim($matches[1]);
-        if (preg_match('/Time Limit: <\/b>(.*) Sec/sU', $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]))*1000;
+    if (stripos($content,"<h2>Oops! Error.")===false) {
+        if (preg_match('/<h1.*>.*- (.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/Time Limit: .*>(\d*)s/sU', $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]))*1000;
         $ret["case_time_limit"]=$ret["time_limit"];
-        if (preg_match('/Memory Limit: <\/b>(.*) MB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
-        if (preg_match('/Description<\/h2>(.*)<h2>Input/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
-        if (preg_match('/Input<\/h2>(.*)<h2>Output/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
-        if (preg_match('/Output<\/h2>(.*)<h2>Sample/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
-        if (preg_match('/<h2>Sample.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
-        if (preg_match('/<h2>Sample.*<pre>.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
-        if (preg_match('/HINT<\/h2>(.*)<h2>Source/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
-        if (preg_match('/Source<\/h2>.*<p>(.*)<\/p>/sU', $content,$matches)) $ret["source"]=trim($matches[1]);
-        if (strpos($content,"<b style=\"color:red\">Special Judge</b>")!==false) $ret["special_judge_status"]=1;
+        if (preg_match('/Memory Limit: .*>(\d*)M/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
+        if (preg_match('/<dt>Description.*<dd.*>(.*)<\/dd>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<dt>Input.*<dd.*>(.*)<\/dd>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<dt>Output.*<dd.*>(.*)<\/dd>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<dt>Sample Input.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<dt>Sample Output.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<dt>Hint.*<dd.*>(.*)<\/dd>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<dt>Source.*<dd.*>(.*)<\/dd>/sU', $content,$matches)) $ret["source"]=trim($matches[1]);
+        if (strpos($content,"<span class=\"label label-danger\">Special Judge</span>")!==false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
 
-        $ret=pcrawler_process_info($ret,"hust","http://acm.hust.edu.cn/");
+        $ret=pcrawler_process_info($ret,"hust","http://acm.hust.edu.cn/problem/show/");
         $id=pcrawler_insert_problem($ret,"HUST",$pid);
         return "HUST $pid has been crawled as $id.<br>";
     }
@@ -428,19 +435,21 @@ function pcrawler_hust($pid) {
 
 function pcrawler_hust_num() {
     global $db;
-
+    $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hust.edu.cn/problemset.php?page=$i");
-        $table=$html->find("table",1);
+        $html=file_get_html("http://acm.hust.edu.cn/problem/list/$i");
+        $table=$html->find("table",0);
         $rows=$table->find("tr");
-        if (sizeof($rows)<3) break;
-        for ($j=2;$j<sizeof($rows);$j++) {
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
             $row=$rows[$j];
             //echo htmlspecialchars($row);
-            $pid=$row->find("td",1)->plaintext;
-            $acnum=$row->find("td a",1)->plaintext;
-            $totnum=$row->find("td a",2)->plaintext;
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid]=true;
+            $tstr=$row->find("td",2)->plaintext;
+            $acnum=strstr($tstr,'/',true);
+            $totnum=substr(strstr($tstr,'/'),1);
             //echo "$pid $acnum $totnum<br>";die();
             $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='HUST' and vid='$pid'");
         }
@@ -480,6 +489,75 @@ function pcrawler_pku($pid){
     }
 }
 
+function pcrawler_pku_num() {
+    global $db;
+
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://poj.org/problemlist?volume=$i");
+        $table=$html->find("table",4);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $acnum=$row->find("td",2)->find("a",0)->innertext;
+            $totnum=$row->find("td",2)->find("a",1)->innertext;
+            // echo "$pid $acnum $totnum<br>";die();
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='PKU' and vid='$pid'");
+        }
+        $i++;
+    }
+
+    return "Done";
+}
+
+function pcrawler_sgu($pid) {
+    $url="http://acm.sgu.ru/problem.php?contest=0&problem=$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    $content=iconv("windows-1251","UTF-8//IGNORE",$content);
+    //$content=mb_convert_encoding($content,"UTF-8","GBK, GB2312, windows-1252");
+    if (stripos($content,"<h4>no such problem</h4>")===false) {
+        if (preg_match('/<title.*'.$pid.'\.(.*)</sUi', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/time limit.*: ([0-9\.]*?).*s/sUi', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(floatval(trim($matches[1]))*1000);
+        if (preg_match('/memory limit.*: ([0-9\.]*?).*k/sUi', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+
+        $ret["description"]=$content;
+
+        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
+        $ret["special_judge_status"]=0;
+
+        $ret=pcrawler_process_info($ret,"sgu","http://acm.sgu.ru/",false);
+        $id=pcrawler_insert_problem($ret,"SGU",$pid);
+        return "SGU $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called SGU $pid.<br>";
+}
+
+function pcrawler_sgu_num() {
+    global $db;
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.sgu.ru/problemset.php?contest=0&volume=$i");
+        $table=$html->find("table",11);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<3) break;
+        for ($j=1;$j<sizeof($rows)-1;$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $acnum=$row->find("td",2)->find("a",0)->innertext;
+            $totnum=0;
+            //echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='SGU' and vid='$pid'");
+        }
+        $i++;
+    }
+
+    return "Done";
+}
 
 function pcrawler_lightoj($pid){
 
@@ -529,35 +607,90 @@ function pcrawler_lightoj($pid){
     unlink("/tmp/lightoj.cookie");
 }
 
-function pcrawler_uestc($pid){
-    $url = "http://acm.uestc.edu.cn/problem.php?pid=$pid";
-    $content = file_get_contents($url);
-    $ret = array();
+function pcrawler_lightoj_num(){
 
-    if (strpos($content, '<h2><center>ERROR!</center></h2>') !== false) return "No problem called UESTC $pid.<br>";
-    if (stripos($content, "Can not find problem") === false){
-        if (preg_match('/<div id="big_title">.*<h2>(.*)<\/h2>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
-        if (preg_match('/<h3>Time Limit: <span class="h4">(.*)ms<\/span>/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1]));
-        $ret["case_time_limit"] = $ret["time_limit"];
-        if (preg_match('/Memory Limit: <span class="h4">(.*)kB<\/span>/sU', $content, $matches)) $ret["memory_limit"] = intval(trim($matches[1]));
-        if (preg_match('/<h2>Description<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["description"] = trim($matches[1]);
-        if (preg_match('/<h2>Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["input"] = trim($matches[1]);
-        if (preg_match('/<h2>Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["output"] = trim($matches[1]);
-        if (preg_match('/<h2>Sample Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_in"] = trim($matches[1]);
-        if (preg_match('/<h2>Sample Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_out"] = trim($matches[1]);
-        if (preg_match('/<h2>Source<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
-        if (preg_match('/<h2>Hint<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["hint"] = trim(strip_tags($matches[1]));
-        if (strpos($content, '') !== false) $ret["special_judge_status"] = 1;
-        else $ret["special_judge_status"] = 0;
+    global $config, $db;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj.cookie");
+    curl_setopt($ch, CURLOPT_POST, 1); 
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
+    $content = curl_exec($ch);
+    curl_close($ch); 
 
-        $ret = pcrawler_process_info($ret, "uestc", "http://acm.uestc.edu.cn/");
-        $id = pcrawler_insert_problem($ret, "UESTC", $pid);
-        return "UESTC $pid has been crawled as $id.<br>";
+    $url = "http://www.lightoj.com/volume_showproblem.php?problem=$pid";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj.cookie");
+    $content = curl_exec($ch); 
+    curl_close($ch); 
+
+    $i=10;
+    while (true) {
+        $url="http://www.lightoj.com/volume_problemset.php?volume=$i";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj.cookie");
+        $content = curl_exec($ch); 
+        curl_close($ch); 
+        if (stripos($content, "<h1>Volume List") !== false) break;
+        $html=str_get_html($content);
+        $table=$html->find("table",1);
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=trim($row->find("td",1)->plaintext);
+            $temp=trim($row->find("td",4)->find("div.pertext",0)->innertext);
+            $acnum=trim(strstr($temp,"/",true));
+            $totnum=trim(substr(strstr($temp,"/"),1));
+
+            $tempp=trim($row->find("td",3)->find("div.pertext",0)->innertext);
+            $acpnum=trim(strstr($tempp,"/",true));
+            $totpnum=trim(substr(strstr($tempp,"/"),1));
+            //echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', vacpnum='$acpnum', vtotalpnum='$totpnum' where vname='LightOJ' and vid='$pid'");
+        }
+        $i++;
     }
-    else{
-        return "No problem called UESTC $pid.<br>";
-    }
+
+    unlink("/tmp/lightoj.cookie");
+    return "Done";
 }
+
+// function pcrawler_uestc($pid){
+//     $url = "http://acm.uestc.edu.cn/problem.php?pid=$pid";
+//     $content = file_get_contents($url);
+//     $ret = array();
+
+//     if (strpos($content, '<h2><center>ERROR!</center></h2>') !== false) return "No problem called UESTC $pid.<br>";
+//     if (stripos($content, "Can not find problem") === false){
+//         if (preg_match('/<div id="big_title">.*<h2>(.*)<\/h2>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
+//         if (preg_match('/<h3>Time Limit: <span class="h4">(.*)ms<\/span>/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1]));
+//         $ret["case_time_limit"] = $ret["time_limit"];
+//         if (preg_match('/Memory Limit: <span class="h4">(.*)kB<\/span>/sU', $content, $matches)) $ret["memory_limit"] = intval(trim($matches[1]));
+//         if (preg_match('/<h2>Description<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["description"] = trim($matches[1]);
+//         if (preg_match('/<h2>Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["input"] = trim($matches[1]);
+//         if (preg_match('/<h2>Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["output"] = trim($matches[1]);
+//         if (preg_match('/<h2>Sample Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_in"] = trim($matches[1]);
+//         if (preg_match('/<h2>Sample Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_out"] = trim($matches[1]);
+//         if (preg_match('/<h2>Source<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
+//         if (preg_match('/<h2>Hint<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["hint"] = trim(strip_tags($matches[1]));
+//         if (strpos($content, '') !== false) $ret["special_judge_status"] = 1;
+//         else $ret["special_judge_status"] = 0;
+
+//         $ret = pcrawler_process_info($ret, "uestc", "http://acm.uestc.edu.cn/");
+//         $id = pcrawler_insert_problem($ret, "UESTC", $pid);
+//         return "UESTC $pid has been crawled as $id.<br>";
+//     }
+//     else{
+//         return "No problem called UESTC $pid.<br>";
+//     }
+// }
 
 
 function pcrawler_ural($pid){
@@ -588,45 +721,48 @@ function pcrawler_ural($pid){
     }
 }
 
-function pcrawler_uva_urls() {
+function pcrawler_ural_num() {
     global $db;
-    $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
-    $html = file_get_html($url);
-    $main_a = $html->find("#col3_content_wrapper table a");
-    foreach($main_a as $lone_a) {
-        $l2url = $lone_a->href;
-        $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
-        $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
-        for ($i = 1; $i < sizeof($rows); $i++) {
-            $row = $rows[$i];
-            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
-            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
-            $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
-            $pid = substr($pid, 0, -2);
-            $db->query("select * from vurl where voj='UVA' and vid='$pid'");
-            if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
-            else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
-        }
+
+    $content=file_get_html("http://acm.timus.ru/problemset.aspx?space=1&page=all");
+    $table=$content->find("table",4);
+    // echo $table;
+    $rows=$table->find("tr");
+    for ($j=3;$j<sizeof($rows)-1;$j++) {
+        $i=$rows[$j]->find("td",1)->plaintext;
+        $html=file_get_html("http://acm.timus.ru/problem.aspx?num=$i");
+        $pid=$i;
+        if (preg_match('/All accepted submissions \((\d*)\)/s', $html, $matches)) $acnum = trim($matches[1]);
+        if (preg_match('/All submissions \((\d*)\)/s', $html, $matches)) $totnum = trim($matches[1]);
+        // echo "$pid $acnum $totnum<br>";
+        $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='Ural' and vid='$pid'");
+        $i++;
     }
 
-    $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=2";
-    $html = file_get_html($url);
-    $main_a = $html->find("#col3_content_wrapper table a");
-    foreach($main_a as $lone_a) {
-        $l2url = $lone_a->href;
-        $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
-        $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
-        for ($i = 1; $i < sizeof($rows); $i++) {
-            $row = $rows[$i];
-            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
-            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
-            $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
-            $pid = substr($pid, 0, -2);
-            $db->query("select * from vurl where voj='UVA' and vid='$pid'");
-            if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
-            else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
+    return "Done";
+}
+
+function pcrawler_uva_urls() {
+    global $db;
+    for ($cate = 1; $cate <= 2; ++$cate) {
+        $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=$cate";
+        $html = file_get_html($url);
+        $main_a = $html->find("#col3_content_wrapper table a");
+        foreach($main_a as $lone_a) {
+            $l2url = $lone_a->href;
+            $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
+            $html2 = file_get_html($l2url);
+            $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
+            for ($i = 1; $i < sizeof($rows); $i++) {
+                $row = $rows[$i];
+                $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+                $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+                $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+                $pid = substr($pid, 0, -2);
+                $db->query("select * from vurl where voj='UVA' and vid='$pid'");
+                if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
+                else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
+            }
         }
     }
     return "Updated UVA urls.<br>";
@@ -765,6 +901,50 @@ function pcrawler_uva($pid){
     }
 }
 
+function pcrawler_uva_num() {
+    global $db;
+
+    for ($cate = 1; $cate <= 2; ++$cate) {
+        $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=$cate";
+        $html=file_get_html($url);
+        $main_a=$html->find("#col3_content_wrapper table a");
+        foreach($main_a as $lone_a) {
+            $l2url=$lone_a->href;
+            $l2url="http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
+            $html2=file_get_html($l2url);
+            $rows=$html2->find("#col3_content_wrapper table",0)->find("tr");
+            for ($i=1;$i<sizeof($rows);$i++) {
+                $row=$rows[$i];
+                $pid=html_entity_decode(trim($row->find("td",1)->plaintext));
+                $pid=iconv("utf-8","utf-8//ignore",trim(strstr($pid,'-',true)));
+                $totnum=$row->find("td",2)->innertext;
+                $acnum=$row->find("td",3)->find("div",0)->find("div",1)->innertext;
+                $acnum=substr($acnum,0,-1);
+                //echo $acnum;
+                if ($acnum[0]=='N') $acnum=0;
+                else {
+                    $acnum=intval(doubleval($acnum)/100*intval($totnum)+0.1);
+                }
+
+                $totpnum=$row->find("td",4)->innertext;
+                $acpnum=$row->find("td",5)->find("div",0)->find("div",1)->innertext;
+                $acpnum=substr($acpnum,0,-1);
+                //echo $acnum;
+                if ($acpnum[0]=='N') $acpnum=0;
+                else {
+                    $acpnum=intval(doubleval($acpnum)/100*intval($totpnum)+0.1);
+                }
+
+                // echo "$pid $acnum $totnum<br>";
+                $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', vacpnum='$acpnum', vtotalpnum='$totpnum' where vname='UVA' and vid='$pid'");
+            }
+            // die();
+        }
+    }
+
+    return "Done";
+}
+
 function pcrawler_uvalive($pid){
     global $db;
     $ret = array();
@@ -804,6 +984,251 @@ function pcrawler_uvalive($pid){
     else{
         return "No problem called UVALive $pid.<br>";
     }
+}
+
+function pcrawler_uvalive_num() {
+    global $db;
+
+    $url="http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
+    $html=file_get_html($url);
+    $main_a=$html->find(".maincontent table a");
+    foreach($main_a as $lone_a) {
+        $l2url=$lone_a->href;
+        $l2url="http://livearchive.onlinejudge.org/".htmlspecialchars_decode($l2url);
+        $html2=file_get_html($l2url);
+        $rows=$html2->find(".maincontent table",0)->find("tr");
+        for ($i=1;$i<sizeof($rows);$i++) {
+            $row=$rows[$i];
+            $pid=substr(trim($row->find("td",1)->plaintext),0,4);
+            $totnum=$row->find("td",2)->innertext;
+            $acnum=$row->find("td",3)->find("div",0)->find("div",1)->innertext;
+            $acnum=substr($acnum,0,-1);
+            //echo $acnum;
+            if ($acnum[0]=='N') $acnum=0;
+            else {
+                $acnum=intval(doubleval($acnum)/100*intval($totnum)+0.1);
+            }
+
+            $totpnum=$row->find("td",4)->innertext;
+            $acpnum=$row->find("td",5)->find("div",0)->find("div",1)->innertext;
+            $acpnum=substr($acpnum,0,-1);
+            //echo $acnum;
+            if ($acpnum[0]=='N') $acpnum=0;
+            else {
+                $acpnum=intval(doubleval($acpnum)/100*intval($totpnum)+0.1);
+            }
+
+            // echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', vacpnum='$acpnum', vtotalpnum='$totpnum' where vname='UVALive' and vid='$pid'");
+        }
+        // die();
+    }
+
+    return "Done";
+}
+
+function pcrawler_spoj($pid) {
+    $url="http://www.spoj.com/problems/$pid/";
+    $content=file_get_contents($url);
+    $ret=array();
+    $content=iconv("iso-8859-2","UTF-8//IGNORE",$content);
+    if (stripos($content,"Wrong problem code!")===false) {
+        if (preg_match('/<h1>\d*\. (.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<td>Time limit:<\/td><td>(\d*)s/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
+        $ret["memory_limit"]="0";
+
+        if (preg_match('/<p align="justify">(.*)<hr>.*?<table.*?class="probleminfo"/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+
+        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
+        $ret["special_judge_status"]=0;
+
+        $ret=pcrawler_process_info($ret,"spoj/","http://www.spoj.com/",false);
+        $id=pcrawler_insert_problem($ret,"SPOJ",$pid);
+        return "SPOJ $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called SPOJ $pid.<br>";
+}
+
+function pcrawler_spoj_num() {
+    global $db;
+    $used=array();
+    foreach ( array("tutorial","classical","challenge","partial","riddle") as $typec ) {
+        $i=0;$pd=true;
+        while ($pd) {
+            $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50), false, $timeoutopts);
+            $table=$html->find("table.problems",0);
+            $rows=$table->find("tr");
+            for ($j=1;$j<sizeof($rows);$j++) {
+                $row=$rows[$j];
+                $pid=trim($row->find("td",2)->plaintext);
+                if (isset($used[$pid])) {
+                    $pd=false;
+                    break;
+                }
+                $used[$pid]=true;
+
+                $phtml=file_get_html("http://www.spoj.pl/ranks/$pid/");
+                $ptable=$phtml->find("table.problems",0);
+                $acnum=$ptable->find("tr.lightrow td",2)->plaintext;
+                $totnum=$ptable->find("tr.lightrow td",1)->plaintext;
+                $acpnum=$ptable->find("tr.lightrow td",0)->plaintext;
+
+                $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', vacpnum='$acpnum' where vname='SPOJ' and vid='$pid'");
+            }
+            $i++;
+        }
+    }
+    return "Done";
+}
+
+function pcrawler_zju($pid) {
+    $url="http://acm.zju.edu.cn/onlinejudge/showProblem.do?problemCode=$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    if (stripos($content,"<div id=\"content_title\">Message</div>")===false) {
+        if (preg_match('/<span class="bigProblemTitle">(.*)<\/span>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/Time Limit: <\/font> (\d*) Sec/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
+        if (preg_match('/Memory Limit: <\/font> (\d*) KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<hr>.*<hr>(.*?)<hr>.*<\/table>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/(Source|Contest): <strong>(.*)<\/strong>/sU', $content,$matches)) $ret["source"]=html_entity_decode(trim(strip_tags($matches[2])),ENT_QUOTES);
+        if (preg_match('/Author: <strong>(.*)<\/strong>/sU', $content,$matches)) $ret["author"]=html_entity_decode(trim(strip_tags($matches[1])),ENT_QUOTES);
+
+        if (stripos($content,"<font color=\"blue\">Special Judge</font>",0) !== false) $ret["special_judge_status"]=1;
+        else $ret["special_judge_status"]=0;
+
+        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]="";
+        
+        $ret=pcrawler_process_info($ret,"zju/","http://acm.zju.edu.cn/onlinejudge/",false);
+        $id=pcrawler_insert_problem($ret,"ZJU",$pid);
+        return "ZJU $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called ZJU $pid.<br>";
+}
+
+function pcrawler_zju_num() {
+    global $db;
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i");
+        $table=$html->find("table.list",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid] = true;
+            $acnum=$row->find("td",2)->find("a",0)->innertext;
+            $totnum=$row->find("td",2)->find("a",1)->innertext;
+            //echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='ZJU' and vid='$pid'");
+        }
+        $i++;
+    }
+    return "Done";
+}
+
+function pcrawler_nbut($pid) {
+    $url="http://ac.nbutoj.com/Problem/view.xhtml?id=$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    if (stripos($content,"<h3>[] </h3>")===false) {
+        if (preg_match('/<li id="title"><h3>\[.*\] (.*)<\/h3>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<li id="limit">.*时间限制: (\d*) ms/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<li id="limit">.*内存限制: (\d*) K/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<li class="contents" id="description">(.*?)<\/li>.*<li class="titles" id="input-title">/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<li class="contents" id="input">(.*?)<\/li>.*<li class="titles" id="output-title">/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<li class="contents" id="output">(.*?)<\/li>.*<li class="titles" id="sampleinput-title">/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<li class="contents" id="sampleinput">.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<li class="contents" id="sampleoutput">.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<li class="contents" id="hint">.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if ($ret["hint"] == "无") $ret["hint"]="";
+        if (preg_match('/<li class="contents" id="source">.*<pre>(.*)<\/pre>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+        if ($ret["source"] == "本站或者转载") $ret["source"]="";
+
+        $ret["special_judge_status"]=0;
+        
+        $ret=pcrawler_process_info($ret,"nbut/","http://ac.nbutoj.com/Problem/",false);
+        $id=pcrawler_insert_problem($ret,"NBUT",$pid);
+        return "NBUT $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called NBUT $pid.<br>";
+}
+
+function pcrawler_nbut_num() {
+    global $db;
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://cdn.ac.nbutoj.com/Problem.xhtml?page=$i");
+        //echo $html;
+        $table=$html->find("table tbody",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[0]->find("td",1)->plaintext])) break;
+        for ($j=0;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=$row->find("td",1)->plaintext;
+            $got[$pid] = true;
+            $tstr=$row->find("td",3)->plaintext;
+            $acnum=trim(strstr($tstr,'/',true));
+            $totnum=trim(substr(strstr(strstr($tstr,'(',true),'/'),1));
+    //        echo "$pid $acnum $totnum<br>";die();
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='NBUT' and vid='$pid'");
+        }
+        $i++;
+    }
+    return "Done";
+}
+
+function pcrawler_whu($pid) {
+    $url="http://acm.whu.edu.cn/land/problem/detail?problem_id=$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    if (stripos($content,"<div id=\"tt\">Ooooops!</div>")===false) {
+        if (preg_match('/<div id="tt">.*- (.*)? <\/div>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<strong>Time Limit<\/strong>: ([0-9]*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<strong>Memory Limit<\/strong>: ([0-9]*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<div class="ptt">Description<\/div>(.*)<div class="ptt">Input<\/div>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Input<\/div>(.*)<div class="ptt">Output<\/div>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Output<\/div>(.*)<div class="ptt">Sample Input<\/div>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Sample Input<\/div>(.*)<div class="ptt">Sample Output<\/div>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Sample Output<\/div>(.*)<div class="ptt">Hint<\/div>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Hint<\/div>(.*)<div class="ptt">Source<\/div>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<div class="ptt">Source<\/div>(.*)<br \/>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+
+        if (stripos($content,"<strong>Special Judge</strong>: Yes",0) !== false) $ret["special_judge_status"]=1;
+        else $ret["special_judge_status"]=0;
+        
+        $ret=pcrawler_process_info($ret,"whu/","http://acm.whu.edu.cn/land/problem/",false);
+        $id=pcrawler_insert_problem($ret,"WHU",$pid);
+        return "WHU $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called WHU $pid.<br>";
+}
+
+function pcrawler_whu_num() {
+    global $db;
+    $i=1;
+    while (true) {
+        $html=file_get_contents("http://acm.whu.edu.cn/land/problem/list?volume=$i");
+        $chr="problem_data = ";
+        $pos1=stripos($html,$chr)+strlen($chr);
+        $pos2=stripos($html,"var is_admin",$pos1);
+        $html=substr(trim(substr($html,$pos1,$pos2-$pos1)),0,-1);
+        //echo $html;die();
+        $html=json_decode($html);
+        if (sizeof($html) < 1) break;
+        foreach ($html as $row) {
+            $pid=$row->problem_id;
+            $acnum=$row->accepted;
+            $totnum=$row->submitted;
+            //echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='WHU' and vid='$pid'");
+        }
+        $i++;
+    }
+    return "Done";
 }
 
 ?>
