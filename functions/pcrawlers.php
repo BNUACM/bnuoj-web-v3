@@ -872,11 +872,10 @@ function pcrawler_uva($pid){
         $pdflink = $matches[1];
 
         if ($purl != "")  {
-            $content = file_get_contents("https://icpcarchive.ecs.baylor.edu/".$purl);
+            $content = file_get_contents("http://uva.onlinejudge.org/".$purl);
         } else {
             $content = "";
         }
-        $content = file_get_contents("http://uva.onlinejudge.org/".$purl);
         $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
         $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
         $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
@@ -1047,11 +1046,13 @@ function pcrawler_spoj($pid) {
 function pcrawler_spoj_num() {
     global $db;
     $used=array();
-    foreach ( array("tutorial","classical","challenge","partial","riddle") as $typec ) {
+    foreach ( array("tutorial","classical") as $typec ) {
         $i=0;$pd=true;
         while ($pd) {
             $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50));
+            if ($html == null) break;
             $table=$html->find("table.problems",0);
+            if ($table == null) break;
             $rows=$table->find("tr");
             for ($j=1;$j<sizeof($rows);$j++) {
                 $row=$rows[$j];
@@ -1065,6 +1066,7 @@ function pcrawler_spoj_num() {
                 $phtml=file_get_html("http://www.spoj.pl/ranks/$pid/");
                 if ($phtml == null) continue;
                 $ptable=$phtml->find("table.problems",0);
+                if ($ptable == null) break;
                 $acnum=$ptable->find("tr.lightrow td",2)->plaintext;
                 $totnum=$ptable->find("tr.lightrow td",1)->plaintext;
                 $acpnum=$ptable->find("tr.lightrow td",0)->plaintext;

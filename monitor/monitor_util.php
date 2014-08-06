@@ -11,7 +11,7 @@ $timeoutopts = stream_context_create(array('http' =>
 ));
 
 function monitor_insert_url($oj,$id,$url) {
-   global $config;
+    global $db;
     $db->query("select * from vurl where voj='$oj' and vid='$id'");
     if ($db->num_rows) $db->query("update vurl set url='".$db->escape($url)."' where voj='$oj' and vid='$id'");
     else $db->query("insert into vurl set url='".$db->escape($url)."', voj='$oj', vid='$id'");
@@ -32,6 +32,7 @@ function monitor_uva() {
                 $row=$rows[$i];
                 $pid=html_entity_decode(trim($row->find("td",1)->plaintext));
                 $pid=iconv("utf-8","utf-8//ignore",trim(strstr($pid,'-',true)));
+                $pid = substr($pid, 0, -2);
                 $url="http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td",1)->find("a",0)->href);
                 monitor_insert_url("UVA",$pid,$url);
                 if (trim($pid) == "" || problem_get_id_from_virtual("UVA",$pid)) continue;
@@ -41,6 +42,7 @@ function monitor_uva() {
         }
     }
     pcrawler_uva_num();
+    pcrawler_uva_sources();
 }
 
 function monitor_uvalive() {
@@ -66,16 +68,19 @@ function monitor_uvalive() {
         }
     }
     pcrawler_uvalive_num();
+    pcrawler_uvalive_sources();
 }
 
 function monitor_spoj() {
     global $timeoutopts;
     $used=array();
-    foreach ( array("tutorial","classical","challenge","partial","riddle") as $typec ) {
+    foreach ( array("tutorial","classical") as $typec ) {
         $i=0;$pd=true;
         while ($pd) {
             $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50), false, $timeoutopts);
+            if ($html == null) break;
             $table=$html->find("table.problems",0);
+            if ($table == null) break;
             $rows=$table->find("tr");
             for ($j=1;$j<sizeof($rows);$j++) {
                 $row=$rows[$j];
@@ -119,7 +124,7 @@ function monitor_ural() {
     $html=file_get_html("http://acm.timus.ru/problemset.aspx?space=1&page=all", false, $timeoutopts);
     $table=$html->find("table.problemset",0);
     $rows=$table->find("tr");
-    for ($j=2;$j<sizeof($rows)-1;$j++) {
+    for ($j=2;$j<sizeof($rows)-2;$j++) {
         $row=$rows[$j];
         $pid=trim($row->find("td",1)->plaintext);
         if (trim($pid) == "" || problem_get_id_from_virtual("Ural",$pid)) continue;
@@ -417,8 +422,6 @@ function monitor_hust() {
 
 function monitor_uestc() {
 }
-
-// monitor_spoj();
 
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 
