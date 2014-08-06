@@ -103,7 +103,7 @@ function check_lightoj() {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEJAR, "lightoj.cookie");
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_check.cookie");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($ojuser)."&mypassword=".urlencode($ojpass)."&Submit=Login");
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120); 
@@ -113,9 +113,10 @@ function check_lightoj() {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/volume_submissions.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEFILE, "lightoj.cookie");
+    curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_check.cookie");
     $content = curl_exec($ch);
-    curl_close($ch); 
+    curl_close($ch);
+    unlink("/tmp/lightoj_check.cookie");
 
     $html=str_get_html($content);
     if ($html==null||$html->find("table",2)==null) return "Down: cannot connect.";

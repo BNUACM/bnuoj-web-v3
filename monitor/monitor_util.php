@@ -34,14 +34,42 @@ function monitor_uva() {
                 $pid=iconv("utf-8","utf-8//ignore",trim(strstr($pid,'-',true)));
                 $url="http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td",1)->find("a",0)->href);
                 monitor_insert_url("UVA",$pid,$url);
-                if (problem_get_id_from_virtual("UVA",$pid)) continue;
+                if (trim($pid) == "" || problem_get_id_from_virtual("UVA",$pid)) continue;
+                echo "UVA $pid\n";
                 pcrawler_uva($pid);
             }
         }
     }
+    pcrawler_uva_num();
+}
+
+function monitor_uvalive() {
+    global $timeoutopts;
+    $url="http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
+    $html=file_get_html($url, false, $timeoutopts);
+    $main_a=$html->find(".maincontent table a");
+    foreach($main_a as $lone_a) {
+        $l2url=$lone_a->href;
+        $l2url="http://livearchive.onlinejudge.org/".htmlspecialchars_decode($l2url);
+        $html2=file_get_html($l2url);
+        $rows=$html2->find(".maincontent table",0)->find("tr");
+        for ($i=1;$i<sizeof($rows);$i++) {
+            $row=$rows[$i];
+            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+            $pid = substr($pid, 0, -2);
+            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+            monitor_insert_url("UVALive",$pid,$url);
+            if (trim($pid) == "" || problem_get_id_from_virtual("UVALive",$pid)) continue;
+            echo "UVALive $pid\n";
+            pcrawler_uvalive($pid);
+        }
+    }
+    pcrawler_uvalive_num();
 }
 
 function monitor_spoj() {
+    global $timeoutopts;
     $used=array();
     foreach ( array("tutorial","classical","challenge","partial","riddle") as $typec ) {
         $i=0;$pd=true;
@@ -52,17 +80,19 @@ function monitor_spoj() {
             for ($j=1;$j<sizeof($rows);$j++) {
                 $row=$rows[$j];
                 $pid=trim($row->find("td",2)->plaintext);
-                if ($used[$pid]) {
+                if (isset($used[$pid])) {
                     $pd=false;
                     break;
                 }
                 $used[$pid]=true;
-                if (problem_get_id_from_virtual("SPOJ",$pid)) continue;
+                if (trim($pid) == "" || problem_get_id_from_virtual("SPOJ",$pid)) continue;
+                echo "SPOJ $pid\n";
                 pcrawler_spoj($pid);
             }
             $i++;
         }
     }
+    pcrawler_spoj_num();
 }
 
 function monitor_hdu() {
@@ -76,7 +106,8 @@ function monitor_hdu() {
         foreach ($txt as $one) {
             $det=explode(",",$one);
             $pid=$det[1];
-            if (problem_get_id_from_virtual("HDU",$pid)) continue;
+            if (trim($pid) == "" || problem_get_id_from_virtual("HDU",$pid)) continue;
+            echo "HDU $pid\n";
             pcrawler_hdu($pid);
         }
         $i++;
@@ -91,30 +122,311 @@ function monitor_ural() {
     for ($j=2;$j<sizeof($rows)-1;$j++) {
         $row=$rows[$j];
         $pid=trim($row->find("td",1)->plaintext);
-        if (problem_get_id_from_virtual("Ural",$pid)) continue;
+        if (trim($pid) == "" || problem_get_id_from_virtual("Ural",$pid)) continue;
+        echo "Ural $pid\n";
+        pcrawler_ural($pid);
     }
     $i++;
-
+    pcrawler_ural_num();
 }
 
+function monitor_pku() {
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://poj.org/problemlist?volume=$i");
+        $table=$html->find("table",4);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
 
-// echo check_pku();
-// echo check_hdu();
-// echo check_uvalive();
-// echo check_cf();
-// echo check_sgu();
-// echo check_lightoj();
-// echo check_ural();
-// echo check_zju();
-// echo check_uva();
-// echo check_spoj();
-// echo check_uestc();
-// echo check_fzu();
-// echo check_nbut();
-// echo check_whu();
-// echo check_sysu();
-// echo check_openjudge();
-// echo check_scu();
-// echo check_hust();
+            if (trim($pid) == "" || problem_get_id_from_virtual("PKU",$pid)) continue;
+            echo "PKU $pid\n";
+            pcrawler_pku($pid);
+        }
+        $i++;
+    }
+    pcrawler_pku_num();
+}
+
+function monitor_codeforces() {
+    $i=1;$one=0;
+    while (true) {
+        if ($one) break;
+        $html=file_get_html("http://www.codeforces.com/problemset/page/$i");
+        $table=$html->find("table.problems",0);
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=trim($row->find("td",0)->find("a",0)->innertext);
+            if ($pid=='1A') $one++;
+            if (preg_match("/(\d*)/",$pid,$matches)) $cid=trim($matches[1]);
+            if ($cid == "" || problem_get_id_from_virtual("CodeForces",$cid."A")) continue;
+            echo "CodeForces $cid\n";
+            pcrawler_codeforces($cid);
+            // echo $cid;
+        }
+        $i++;
+    }
+    pcrawler_codeforces_num();
+}
+
+function monitor_sgu() {
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.sgu.ru/problemset.php?contest=0&volume=$i");
+        $table=$html->find("table",11);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<3) break;
+        for ($j=1;$j<sizeof($rows)-1;$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("SGU",$pid)) continue;
+            echo "SGU $pid\n";
+            pcrawler_sgu($pid);
+        }
+        $i++;
+    }
+    pcrawler_sgu_num();
+}
+
+function monitor_lightoj(){
+
+    global $config;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_monitor.cookie");
+    curl_setopt($ch, CURLOPT_POST, 1); 
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
+    $content = curl_exec($ch);
+    curl_close($ch); 
+
+    $i=10;
+    while (true) {
+        $url="http://www.lightoj.com/volume_problemset.php?volume=$i";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_monitor.cookie");
+        $content = curl_exec($ch); 
+        curl_close($ch); 
+        if (stripos($content, "<h1>Volume List") !== false) break;
+        $html=str_get_html($content);
+        $table=$html->find("table",1);
+        if ($table == null) break;
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            $pid=trim($row->find("td",1)->plaintext);
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("LightOJ",$pid)) continue;
+            echo "LightOJ $pid\n";
+            pcrawler_lightoj($pid);
+        }
+        $i++;
+    }
+
+    unlink("/tmp/lightoj_monitor.cookie");
+    pcrawler_lightoj_num();
+}
+
+function monitor_zju() {
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i");
+        $table=$html->find("table.list",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("ZJU",$pid)) continue;
+            echo "ZJU $pid\n";
+            pcrawler_zju($pid);
+        }
+        $i++;
+    }
+    pcrawler_zju_num();
+}
+
+function monitor_fzu() {
+
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.fzu.edu.cn/list.php?vol=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",1)->plaintext;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("FZU",$pid)) continue;
+            echo "FZU $pid\n";
+            pcrawler_fzu($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_fzu_num();
+}
+
+function monitor_nbut() {
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://cdn.ac.nbutoj.com/Problem.xhtml?page=$i");
+        //echo $html;
+        $table=$html->find("table tbody",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[0]->find("td",1)->plaintext])) break;
+        for ($j=0;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=$row->find("td",1)->plaintext;
+            $got[$pid] = true;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("NBUT",$pid)) continue;
+            echo "NBUT $pid\n";
+            pcrawler_nbut($pid);
+        }
+        $i++;
+    }
+    pcrawler_nbut_num();
+}
+
+function monitor_whu() {
+    $i=1;
+    while (true) {
+        $html=file_get_contents("http://acm.whu.edu.cn/land/problem/list?volume=$i");
+        $chr="problem_data = ";
+        $pos1=stripos($html,$chr)+strlen($chr);
+        $pos2=stripos($html,"var is_admin",$pos1);
+        $html=substr(trim(substr($html,$pos1,$pos2-$pos1)),0,-1);
+        //echo $html;die();
+        $html=json_decode($html);
+        if (sizeof($html) < 1) break;
+        foreach ($html as $row) {
+            $pid=$row->problem_id;
+            if (trim($pid) == "" || problem_get_id_from_virtual("WHU",$pid)) continue;
+            echo "WHU $pid\n";
+            pcrawler_whu($pid);
+        }
+        $i++;
+    }
+    pcrawler_whu_num();
+}
+
+function monitor_sysu() {
+
+    $html=file_get_html("http://soj.me/problem_tab.php?start=1000&end=999999");
+    $table=$html->find("table",0);
+    $rows=$table->find("tr");
+    for ($j=1;$j<sizeof($rows);$j++) {
+        $row=$rows[$j];
+        //echo htmlspecialchars($row);
+        $pid=$row->find("td",1)->plaintext;
+
+        if (trim($pid) == "" || problem_get_id_from_virtual("SYSU",$pid)) continue;
+        echo "SYSU $pid\n";
+        pcrawler_sysu($pid);
+    }
+
+    pcrawler_sysu_num();
+}
+
+function monitor_openjudge() {
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://poj.openjudge.cn/practice/?page=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid]=true;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("OpenJudge",$pid)) continue;
+            echo "OpenJudge $pid\n";
+            pcrawler_openjudge($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_openjudge_num();
+}
+
+function monitor_scu() {
+    $i=0;
+    while (true) {
+        $html=file_get_html("http://cstest.scu.edu.cn/soj/problems.action?volume=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<4) break;
+        for ($j=3;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",1)->plaintext;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("SCU",$pid)) continue;
+            echo "SCU $pid\n";
+            pcrawler_scu($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_scu_num();
+}
+
+function monitor_hust() {
+    global $db;
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.hust.edu.cn/problem/list/$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid]=true;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("HUST",$pid)) continue;
+            echo "HUST $pid\n";
+            pcrawler_hust($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_hust_num();
+}
+
+function monitor_uestc() {
+}
+
+// monitor_spoj();
+
+$ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
+
+foreach ($ojs as $one) {
+    $name="monitor_".strtolower($one[0]);
+    $name();
+}
+
+// echo monitor_uestc();
 
 ?>

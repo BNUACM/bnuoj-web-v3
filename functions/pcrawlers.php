@@ -565,7 +565,7 @@ function pcrawler_lightoj($pid){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj.cookie");
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_crawl.cookie");
     curl_setopt($ch, CURLOPT_POST, 1); 
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
     $content = curl_exec($ch);
@@ -576,7 +576,7 @@ function pcrawler_lightoj($pid){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj.cookie");
+    curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_crawl.cookie");
     $content = curl_exec($ch); 
     curl_close($ch); 
 
@@ -597,14 +597,14 @@ function pcrawler_lightoj($pid){
         if (preg_match('/<div id="problem_setter">.*Problem Setter:(.*)<\/div>/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
         $ret["special_judge_status"] = 0;
 
-        $ret = pcrawler_process_info($ret, "lightoj/$pid", "http://www.lightoj.com/",true,"/tmp/lightoj.cookie");
+        $ret = pcrawler_process_info($ret, "lightoj/$pid", "http://www.lightoj.com/",true,"/tmp/lightoj_crawl.cookie");
         $id = pcrawler_insert_problem($ret, "LightOJ", $pid);
         return "LightOJ $pid has been crawled as $id.<br>";
     }
     else{
         return "No problem called LightOJ $pid.<br>";
     }
-    unlink("/tmp/lightoj.cookie");
+    unlink("/tmp/lightoj_crawl.cookie");
 }
 
 function pcrawler_lightoj_num(){
@@ -613,20 +613,11 @@ function pcrawler_lightoj_num(){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj.cookie");
+    curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_num.cookie");
     curl_setopt($ch, CURLOPT_POST, 1); 
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
     $content = curl_exec($ch);
-    curl_close($ch); 
-
-    $url = "http://www.lightoj.com/volume_showproblem.php?problem=$pid";
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj.cookie");
-    $content = curl_exec($ch); 
-    curl_close($ch); 
+    curl_close($ch);
 
     $i=10;
     while (true) {
@@ -634,12 +625,13 @@ function pcrawler_lightoj_num(){
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj.cookie");
+        curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_num.cookie");
         $content = curl_exec($ch); 
         curl_close($ch); 
         if (stripos($content, "<h1>Volume List") !== false) break;
         $html=str_get_html($content);
         $table=$html->find("table",1);
+        if ($table == null) break;
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
             $row=$rows[$j];
@@ -658,7 +650,7 @@ function pcrawler_lightoj_num(){
         $i++;
     }
 
-    unlink("/tmp/lightoj.cookie");
+    unlink("/tmp/lightoj_num.cookie");
     return "Done";
 }
 
@@ -757,8 +749,8 @@ function pcrawler_uva_urls() {
                 $row = $rows[$i];
                 $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
                 $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
-                $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
                 $pid = substr($pid, 0, -2);
+                $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
                 $db->query("select * from vurl where voj='UVA' and vid='$pid'");
                 if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
                 else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
@@ -782,8 +774,8 @@ function pcrawler_uvalive_urls() {
             $row = $rows[$i];
             $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
             $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
-            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
             $pid = substr($pid, 0, -2);
+            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
             $db->query("select * from vurl where voj='UVALive' and vid='$pid'");
             if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVALive' and vid='$pid'");
             else $db->query("insert into vurl set voj='UVALive', vid='$pid', url='$url'");
@@ -915,8 +907,9 @@ function pcrawler_uva_num() {
             $rows=$html2->find("#col3_content_wrapper table",0)->find("tr");
             for ($i=1;$i<sizeof($rows);$i++) {
                 $row=$rows[$i];
-                $pid=html_entity_decode(trim($row->find("td",1)->plaintext));
-                $pid=iconv("utf-8","utf-8//ignore",trim(strstr($pid,'-',true)));
+                $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+                $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+                $pid = substr($pid, 0, -2);
                 $totnum=$row->find("td",2)->innertext;
                 $acnum=$row->find("td",3)->find("div",0)->find("div",1)->innertext;
                 $acnum=substr($acnum,0,-1);
@@ -999,7 +992,9 @@ function pcrawler_uvalive_num() {
         $rows=$html2->find(".maincontent table",0)->find("tr");
         for ($i=1;$i<sizeof($rows);$i++) {
             $row=$rows[$i];
-            $pid=substr(trim($row->find("td",1)->plaintext),0,4);
+            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
+            $pid = substr($pid, 0, -2);
             $totnum=$row->find("td",2)->innertext;
             $acnum=$row->find("td",3)->find("div",0)->find("div",1)->innertext;
             $acnum=substr($acnum,0,-1);
@@ -1055,7 +1050,7 @@ function pcrawler_spoj_num() {
     foreach ( array("tutorial","classical","challenge","partial","riddle") as $typec ) {
         $i=0;$pd=true;
         while ($pd) {
-            $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50), false, $timeoutopts);
+            $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50));
             $table=$html->find("table.problems",0);
             $rows=$table->find("tr");
             for ($j=1;$j<sizeof($rows);$j++) {
@@ -1068,6 +1063,7 @@ function pcrawler_spoj_num() {
                 $used[$pid]=true;
 
                 $phtml=file_get_html("http://www.spoj.pl/ranks/$pid/");
+                if ($phtml == null) continue;
                 $ptable=$phtml->find("table.problems",0);
                 $acnum=$ptable->find("tr.lightrow td",2)->plaintext;
                 $totnum=$ptable->find("tr.lightrow td",1)->plaintext;
