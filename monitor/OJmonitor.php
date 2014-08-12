@@ -337,6 +337,23 @@ function check_hust() {
     }
 }
 
+function check_njupt() {
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.njupt.edu.cn/acmhome/showstatus.do", false, $timeoutopts);
+    if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
+    else {
+        $num=0;
+        $res=$html->find("table",0)->find("tr");
+        foreach ($res as $row) {
+            $result=$row->find("td",2)->plaintext;
+            // echo $result;
+            if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
+        }
+        if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
+        return "Normal";
+    }
+}
+
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 
 foreach ($ojs as $one) {

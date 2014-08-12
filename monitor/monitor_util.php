@@ -97,7 +97,7 @@ function monitor_spoj() {
             $i++;
         }
     }
-    pcrawler_spoj_num();
+    // pcrawler_spoj_num();
 }
 
 function monitor_hdu() {
@@ -396,7 +396,6 @@ function monitor_scu() {
 }
 
 function monitor_hust() {
-    global $db;
     $got=array();
     $i=1;
     while (true) {
@@ -418,6 +417,28 @@ function monitor_hust() {
     }
 
     pcrawler_hust_num();
+}
+
+function monitor_njupt() {
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i");
+        $table=$html->find("table",1);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            
+            if (trim($pid) == "" || problem_get_id_from_virtual("NJUPT",$pid)) continue;
+            echo "NJUPT $pid\n";
+            pcrawler_njupt($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_njupt();
 }
 
 function monitor_uestc() {

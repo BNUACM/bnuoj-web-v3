@@ -1229,4 +1229,54 @@ function pcrawler_whu_num() {
     return "Done";
 }
 
+function pcrawler_njupt($pid) {
+    $url="http://acm.njupt.edu.cn/acmhome/problemdetail.do?&method=showdetail&id=$pid";
+    $content=file_get_contents($url);
+    $content=iconv("gbk","UTF-8//IGNORE",$content);
+    $ret=array();
+    if (stripos($content,"doesn't exit or has been deleted.</LI></UL></font>")===false) {
+        if (preg_match('/<h2 style="text-align:center;">(.*)<\/h2>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<div align="center">.*时间限制.*(\d*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<div align="center">.*运行内存限制.*(\d*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<b class="MyB1">描述<\/b><\/p>(.*)<p align="left"><b class="MyB1">输入/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">输入<\/b><\/p>(.*)<p align="left"><b class="MyB1">输出/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">输出<\/b><\/p>(.*)<p align="left"><b class="MyB1">样例输入/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">样例输入<\/b><\/p>(.*)<p align="left"><b class="MyB1">样例输出/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">样例输出<\/b><\/p>(.*)<p align="left"><b class="MyB1">提示/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">提示<\/b><\/p>(.*)<p align="left"><b class="MyB1">题目来源/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<b class="MyB1">题目来源<\/b><\/p>(.*)<\/div>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+
+        $ret["special_judge_status"]=0;
+        
+        $ret=pcrawler_process_info($ret,"njupt/","http://acm.njupt.edu.cn/acmhome/",false);
+        $id=pcrawler_insert_problem($ret,"NJUPT",$pid);
+        return "NJUPT $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called NJUPT $pid.<br>";
+}
+
+function pcrawler_njupt_num() {
+    global $db;
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i");
+        $table=$html->find("table",1);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $acnum=$row->find("td",2)->find("a",0)->plaintext;
+            $totnum=$row->find("td",2)->find("a",1)->plaintext;
+            // echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='NJUPT' and vid='$pid'");
+        }
+        $i++;
+    }
+
+    return "Done";
+}
+
+
 ?>
