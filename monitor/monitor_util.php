@@ -438,7 +438,51 @@ function monitor_njupt() {
         $i++;
     }
 
-    pcrawler_njupt();
+    pcrawler_njupt_num();
+}
+
+function monitor_aizu() {
+    for ($i=0; $i<=100; ++$i) {
+        $html=file_get_html("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            preg_match('/<td class="text-left">#(\d*)<.*<!--<td>(\d*)\/(\d*)<.*> x (\d*)<\/a>/sU', $row,$matches);
+            $pid=$matches[1];
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("Aizu",$pid)) continue;
+            echo "Aizu $pid\n";
+            pcrawler_aizu($pid);
+        }
+    }
+
+    pcrawler_aizu_num();
+}
+
+function monitor_acdream() {
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acdream.info/problemset?page=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid] = true;
+            
+            if (trim($pid) == "" || problem_get_id_from_virtual("ACdream",$pid)) continue;
+            echo "ACdream $pid\n";
+            pcrawler_acdream($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_acdream_num();
 }
 
 function monitor_uestc() {
@@ -448,6 +492,10 @@ $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_
 
 foreach ($ojs as $one) {
     $name="monitor_".strtolower($one[0]);
+    echo $name."\n";
+    flush();
+    ob_flush();
+    ob_implicit_flush();
     $name();
 }
 

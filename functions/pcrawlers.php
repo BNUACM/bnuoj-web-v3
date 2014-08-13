@@ -1234,7 +1234,8 @@ function pcrawler_njupt($pid) {
     $content=file_get_contents($url);
     $content=iconv("gbk","UTF-8//IGNORE",$content);
     $ret=array();
-    if (stripos($content,"doesn't exit or has been deleted.</LI></UL></font>")===false) {
+    if (stripos($content,"doesn't exit or has been deleted.</LI></UL></font>")===false &&
+        stripos($content,"<strong>500</strong> <span class=\"style1\">System Error.Please Wait...</span>")===false) {
         if (preg_match('/<h2 style="text-align:center;">(.*)<\/h2>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match('/<div align="center">.*时间限制.*(\d*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
         if (preg_match('/<div align="center">.*运行内存限制.*(\d*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
@@ -1278,5 +1279,99 @@ function pcrawler_njupt_num() {
     return "Done";
 }
 
+function pcrawler_aizu($pid) {
+    $url="http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=$pid";
+    $content=file_get_contents($url);
+    $content=iconv("SHIFT_JIS","UTF-8//IGNORE",$content);
+    $ret=array();
+    if (stripos($content,"<h1 class=\"title\">")!==false) {
+        if (preg_match('/<h1 class="title">(.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/Time Limit : (\d*) sec/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
+        if (preg_match('/Memory Limit : (\d*) KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<div class="description">(.*)<hr>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        $ret["description"] = str_replace("./IMAGE/varmath.js", "js/varmath.js", $ret["description"]);
+        if (preg_match('/<div class="subinfo">.*<div class="dat">(.*)<\/div>/sU', $content,$matches)) $ret["source"]=html_entity_decode(trim(strip_tags($matches[1])),ENT_QUOTES);
+
+        $ret["special_judge_status"]=0;
+        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]="";
+        
+        $ret=pcrawler_process_info($ret,"aizu/","http://judge.u-aizu.ac.jp/onlinejudge/",false);
+        $id=pcrawler_insert_problem($ret,"Aizu",$pid);
+        return "Aizu $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called Aizu $pid.<br>";
+}
+
+function pcrawler_aizu_num() {
+    global $db;
+    for ($i=0; $i<=100; ++$i) {
+        $html=file_get_html("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            // echo htmlspecialchars($row);
+            preg_match('/<td class="text-left">#(\d*)<.*<!--<td>(\d*)\/(\d*)<.*> x (\d*)<\/a>/sU', $row,$matches);
+            $pid=$matches[1];
+            $acnum=$matches[2];
+            $totnum=$matches[3];
+            $acpnum=$matches[4];
+            // echo "$pid $acnum $totnum $acpnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', acpnum='$acpnum' where vname='Aizu' and vid='$pid'");
+        }
+    }
+
+    return "Done";
+}
+
+function pcrawler_acdream($pid) {
+    $url="http://acdream.info/problem?pid=$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    if (stripos($content,"<h1 align=\"center\">The Problem is not Available!!</h1>")===false) {
+        if (preg_match('/<h3 class="problem-header">(.*)<\/h3>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/Time Limit:&nbsp;.*\/(\d*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
+        if (preg_match('/Memory Limit:&nbsp;.*\/(\d*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<h4>Problem Description<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<h4>Input<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<h4>Output<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<h4>Sample Input<\/h4><div class="accordion-inner"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<h4>Sample Output<\/h4><div class="accordion-inner"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<h4>Hint<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<h4>Source<\/h4><div class="accordion-inner">(.*)<\/div>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+
+        if (stripos($content,"class=\"user user-red\">Special Judge</span>",0) !== false) $ret["special_judge_status"]=1;
+        else $ret["special_judge_status"]=0;
+        
+        $ret=pcrawler_process_info($ret,"acdream/","http://acdream.info/",false);
+        $id=pcrawler_insert_problem($ret,"ACdream",$pid);
+        return "ACdream $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called ACdream $pid.<br>";
+}
+
+function pcrawler_acdream_num() {
+    global $db;
+    $got=array();
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acdream.info/problemset?page=$i");
+        $table=$html->find("table",0);
+        $rows=$table->find("tr");
+        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",0)->plaintext;
+            $got[$pid] = true;
+            $acnum=$row->find("td",4)->find("a",0)->innertext;
+            $totnum=$row->find("td",4)->find("a",1)->innertext;
+            // echo "$pid $acnum $totnum<br>";
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='ACdream' and vid='$pid'");
+        }
+        $i++;
+    }
+    return "Done";
+}
 
 ?>

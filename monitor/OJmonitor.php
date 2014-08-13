@@ -354,6 +354,41 @@ function check_njupt() {
     }
 }
 
+function check_aizu() {
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://judge.u-aizu.ac.jp/onlinejudge/status.jsp", false, $timeoutopts);
+    if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
+    else {
+        $num=0;
+        $res=$html->find("table",0)->find("tr");
+        foreach ($res as $row) {
+            $result=$row->find("td",3)->plaintext;
+            echo $result;
+            if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
+        }
+        if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
+        return "Normal";
+    }
+}
+
+function check_acdream() {
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acdream.info/status", false, $timeoutopts);
+    if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
+    else {
+        $num=0;
+        $res=$html->find("table",0)->find("tr");
+        foreach ($res as $row) {
+            $result=$row->find("td",3)->plaintext;
+            echo $result;
+            if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
+        }
+        if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
+        return "Normal";
+    }
+}
+
+
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 
 foreach ($ojs as $one) {

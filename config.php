@@ -94,7 +94,9 @@ $ojoptions='<option value="BNU">BNU</option>'.
 '<option value="OpenJudge">OpenJudge</option>'.
 '<option value="SCU">SCU</option>'.
 '<option value="HUST">HUST</option>'.
-'<option value="NJUPT">NJUPT</option>';
+'<option value="NJUPT">NJUPT</option>'.
+'<option value="Aizu">Aizu</option>'.
+'<option value="ACdream">ACdream</option>';
 
 
 ?>
