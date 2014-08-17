@@ -1355,7 +1355,7 @@ function pcrawler_acdream_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acdream.info/problemset?page=$i");
+        $html=file_get_html("http://acdream.info/problem/list?page=$i");
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;

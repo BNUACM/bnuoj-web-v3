@@ -168,7 +168,9 @@ function monitor_codeforces() {
             $pid=trim($row->find("td",0)->find("a",0)->innertext);
             if ($pid=='1A') $one++;
             if (preg_match("/(\d*)/",$pid,$matches)) $cid=trim($matches[1]);
-            if ($cid == "" || problem_get_id_from_virtual("CodeForces",$cid."A")) continue;
+            if ($cid == "" ||
+                in_array($cid, array("177", "178", "207", "316", "331")) || // ABBYY Cup
+                problem_get_id_from_virtual("CodeForces",$cid."A")) continue;
             echo "CodeForces $cid\n";
             pcrawler_codeforces($cid);
             // echo $cid;
@@ -465,7 +467,7 @@ function monitor_acdream() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acdream.info/problemset?page=$i");
+        $html=file_get_html("http://acdream.info/problem/list?page=$i");
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
