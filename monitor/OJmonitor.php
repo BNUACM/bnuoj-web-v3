@@ -363,7 +363,7 @@ function check_aizu() {
         $res=$html->find("table",0)->find("tr");
         foreach ($res as $row) {
             $result=$row->find("td",3)->plaintext;
-            echo $result;
+            // echo $result;
             if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
         }
         if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
@@ -380,7 +380,7 @@ function check_acdream() {
         $res=$html->find("table",0)->find("tr");
         foreach ($res as $row) {
             $result=$row->find("td",3)->plaintext;
-            echo $result;
+            // echo $result;
             if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
         }
         if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
@@ -388,6 +388,22 @@ function check_acdream() {
     }
 }
 
+function check_codechef() {
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://www.codechef.com/submissions", false, $timeoutopts);
+    if ($html==null||$html->find("table",4)==null) return "Down: cannot connect.";
+    else {
+        $num=0;
+        $res=$html->find("table",0)->find("tr");
+        foreach ($res as $row) {
+            $result=$row->find("td",5);
+            // echo $result;
+            if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
+        }
+        if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
+        return "Normal";
+    }
+}
 
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 

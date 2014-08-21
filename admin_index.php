@@ -432,10 +432,6 @@ if ($current_user->is_root()) {
               </form>
             </div>
             <div id="pcrawlertab" class="tab-pane">
-              <button id="uvaurl" class="btn btn-danger syncbutton">Crawl All UVA Urls</button>
-              <button id="uvaliveurl" class="btn btn-danger syncbutton">Crawl All UVALive Urls</button>
-              <button id="uvasource" class="btn btn-danger syncbutton">Crawl All UVA Sources</button>
-              <button id="uvalivesource" class="btn btn-danger syncbutton">Crawl All UVALive Sources</button>
               <h4>Crawl a single problem/contest</h4>
               <form id='pcbasic' method="get" action="ajax/admin_deal_crawl_problem.php?type=0" class="ajform form-inline">
                 <label>

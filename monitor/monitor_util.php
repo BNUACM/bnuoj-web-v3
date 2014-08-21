@@ -487,6 +487,27 @@ function monitor_acdream() {
     pcrawler_acdream_num();
 }
 
+function monitor_codechef() {
+    foreach ( array("easy", "medium", "hard", "challenge", "extcontest", "school") as $typec ) {
+        $html=file_get_html("http://www.codechef.com/problems/$typec/");
+        if ($html == null) break;
+        $table=$html->find("table.problems",0);
+        if ($table == null) break;
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=trim($row->find("td",1)->plaintext);
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("CodeChef",$pid)) continue;
+            echo "CodeChef $pid\n";
+            pcrawler_codechef($pid);
+        }
+    }
+
+    pcrawler_codechef_num();
+    pcrawler_codechef_sources();
+}
+
 function monitor_uestc() {
 }
 

@@ -37,6 +37,7 @@ function process_and_get_image($ori,$path,$baseurl,$space_deli,$cookie) {
                                     $ch = curl_init();
                                     curl_setopt($ch, CURLOPT_URL, $url);
                                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                                     if ($para["cookie"]!="") curl_setopt($ch, CURLOPT_COOKIEFILE, $para["cookie"]);
                                     curl_setopt($ch, CURLOPT_HEADER, 0);
                                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1036,7 +1037,7 @@ function pcrawler_spoj($pid) {
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
         $ret["special_judge_status"]=0;
 
-        $ret=pcrawler_process_info($ret,"spoj/","http://www.spoj.com/",false);
+        $ret=pcrawler_process_info($ret,"spoj","http://www.spoj.com/",false);
         $id=pcrawler_insert_problem($ret,"SPOJ",$pid);
         return "SPOJ $pid has been crawled as $id.<br>";
     }
@@ -1096,7 +1097,7 @@ function pcrawler_zju($pid) {
 
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]="";
         
-        $ret=pcrawler_process_info($ret,"zju/","http://acm.zju.edu.cn/onlinejudge/",false);
+        $ret=pcrawler_process_info($ret,"zju","http://acm.zju.edu.cn/onlinejudge/",false);
         $id=pcrawler_insert_problem($ret,"ZJU",$pid);
         return "ZJU $pid has been crawled as $id.<br>";
     }
@@ -1147,7 +1148,7 @@ function pcrawler_nbut($pid) {
 
         $ret["special_judge_status"]=0;
         
-        $ret=pcrawler_process_info($ret,"nbut/","http://ac.nbutoj.com/Problem/",false);
+        $ret=pcrawler_process_info($ret,"nbut","http://ac.nbutoj.com/Problem/",false);
         $id=pcrawler_insert_problem($ret,"NBUT",$pid);
         return "NBUT $pid has been crawled as $id.<br>";
     }
@@ -1198,7 +1199,7 @@ function pcrawler_whu($pid) {
         if (stripos($content,"<strong>Special Judge</strong>: Yes",0) !== false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
         
-        $ret=pcrawler_process_info($ret,"whu/","http://acm.whu.edu.cn/land/problem/",false);
+        $ret=pcrawler_process_info($ret,"whu","http://acm.whu.edu.cn/land/problem/",false);
         $id=pcrawler_insert_problem($ret,"WHU",$pid);
         return "WHU $pid has been crawled as $id.<br>";
     }
@@ -1249,7 +1250,7 @@ function pcrawler_njupt($pid) {
 
         $ret["special_judge_status"]=0;
         
-        $ret=pcrawler_process_info($ret,"njupt/","http://acm.njupt.edu.cn/acmhome/",false);
+        $ret=pcrawler_process_info($ret,"njupt","http://acm.njupt.edu.cn/acmhome/",false);
         $id=pcrawler_insert_problem($ret,"NJUPT",$pid);
         return "NJUPT $pid has been crawled as $id.<br>";
     }
@@ -1295,7 +1296,7 @@ function pcrawler_aizu($pid) {
         $ret["special_judge_status"]=0;
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]="";
         
-        $ret=pcrawler_process_info($ret,"aizu/","http://judge.u-aizu.ac.jp/onlinejudge/",false);
+        $ret=pcrawler_process_info($ret,"aizu","http://judge.u-aizu.ac.jp/onlinejudge/",false);
         $id=pcrawler_insert_problem($ret,"Aizu",$pid);
         return "Aizu $pid has been crawled as $id.<br>";
     }
@@ -1343,7 +1344,7 @@ function pcrawler_acdream($pid) {
         if (stripos($content,"class=\"user user-red\">Special Judge</span>",0) !== false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
         
-        $ret=pcrawler_process_info($ret,"acdream/","http://acdream.info/",false);
+        $ret=pcrawler_process_info($ret,"acdream","http://acdream.info/",false);
         $id=pcrawler_insert_problem($ret,"ACdream",$pid);
         return "ACdream $pid has been crawled as $id.<br>";
     }
@@ -1372,6 +1373,76 @@ function pcrawler_acdream_num() {
         $i++;
     }
     return "Done";
+}
+
+function pcrawler_codechef($pid) {
+    $url="http://www.codechef.com/problems/$pid";
+    $content=file_get_contents($url);
+    $ret=array();
+    if (stripos($content,"We don't have problems of this category :)</div>")===false) {
+        if (preg_match('/<h1>(.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/Time Limit:<\/td>\s*<td>(.*) sec/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
+        $ret["memory_limit"]="0";
+        if (preg_match('/<div class="meta">.*<div class="content">(.*)<\/div>.*<hr \/>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        $ret["description"] = str_replace("<h3>All submissions for this problem are available.</h3>", "", $ret["description"]);
+
+        $ret["special_judge_status"]=0;
+        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]=$ret["source"]="";
+        
+        $ret=pcrawler_process_info($ret,"codechef","http://www.codechef.com/problems/",false);
+        $id=pcrawler_insert_problem($ret,"CodeChef",$pid);
+        return "CodeChef $pid has been crawled as $id.<br>";
+    }
+    else return "No problem called CodeChef $pid.<br>";
+}
+
+function pcrawler_codechef_num() {
+    global $db;
+    foreach ( array("easy", "medium", "hard", "challenge", "extcontest", "school") as $typec ) {
+        $html=file_get_html("http://www.codechef.com/problems/$typec/");
+        if ($html == null) break;
+        $table=$html->find("table.problems",0);
+        if ($table == null) break;
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=trim($row->find("td",1)->plaintext);
+            $acpnum=trim($row->find("td",2)->plaintext);
+            if ($acpnum != "0") {
+                $totpnum = intval(intval($acpnum) / (doubleval(trim($row->find("td",3)->plaintext)) / 100));
+            } else {
+                $totpnum = 0;
+            }
+            // echo "$pid $acpnum $totpnum<br>";
+            $db->query("update problem set vtotalpnum='$totpnum', vacpnum='$acpnum' where vname='CodeChef' and vid='$pid'");
+        }
+    }
+    return "Done";
+}
+
+function pcrawler_codechef_sources() {
+    global $db;
+    $url = "http://www.codechef.com/contests";
+    $html = file_get_html($url);
+    $main_a = $html->find("table", 3)->find("a");
+    $fir = 4;
+    foreach($main_a as $lone_a) {
+        if ($fir > 0) {
+            $fir--;
+            continue;
+        }
+        $source = $lone_a->plaintext;
+        $l2url = $lone_a->href;
+        $l2url = "https://www.codechef.com".htmlspecialchars_decode($l2url);
+        $html2 = file_get_html($l2url);
+        $rows = $html2->find("tr.problemrow");
+        foreach($rows as $row) {
+            $pid = trim($row->find("td", 1)->plaintext);
+            $sql = "update problem set source='$source' where vid='$pid' and vname='CodeChef'";
+            $db->query($sql);
+        }
+    }
+    return "Updated CodeChef sources.<br>";
 }
 
 ?>

@@ -70,7 +70,7 @@ function adjustlist(flag,name) {
         sel.remove(6);sel.remove(5);
         return;
     }
-    if (name=="SPOJ") {
+    if (name=="SPOJ" || name=="CodeChef") {
         for(var i=14;i>=10;i--) sel.remove(i);
         return;
     }
