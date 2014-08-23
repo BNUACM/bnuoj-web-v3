@@ -53,7 +53,7 @@ function sidebar_item_content_vjstatus() {
                     </tr>
                 </thead>
                 <tbody>\n";
-    $sql="select * from ojinfo where name not like 'BNU'";
+    $sql="select * from ojinfo where name not like 'BNU' order by name";
     foreach ((array)$db->get_results($sql,ARRAY_A) as $row) {
         $statinfo="";
         $stitle="Last Check: ".$row['lastcheck'].", ".$row['status'];
@@ -92,7 +92,7 @@ function sidebar_item_content_vjstatus_index() {
                     </tr>
                 </thead>
                 <tbody>\n";
-    $sql="select * from ojinfo where name not like 'BNU'";
+    $sql="select * from ojinfo where name not like 'BNU' order by name";
     foreach ((array)$db->get_results($sql,ARRAY_A) as $row) {
         $statinfo="";
         $stitle="Last Check: ".$row['lastcheck'].", ".$row['status'];

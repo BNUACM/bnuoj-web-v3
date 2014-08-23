@@ -1445,4 +1445,61 @@ function pcrawler_codechef_sources() {
     return "Updated CodeChef sources.<br>";
 }
 
+function pcrawler_hrbust($pid){
+    $url = "http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblem&problem_id=$pid";
+    $content = file_get_contents($url);
+    $ret = array();
+    
+    if (stripos($content, "<td class=\"problem_mod_title\">") !== false){
+        if (preg_match('/<td class="problem_mod_name">(.*)<\/td>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
+        if (preg_match('/>Time Limit: (\d*) MS</sU', $content, $matches)) $ret["time_limit"] = $ret["case_time_limit"] = intval(trim($matches[1]));
+        if (preg_match('/>Memory Limit: (\d*) K</sU', $content, $matches)) $ret["memory_limit"] = intval(trim($matches[1]));
+        if (preg_match('/<td class="problem_mod_title">Description<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["description"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Input<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["input"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Output<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["output"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Sample Input<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["sample_in"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Sample Output<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["sample_out"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Hint<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["hint"] = trim($matches[1]);
+        if (preg_match('/<td class="problem_mod_title">Source<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
+        if (preg_match('/<td class="problem_mod_title">Author<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["author"] = trim(strip_tags($matches[1]));
+        
+        if (strpos($content, 'Special Judge: <span class="problem_mod_info_sj_yes">Yes</span>') !== false) $ret["special_judge_status"] = 1;
+        else $ret["special_judge_status"] = 0;
+
+        $ret = pcrawler_process_info($ret, "hrbust", "http://acm.hrbust.edu.cn/");
+        $id = pcrawler_insert_problem($ret, "HRBUST", $pid);
+        return "HRBUST $pid has been crawled as $id.<br>";
+    }
+    else{
+        return "No problem called HRBUST $pid.<br>";
+    }
+}
+
+function pcrawler_hrbust_num() {
+    global $db;
+
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i");
+        $table=$html->find("table.ojlist",0);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",1)->plaintext;
+            $acnum=$row->find("td",4)->find("a",0)->innertext;
+            $totnum=$row->find("td",4)->find("a",1)->innertext;
+            $tmp=$row->find("td",5)->plaintext;
+            preg_match('/\((\d*)\/(\d*)/', $tmp, $matches);
+            $acpnum=$matches[1];
+            $totpnum=$matches[2];
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum', vacpnum='$acpnum', vtotalpnum='$totpnum' where vname='HRBUST' and vid='$pid'");
+        }
+        $i++;
+    }
+
+    return "Done";
+}
+
 ?>

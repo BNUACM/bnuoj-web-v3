@@ -508,6 +508,28 @@ function monitor_codechef() {
     pcrawler_codechef_sources();
 }
 
+function monitor_hrbust() {
+    $i=1;
+    while (true) {
+        $html=file_get_html("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i");
+        $table=$html->find("table.ojlist",0);
+        $rows=$table->find("tr");
+        if (sizeof($rows)<2) break;
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            //echo htmlspecialchars($row);
+            $pid=$row->find("td",1)->plaintext;
+
+            if (trim($pid) == "" || problem_get_id_from_virtual("HRBUST",$pid)) continue;
+            echo "HRBUST $pid\n";
+            pcrawler_hrbust($pid);
+        }
+        $i++;
+    }
+
+    pcrawler_hrbust_num();
+}
+
 function monitor_uestc() {
 }
 

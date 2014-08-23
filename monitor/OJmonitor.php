@@ -391,7 +391,7 @@ function check_acdream() {
 function check_codechef() {
     global $maxwaitnum, $timeoutopts;
     $html=file_get_html("http://www.codechef.com/submissions", false, $timeoutopts);
-    if ($html==null||$html->find("table",4)==null) return "Down: cannot connect.";
+    if ($html==null||$html->find("table",0)==null) return "Down: cannot connect.";
     else {
         $num=0;
         $res=$html->find("table",0)->find("tr");
@@ -405,6 +405,24 @@ function check_codechef() {
     }
 }
 
+function check_hrbust() {
+    global $maxwaitnum, $timeoutopts;
+    $html=file_get_html("http://acm.hrbust.edu.cn/index.php?m=Status&a=showStatus", false, $timeoutopts);
+    if ($html==null||$html->find("table.ojlist",0)==null) return "Down: cannot connect.";
+    else {
+        $num=0;
+        $res=$html->find("table.ojlist",0)->find("tr");
+        foreach ($res as $row) {
+            $result=$row->find("td",3);
+            // echo $result;
+            if (stristr($result,"pending")||stristr($result,"waiting")) $num++;
+        }
+        if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
+        return "Normal";
+    }
+}
+
+
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 
 foreach ($ojs as $one) {
@@ -415,22 +433,4 @@ foreach ($ojs as $one) {
 }
 
 
-// echo check_pku();
-// echo check_hdu();
-// echo check_uvalive();
-// echo check_cf();
-// echo check_sgu();
-// echo check_lightoj();
-// echo check_ural();
-// echo check_zju();
-// echo check_uva();
-// echo check_spoj();
-// echo check_uestc();
-// echo check_fzu();
-// echo check_nbut();
-// echo check_whu();
-// echo check_sysu();
-// echo check_openjudge();
-// echo check_scu();
-// echo check_hust();
 ?>

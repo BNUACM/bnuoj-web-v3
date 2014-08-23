@@ -110,6 +110,11 @@ function adjustlist(flag,name) {
         return;
     }
 
+    if (name=="ACdream") {
+        for(var i=14;i>=3;i--) sel.remove(i);
+        return;
+    }
+
     //if (name=="UVALive"||name=="UVA"||name=="OpenJudge"||name=="SCU"||name=="HUST") {
         for(var i=14;i>=4;i--) sel.remove(i);
         return;

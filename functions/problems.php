@@ -62,6 +62,7 @@ class Problem {
         else if ($vname=="Aizu")  $this->info["to_url"]="<a href='http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="ACdream")  $this->info["to_url"]="<a href='http://acdream.info/problem?pid=$vid' target='_blank'>$vid</a>";
         else if ($vname=="CodeChef")  $this->info["to_url"]="<a href='http://www.codechef.com/problems/$vid' target='_blank'>$vid</a>";
+        else if ($vname=="HRBUST")  $this->info["to_url"]="<a href='http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblem&problem_id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="UVALive")  {
             list($url)=$db->get_row("select url from vurl where voj='$vname' and vid='$vid'",ARRAY_N);
             $this->info["to_url"]="<a href='$url' target='_blank'>$vid</a>";
