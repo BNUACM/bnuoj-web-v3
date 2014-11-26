@@ -338,6 +338,7 @@ if ($current_user->is_root()) {
                                 <label class="radio inline"><input type="radio" name="ctype" value="neerc" /> NEERC</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="2011shstatus" /> 2011 Shanghai Status</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="pc2sum" /> PC<sup>2</sup> Summary</label>
+                                <label class="radio inline"><input type="radio" name="ctype" value="pc2run" /> PC<sup>2</sup> Runs</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="fdulocal2012" /> FDU Local 2012</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="uestc" /> UESTC</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="hustvjson" /> HUST VJudge JSON</label>

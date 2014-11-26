@@ -199,6 +199,18 @@ if ($current_user->is_root()) {
         replay_add_contest();
         replay_deal_pc2sum($standtable);
     }
+    else if ($_POST["ctype"]=="pc2run") {
+        $filename="replay_cid_".$mcid.".txt";
+        replay_move_uploaded_file($filename);
+        $str=file_get_contents("../uploadstand/" . $filename);
+        $nprob=strlen($_POST['extrainfo']);
+        if ($nprob!=$pnum) {
+            $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
+            die(json_encode($ret));
+        }
+        replay_add_contest();
+        replay_deal_pc2run($str);
+    }
     else if ($_POST["ctype"]=="fdulocal2012") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
