@@ -11,7 +11,7 @@ function escapeHtml(unsafe) {
 var dishtml;
 function showlist(data,isfirst) {
     dishtml+="<ul"+(isfirst?"":" class='hide'")+">";
-    for (var i = 0; i < data.length; i++) {
+    if(data) for (var i = 0; i < data.length; i++) {
         dishtml+="<li>"+(isfirst?"<button class='btn btn-mini texpand'"+(data[i].child_num!=0?"":" disabled")+"><i class='icon-plus'></i></button><button class='btn btn-mini hide thide'><i class='icon-minus'></i></button>":"")+
                 " <a href='#' class='topicshow' name='"+data[i].id+"'>"+escapeHtml(data[i].title)+"</a> <span style='font-size:smaller'> ("+data[i].content_length+" bytes) </span>"+
                 " <a href='userinfo.php?name="+data[i].uname+"' target='_blank'>"+data[i].uname+"</a> "+data[i].time+ 
