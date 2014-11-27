@@ -387,6 +387,22 @@ function replay_deal_pc2sum($standtable) {
     }
 }
 
+function replay_deal_pc2run($str) {
+    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    $extinfo=array();
+    for ($i=0;$i<$pnum;$i++) $extinfo[strtolower($_POST['extrainfo'][$i])]=$i;
+	preg_match_all("/run [0-9]* .* at ([0-9]+) .*\(.*\) (team[0-9]+) \((.*)\) ([A-Z]).*\'.*\'.*\'(.*)\' by/sU",$str,$matches,PREG_SET_ORDER);
+	foreach($matches as $run){
+		$uname=$run[3]." ".$run[2];
+		$act=date("Y-m-d H:i:s",$sttime+$run[1]*60);
+		$pid=$_POST['pid'.$extinfo[strtolower($run[4])]];
+		$res=$run[5];
+		if (stristr($res,"Yes")) $res="Accepted";
+		else $res="No";
+		insone($pid,$res,$act,$mcid,$uname);
+	}
+}
+
 function replay_deal_fdulocal2012($standtable) {
     global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
