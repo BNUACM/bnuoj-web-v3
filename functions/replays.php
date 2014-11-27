@@ -948,7 +948,7 @@ function replay_crawl_hustv($cid) {
     $res["start_time"]=$sttime;
     $res["end_time"]=$edtime;
     $res["name"]=$title;
-    $res["description"]=$res["repurl"]="http://acm.hust.edu.cn/vjudge/data/standing/$cid.json";
+    $res["description"]=$res["repurl"]="http://acm.hust.edu.cn/vjudge/data/contest_standing/$cid.json";
     $res["ctype"]="hustvjson";
     $res["code"]=0;
     $res["isvirtual"]=1;
