@@ -353,6 +353,7 @@ if ($current_user->is_root()) {
                                 <label class="radio inline"><input type="radio" name="ctype" value="phuket" /> Phuket</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="spacific" /> South Pacific</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="icpcinfostatus" /> ACMICPC info Status</label>
+                                <label class="radio inline"><input type="radio" name="ctype" value="icpccn" /> ACMICPC.cn Board</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="spoj" /> SPOJ</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="openjudge" /> OpenJudge</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="scu" /> SCU</label>

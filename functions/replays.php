@@ -361,6 +361,30 @@ function replay_deal_icpcinfostatus($standtable) {
     }
 }
 
+function replay_deal_icpccn($standtable) {
+    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    $rows=$standtable->find("tr");
+    $unum=sizeof($rows);
+    for ($i=1;$i<$unum-1;$i++) {
+        $crow=$rows[$i]->children();
+        $uname=strip_tags($crow[2]->innertext);
+        if ($uname=="") continue;
+        for ($j=0;$j<$pnum;$j++) {
+            $value=trim($crow[$j+5]->innertext);
+            if ($value=="0/-") continue;
+            if (strstr($value,'-')===false) {
+                $tnum=strstr($value,'/',true);
+                $act=intval(substr(strstr($value,'/'),1));
+                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+            }
+            else {
+                $tnum=strstr($value,'/',true);
+                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+            }
+        }
+    }
+}
+
 function replay_deal_pc2sum($standtable) {
     global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
