@@ -178,5 +178,15 @@ function mkdirs($path, $mode = 0755) { //creates directory tree recursively
     }
 }
 
+function randomstr($l) {
+    $alphabet = "abcdefghijkmnpqrstuwxyzABCDEFGHJKLMNPQRSTUWXYZ23456789";
+    $pass = array(); 
+    $alphaLength = strlen($alphabet) - 1;
+    for ($i = 0; $i < $l; $i++) {
+        $n = rand(0, $alphaLength);
+        $pass[] = $alphabet[$n];
+    }
+    return implode($pass);
+}
 
 ?>

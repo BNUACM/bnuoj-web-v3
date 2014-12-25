@@ -206,23 +206,63 @@ $current_user->set_user($nowuser,$nowpass);
 
 function user_create($infos) {
     global $db,$EZSQL_ERROR;
+	if(!is_array($infos[0])) $infos=array($infos);
     $now = time();
     $today=date("Y-m-d G:i:s",$now);
-    $infos[1] = hash_password($infos[1]);
-    $infos[2] = htmlspecialchars($infos[2]);
-    $infos[3] = htmlspecialchars($infos[3]);
-    $infos[4] = htmlspecialchars($infos[4]);
-    $sql = $db->query("insert into user (username,password,nickname,school,email,register_time) values ('$infos[0]','$infos[1]','$infos[2]','$infos[3]','$infos[4]','$today')");
+	$sql = "insert into user (username,password,nickname,school,email,register_time) values ";
+	$values = array();
+	foreach($infos as $one){
+		$one[1] = hash_password($one[1]);
+		$one[2] = htmlspecialchars($one[2]);
+		$one[3] = htmlspecialchars($one[3]);
+		$one[4] = htmlspecialchars($one[4]);
+		$values[] ="('$one[0]','$one[1]','$one[2]','$one[3]','$one[4]','$today')";
+	}
+	$sql .= implode(",",$values);
+	$db->query($sql);
     if ($EZSQL_ERROR) return false;
     else return true;
 }
 
 function user_exist($username) {
     global $db;
-    $sql="select * from user where username='$username'";
+	if(!is_array($username)) $username=array($username);
+	$sql="select * from user where ";
+	$where = array();
+	foreach($username as $one){
+		$where[]="username='$one'";
+	}
+	$sql.=implode(" OR ",$where);
     $db->query($sql);
     if ($db->num_rows>0) return true;
     return false;
+}
+
+function add_user_to_contest($cid, $username){
+    global $db,$EZSQL_ERROR;
+	if(!is_array($username)) $username=array($username);
+	$sql="insert into contest_user (cid,username) values ";
+	$values = array();
+	foreach($username as $one){
+		$values[] = "('$cid','$one')";
+	}
+	$sql .= implode(",",$values);
+	$db->query($sql);
+    if ($EZSQL_ERROR) return false;
+    else return true;
+}
+
+function reset_password($infos){
+	global $db,$EZSQL_ERROR;
+	if(!is_array($infos[0])) $infos=array($infos);
+	$sql="";
+	foreach($infos as $one){
+		$one[0]=$db->escape($one[0]);
+		$one[1]=hash_password($one[1]);
+		$sql.="update user set password='$one[1]' where username='$one[0]';";
+	}
+    if ($EZSQL_ERROR) return false;
+    else return true;
 }
 
 ?>
