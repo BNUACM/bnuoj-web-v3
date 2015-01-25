@@ -422,4 +422,22 @@ $(document).ready(function() {
     var dest=self.document.location.hash;
     //alert(dest);
     if (dest!="#") $("[href='"+dest+"']","#admintab").click();
+
+    $("#genuser input[name='cid']").keyup(function() {
+        var cid=$(this).val();
+        var $target=$(this).next();
+        var $submit=$(this).parent().parent().find("button");
+        $.get('ajax/admin_get_contest.php?cid='+cid+"&rand="+Math.random(),function(data) {
+            data=eval('('+data+')');
+            if (data.code!=0) {
+                $target.html("No such contest");
+                $submit.attr("disabled","disabled");
+            }
+            else {
+                $target.html("<a href=\"contest_show.php?cid="+data.cid+"\">"+data.title+"</a>");
+                $submit.removeAttr("disabled");
+            }
+        });
+    });
+
 });
