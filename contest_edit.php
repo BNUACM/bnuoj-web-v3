@@ -36,8 +36,9 @@ if (!contest_started($cid)) {
 ?>
                         <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Start Time* : </span><input id="prependedInput" type="text" name="start_time" value='<?=contest_get_val($cid,"start_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
                         <tr><td>( At least after 10 minutes )</td></tr>
+                        <tr><td><div class="input-append input-prepend"><span class="add-on">Duration* : </span><input id="prependedInput" type="text" name="duration" value='5:00:00'/></div></td></tr>
+                        <tr><td>( Duration should be between 30 minutes and 15 days )</td></tr>
                         <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input id="prependedInput" type="text" name="end_time" value='<?=contest_get_val($cid,"end_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                        <tr><td>( Length should be between 30 minutes and 15 days )</td></tr>
                         <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input id="prependedInput" type="text" name="lock_board_time" value='<?=contest_get_val($cid,"lock_board_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
                         <tr><td>( Set it later than end time if you don't want to lock board )</td></tr>
                         <tr><td><label class="radio inline"><input type="radio" name="localtime" value="1" />Use local timezone</label><label class="radio inline"><input type="radio" name="localtime" value="0" checked="checked" /> Use server timezone</label></td></tr>
@@ -120,6 +121,7 @@ var timezone = jstz.determine_timezone();
 $("#localtz").html(timezone.name()+" GMT"+timezone.offset());
 $("#tzinp").val(timezone.name());
 </script>
+<script type="text/javascript" src="js/jquery-dateFormat.min.js"></script>
 <script type="text/javascript" src="js/contest_edit.js?<?=filemtime("js/contest_edit.js") ?>"></script>
 
 <?php
