@@ -1,10 +1,3 @@
-function getDuration($obj){
-        var hms=$obj.val().replace(/[,;.-\/]/g,":").replace(/[^0-9:]/g,"").split(":");
-        var duration=hms[0]*3600;
-        if(hms[1]) duration+=hms[1]*60;
-        if(hms[2]) duration+=parseInt(hms[2]);
-        return duration;
-}
 $(document).ready(function() {
     $('.datepick').datetimepicker({
         format: 'yyyy-mm-dd hh:ii:ss'
@@ -90,6 +83,13 @@ $(document).ready(function() {
         }
     });
 
+    function getDuration($obj){
+        var hms=$obj.val().replace(/[,;.-\/]/g,":").replace(/[^0-9:]/g,"").split(":");
+        var duration=hms[0]*3600;
+        if(hms[1]) duration+=hms[1]*60;
+        if(hms[2]) duration+=parseInt(hms[2]);
+        return duration;
+    }
     function updateTimeSelect(start_time,duration){
         var lockbefore=Date.parse($("input[name=end_time]").val())-Date.parse($("input[name=lock_board_time]").val());
         var end_time=new Date();
@@ -102,7 +102,7 @@ $(document).ready(function() {
     }
     $("input[name=duration]").change(function() {
         var duration=getDuration($(this));
-        var $text=$(this).parent().parent().parent().next().find("td");
+        var $text=$("#duration_prompt");
         var hh=Math.round(duration/3600);
         var mm=Math.round(duration%3600/60);
         var ss=duration%60;
@@ -118,7 +118,7 @@ $(document).ready(function() {
 
     $("input[name=start_time]").change(function(e){
         var start_time=Date.parse($(this).val());
-        var $text=$(this).parent().parent().parent().next().find("td");
+        var $text=$("#start_time_prompt");
         if(start_time-Date.now()<10*60*1000){
             $text.addClass("text-warning");
         }else{

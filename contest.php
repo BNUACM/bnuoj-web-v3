@@ -67,9 +67,9 @@ include_once("functions/contests.php");
                             <tr><td>Type: <label class="radio inline"><input type="radio" name="ctype" value="0" checked="checked" /> ICPC format</label><label class="radio inline"><input type="radio" name="ctype" value="1" /> CF format</label> </td></tr>
                             <tr><td><textarea name="description" rows="8" class="input-block-level" placeholder="Contest Description"></textarea></td></tr>
                             <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Start Time* : </span><input id="prependedInput" type="text" name="start_time" value='<?=date("Y-m-d")." 09:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                            <tr><td>( At least after 10 minutes )</td></tr>
+                            <tr><td id="start_time_prompt">( At least after 10 minutes )</td></tr>
                             <tr><td><div class="input-append input-prepend"><span class="add-on">Duration* : </span><input id="prependedInput" type="text" name="duration" value='5:00:00'/></div></td></tr>
-                            <tr><td>( Duration should be between 30 minutes and 15 days )</td></tr>
+                            <tr><td id="duration_prompt">( Duration should be between 30 minutes and 15 days )</td></tr>
                             <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input id="prependedInput" type="text" name="end_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
                             <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input id="prependedInput" type="text" name="lock_board_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
                             <tr><td>( Set it later than end time if you don't want to lock board )</td></tr>
