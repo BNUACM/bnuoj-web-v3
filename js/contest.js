@@ -75,6 +75,51 @@ $(document).ready(function() {
         window.location.href="contest.php?virtual=1";
     });
 
+    function getDuration($obj){
+        var hms=$obj.val().replace(/[,;.-\/]/g,":").replace(/[^0-9:]/g,"").split(":");
+        var duration=hms[0]*3600;
+        if(hms[1]) duration+=hms[1]*60;
+        if(hms[2]) duration+=parseInt(hms[2]);
+        return duration;
+    }
+    function updateTimeSelect(start_time,duration){
+        var lockbefore=Date.parse($("input[name=end_time]").val())-Date.parse($("input[name=lock_board_time]").val());
+        var end_time=new Date();
+        end_time.setTime(start_time+duration*1000);
+        if(end_time.toString()!="Invalid Date") $("input[name=end_time]").val($.format.date(end_time.toString(),"yyyy-MM-dd HH:mm:ss"));
+
+        var lock_time=new Date();
+        lock_time.setTime(end_time.getTime()-lockbefore);
+        if(lock_time.toString()!="Invalid Date") $("input[name=lock_board_time]").val($.format.date(lock_time.toString(),"yyyy-MM-dd HH:mm:ss"));
+    }
+    $("input[name=duration]").change(function() {
+        var duration=getDuration($(this));
+        var $text=$("#duration_prompt");
+        var hh=Math.round(duration/3600);
+        var mm=Math.round(duration%3600/60);
+        var ss=duration%60;
+        if(duration<30*60 || duration>15*24*3600){
+            $text.addClass("text-warning");
+        }else{
+            $text.removeClass("text-warning");
+        }
+        $(this).val(hh+":"+(mm<10?"0":"")+mm+":"+(ss<10?"0":"")+ss);
+        var start_time=Date.parse($("input[name=start_time]").val());
+        updateTimeSelect(start_time,duration);
+    });
+
+    $("input[name=start_time]").change(function(e){
+        var start_time=Date.parse($(this).val());
+        var $text=$("#start_time");
+        if(start_time-Date.now()<10*60*1000){
+            $text.addClass("text-warning");
+        }else{
+            $text.removeClass("text-warning");
+        }
+        var duration=getDuration($("input[name=duration]"));
+        updateTimeSelect(start_time,duration);
+    });
+
 
     function deal(id,oj,$target) {
         $.get("ajax/get_problem_basic.php?vid="+id+"&vname="+oj+"&randomid="+Math.random(),function(data) {
@@ -112,7 +157,6 @@ $(document).ready(function() {
 
     $(".ptype").change(function() {
         var ptp=$(this).val();
-    //    alert(ptp);
         if (ptp=='0') {
             $(this).nextAll("div").hide();
         } else if (ptp=='1'||ptp=='3') {
@@ -218,7 +262,7 @@ $(document).ready(function() {
         oTable.fnFilter( '-99', 8 );
     });
 
-    
+
     if (cshowtype==='0') {
         $("#showcicpc").click();
     }
