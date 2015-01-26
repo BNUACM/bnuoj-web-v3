@@ -27,6 +27,7 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
 
     $ctype=convert_str($_POST['ctype']);
     $hide_others=convert_str($_POST['hide_others']);
+    if(!contest_started($cid)) $owner_viewable=$_POST['owner_viewable']=="on"?1:0;
     $pass=pwd(convert_str($_POST['password']));
     if ($_POST['password']!="") $isprivate=2;
     if ($ctype==0) $n = $config["limits"]["problems_on_contest_add"];
@@ -75,7 +76,8 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
             end_time='$end_time',
             hide_others='$hide_others',
             type='$ctype',
-            password='$pass'
+            password='$pass',
+            owner_viewable='$owner_viewable'
             where cid='$cid'";
         else $sql_add_con = "update contest set
             title='$title',
@@ -84,7 +86,6 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
             where cid='$cid'";
 
         //$sql_add_con = change_in($sql_add_con);
-        //echo "<br/>".$sql_add_con."<br/>";
         if (!contest_started($cid)) {
             $pd=false;
             for($i=0;$i<$n;$i++){

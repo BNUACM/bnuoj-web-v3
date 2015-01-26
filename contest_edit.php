@@ -48,6 +48,13 @@ if (!contest_started($cid)) {
 ?>
                         <tr><td><div class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></div></td></tr>
                         <tr><td>( Leave it blank if not needed )</td></tr>
+<?php
+if (!contest_started($cid)) {
+?>
+    <tr><td><input type="checkbox" name="owner_viewable" <?=contest_get_val($cid,"owner_viewable")==1?'checked="checked"':''?>/>Allow owner view participant's code</td></tr>
+<?
+}
+?>
                     </table>
                 </div>
 

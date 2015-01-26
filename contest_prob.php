@@ -233,6 +233,15 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
             <tr>
               <td colspan="2"><textarea rows="12" class="input-block-level" name="source" onKeyUp="if(this.value.length > <?=$config["limits"]["max_source_code_len"]?>) this.value=this.value.substr(0,<?=$config["limits"]["max_source_code_len"]?>)" placeholder="Put your solution here..."></textarea></td>
             </tr>
+<?php
+if(contest_get_val($cid,"owner_viewable")){
+?>
+            <tr>
+              <td colspan="2">The owner of the contest <b>WILL BE ABLE</b> to see your code.</td>
+            </tr>
+<?php
+}
+?>
           </table>
         </div>
         <div class="modal-footer">

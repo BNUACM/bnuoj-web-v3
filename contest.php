@@ -77,6 +77,7 @@ include_once("functions/contests.php");
                             <tr><td><label class="radio inline"><input type="radio" name="hide_others" value="1" /> Hide others' status</label><label class="radio inline"><input type="radio" name="hide_others" value="0" checked="checked" />  Show others' status</label></td></tr>
                             <tr><td><div class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></div></td></tr>
                             <tr><td>( Leave it blank if not needed )</td></tr>
+                            <tr><td><input type="checkbox" name="owner_viewable" />Allow owner view participant's code</td></tr>
                         </table>
                     </div>
 

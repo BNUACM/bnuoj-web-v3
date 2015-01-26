@@ -27,6 +27,7 @@ if ($current_user->is_valid()) {
 
     $ctype=convert_str($_POST['ctype']);
     $hide_others=convert_str($_POST['hide_others']);
+    $owner_viewable=$_POST['owner_viewable']=="on"?1:0;
     $pass=pwd(convert_str($_POST['password']));
     if ($_POST['password']!="") $isprivate=2;
     if ($ctype==0) $n = $config["limits"]["problems_on_contest_add"];
@@ -67,8 +68,8 @@ if ($current_user->is_valid()) {
     }
     else {
     
-        $sql_add_con = "insert into contest (title,description,isprivate,lock_board_time,start_time,end_time,hide_others,owner,isvirtual,type,password) values ('$title'" .
-                ",'$description','$isprivate','$lock_board_time','$start_time','$end_time','$hide_others','$nowuser',1,'$ctype','$pass')";
+        $sql_add_con = "insert into contest (title,description,isprivate,lock_board_time,start_time,end_time,hide_others,owner,isvirtual,type,password,owner_viewable) values ('$title'" .
+                ",'$description','$isprivate','$lock_board_time','$start_time','$end_time','$hide_others','$nowuser',1,'$ctype','$pass','$owner_viewable')";
         //$sql_add_con = change_in($sql_add_con);
         //echo "<br/>".$sql_add_con."<br/>";
         $pd=false;
