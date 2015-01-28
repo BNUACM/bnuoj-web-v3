@@ -68,7 +68,7 @@ if (contest_get_val($cid,"has_cha")) {
             </form>
           </div>
 <?php
-if (contest_get_val($cid,"hide_others")&&!$current_user->is_root()) {
+if (contest_get_val($cid,"hide_others")&&!$current_user->is_root()&&!(contest_get_val($cid,"owner_viewable") && $current_user->match(contest_get_val($cid,"owner")))) {
 ?>
         <div class="tcenter"><b>In this contest, you can only view the submits from yourself.</b></div>
 <?php

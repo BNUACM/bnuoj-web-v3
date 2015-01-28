@@ -17,7 +17,7 @@ if (!$current_user->is_valid()) {
     $ret["code"]=1;
     $ret["msg"]="Permission denined. Please login.";
 }
-else if (!(($ret["isshared"]==TRUE&&($cid=="0"||contest_passed($cid)))||$current_user->match($uname)||$current_user->is_codeviewer())) {
+else if (!(($ret["isshared"]==TRUE&&($cid=="0"||contest_passed($cid)))||$current_user->match($uname)||$current_user->is_codeviewer()||(contest_get_val($cid,"owner_viewable") && $current_user->match(contest_get_val($cid,"owner"))))) {
     unset($ret);
     $ret["code"]=1;
     $ret["msg"]="Permission denined.";

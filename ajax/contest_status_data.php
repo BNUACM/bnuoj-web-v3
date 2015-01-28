@@ -25,7 +25,7 @@ foreach ((array)contest_get_problem_basic($cid) as $row) {
     $ptol[$row["pid"]]=$row["lable"];
 }
 $ishide=contest_get_val($cid,"hide_others");
-if ($current_user->is_root()) $isroot=true;
+if ($current_user->is_root()||(contest_get_val($cid,"owner_viewable") && $current_user->match(contest_get_val($cid,"owner")))) $isroot=true;
 else $isroot=false;
 if ($ishide&&$isroot) $ishide=false;
 if (contest_passed($cid)) $hidedt=false;
@@ -117,7 +117,7 @@ foreach ( (array)$db->get_results( $sQuery,ARRAY_A ) as $aRow )
         if ($aRow["time_used"]!=0) $aRow["time_used"].=" ms"; else $aRow["time_used"]="";
     }
     $aRow["length(source)"].=" B";
-    if (!$current_user->match($aRow["username"])&&!$current_user->is_root()&&$hidedt) {
+    if (!$current_user->match($aRow["username"])&&!$isroot&&$hidedt) {
         $aRow["memory_used"]="";
         $aRow["time_used"]="";
         $aRow["length(source)"]="";
