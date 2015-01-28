@@ -12,11 +12,11 @@ function replay_to_second($str) {
 }
 
 function replay_add_contest() {
-    global $pnum,$_POST,$mcid,$db,$config;
+    global $pnum,$_POST,$mcid,$db,$config,$probs;
     $sql="insert into contest (title,description,start_time,end_time,type,isvirtual) values ('".$_POST['name']."','".$_POST['description']."','".$_POST['start_time']."','".$_POST['end_time']."','99','".$_POST['isvirtual']."')";
     $db->query($sql);
     for ($i=0;$i<$pnum;$i++) {
-        $sql="insert into contest_problem (lable,pid,cid) values ('".$_POST['lable'.$i]."','".$_POST['pid'.$i]."','$mcid')";
+        $sql="insert into contest_problem (lable,pid,cid) values ('".$probs[$i]['lable']."','".$probs[$i]['pid']."','$mcid')";
         $db->query($sql);
     }
     $cres=$db->query("select problem.title from contest_problem,problem where cid=".$mcid." and contest_problem.pid=problem.pid");
@@ -72,7 +72,7 @@ function replay_move_uploaded_file($filename) {
 }
 
 function replay_deal_hdu($data) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $unum=$data->rowcount()-2;
     for ($i=3;$i<=$unum;$i++) {
         $uname=$data->val($i,2);
@@ -81,26 +81,26 @@ function replay_deal_hdu($data) {
             if ($value=="") continue;
             if ($value[0]=='(') {
                 $tnum=intval(substr($value,2,-1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
-//                echo $uname." ".$_POST['pid'.$j]." ".$value."<br />\n";
+//                echo $uname." ".$probs[$j]['pid']." ".$value."<br />\n";
                 if (strstr($value,'(')) {
                     $act=strstr($value,'(',true);
                     $tnum=substr(strstr($value,'('),2,-1);
                 }
                 else $act=$value;
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_myexcel($data) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $unum=$data->rowcount();
     for ($i=2;$i<$unum;$i++) {
         $uname=$data->val($i,1);
@@ -111,31 +111,31 @@ function replay_deal_myexcel($data) {
                 if (strstr($value,'--')===false) {
                     $tnum=strstr($value,'/',true);
                     $act=intval(substr(strstr($value,'/'),1));
-    //                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                    insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+    //                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                    insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
                 else {
                     $tnum=strstr($value,'/',true);
-    //                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+    //                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
             }
             else {
                 if ($value[0]=='(') {
                     $tnum=intval(substr($value,2,-1));
-    //                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+    //                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
                 else {
                     $tnum=0;
-    //                echo $uname." ".$_POST['pid'.$j]." ".$value."<br />\n";
+    //                echo $uname." ".$probs[$j]['pid']." ".$value."<br />\n";
                     if (strstr($value,'(')) {
                         $act=strstr($value,'(',true);
                         $tnum=substr(strstr($value,'('),2,-1);
                     }
                     else $act=$value;
-    //                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                    insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+    //                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                    insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
             }
         }
@@ -143,7 +143,7 @@ function replay_deal_myexcel($data) {
 }
 
 function replay_deal_zju($data) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $unum=$data->rowcount();
     for ($i=7;$i<=$unum;$i++) {
         $uname=$data->val($i,2);
@@ -152,22 +152,22 @@ function replay_deal_zju($data) {
             if ($value=="") continue;
             if (strstr($value,'(')==null) {
                 $tnum=intval($value);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=intval(strstr($value,'(',true))*60;
                 $tnum=intval(substr(strstr($value,'('),1,-1))-1;
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_zjuhtml($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -178,22 +178,22 @@ function replay_deal_zjuhtml($standtable) {
             if ($value=="0") continue;
             if (strstr($value,'(')==null) {
                 $tnum=intval($value);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=intval(strstr($value,'(',true))*60;
                 $tnum=intval(substr(strstr($value,'('),1,-1))-1;
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_licstar($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -205,20 +205,20 @@ function replay_deal_licstar($standtable) {
             if (strstr($value,'/')) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=intval($value);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_jhinv($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-2;$i++) {
@@ -230,20 +230,20 @@ function replay_deal_jhinv($standtable) {
             if (strstr($value,'--')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_ctu($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum;
+    global $probs,$_POST,$sttime,$edtime,$mcid,$pnum;
     $extinfo=array();
     for ($i=0;$i<$pnum;$i++) $extinfo[strtolower($_POST['extrainfo'][$i])]=$i;
 //    var_dump($extinfo);die();
@@ -253,7 +253,7 @@ function replay_deal_ctu($standtable) {
         if ($rows[$i]->find("th",0)!=null) continue;
         $crow=$rows[$i]->children();
         $uname=$crow[3]->innertext;
-        $pid=$_POST['pid'.$extinfo[strtolower(substr(strstr($crow[0]->find("a",0)->href,"/"),1,1))]];
+        $pid=$probs[$extinfo[strtolower(substr(strstr($crow[0]->find("a",0)->href,"/"),1,1))]]['pid'];
         $act=date("Y-m-d H:i:s",$sttime+replay_to_second($crow[2]->innertext));
         $res=$crow[5]->innertext;
         if (stristr($res,"accepted")) $res="Accepted";
@@ -265,7 +265,7 @@ function replay_deal_ctu($standtable) {
 }
 
 function replay_deal_ural($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-2;$i++) {
@@ -277,22 +277,22 @@ function replay_deal_ural($standtable) {
             if (strstr($value,'+')) {
                 $tnum=substr(strstr($value,'<',true),1);
                 $act=$crow[$j+3]->find("i",0)->innertext.":0";
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 //echo $value;
                 $tnum=substr(strstr($value,'<',true),3);
                 $wat=$crow[$j+3]->find("i",0)->innertext.":0";
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+replay_to_second($wat))."<br />\n";
-                inswa($tnum,$sttime,$sttime+replay_to_second($wat),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+replay_to_second($wat))."<br />\n";
+                inswa($tnum,$sttime,$sttime+replay_to_second($wat),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_neerc($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=2;$i<$unum-4;$i++) {
@@ -304,8 +304,8 @@ function replay_deal_neerc($standtable) {
             if (strstr($value,"-")!=null) {
                 $value=strip_tags($value);
                 $tnum=-intval($value);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
@@ -314,15 +314,15 @@ function replay_deal_neerc($standtable) {
                 $tnum=strip_tags(strstr(strstr($value,'+'),"<br>",true));
                 if ($tnum=="") $tnum=0;
                 else $tnum=intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_2011shstatus($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum;
+    global $probs,$_POST,$sttime,$edtime,$mcid,$pnum;
     $extinfo=array();
     for ($i=0;$i<$pnum;$i++) $extinfo[strtolower($_POST['extrainfo'][$i])]=$i;
 //    var_dump($extinfo);die();
@@ -331,7 +331,7 @@ function replay_deal_2011shstatus($standtable) {
     for ($i=1;$i<$unum;$i++) {
         $crow=$rows[$i]->children();
         $uname=$crow[1]->innertext." ".$crow[2]->innertext;
-        $pid=$_POST['pid'.$extinfo[strtolower($crow[3]->innertext)]];
+        $pid=$probs[$extinfo[strtolower($crow[3]->innertext)]]['pid'];
         $act=date("Y-m-d H:i:s",$sttime+60*intval($crow[4]->innertext));
         $res=$crow[5]->innertext;
         if (stristr($res,"Yes")) $res="Accepted";
@@ -342,7 +342,7 @@ function replay_deal_2011shstatus($standtable) {
 }
 
 function replay_deal_icpcinfostatus($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum;
+    global $probs,$_POST,$sttime,$edtime,$mcid,$pnum;
     $extinfo=array();
     for ($i=0;$i<$pnum;$i++) $extinfo[strtolower($_POST['extrainfo'][$i])]=$i;
 //    var_dump($extinfo);die();
@@ -351,7 +351,7 @@ function replay_deal_icpcinfostatus($standtable) {
     for ($i=1;$i<$unum;$i++) {
         $crow=$rows[$i]->children();
         $uname=$crow[1]->innertext;
-        $pid=$_POST['pid'.$extinfo[strtolower($crow[0]->innertext)]];
+        $pid=$probs[$extinfo[strtolower($crow[0]->innertext)]]['pid'];
         $act=date("Y-m-d H:i:s",$sttime+60*intval($crow[3]->innertext));
         $res=$crow[2]->innertext;
         if (stristr($res,"Yes")) $res="Accepted";
@@ -386,7 +386,7 @@ function replay_deal_icpccn($standtable) {
 }
 
 function replay_deal_pc2sum($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -399,27 +399,27 @@ function replay_deal_pc2sum($standtable) {
             if (strstr($value,'--')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_pc2run($str) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $extinfo=array();
     for ($i=0;$i<$pnum;$i++) $extinfo[strtolower($_POST['extrainfo'][$i])]=$i;
 	preg_match_all("/run [0-9]* .* at ([0-9]+) .*\(.*\) (team[0-9]+) \((.*)\) ([A-Z]).*\'.*\'.*\'(.*)\' by/sU",$str,$matches,PREG_SET_ORDER);
 	foreach($matches as $run){
 		$uname=$run[3]." ".$run[2];
 		$act=date("Y-m-d H:i:s",$sttime+$run[1]*60);
-		$pid=$_POST['pid'.$extinfo[strtolower($run[4])]];
+		$pid=$probs[$extinfo[strtolower($run[4])]]['pid'];
 		$res=$run[5];
 		if (stristr($res,"Yes")) $res="Accepted";
 		else $res="No";
@@ -428,7 +428,7 @@ function replay_deal_pc2run($str) {
 }
 
 function replay_deal_fdulocal2012($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -441,20 +441,20 @@ function replay_deal_fdulocal2012($standtable) {
             if (strstr($value,'--')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_uestc($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -467,26 +467,26 @@ function replay_deal_uestc($standtable) {
                 if (strstr($value,'-')===false) {
                     $act=intval(strstr($value,'<',true))*60;
                     $tnum=intval(substr(strstr($value,'('),1,-1));
-//                    echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                    insac($tnum-1,$sttime,intval($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                    insac($tnum-1,$sttime,intval($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
                 else {
                     $tnum=intval(substr(strstr($value,'-'),1,-1));
-//                    echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
             }
             else {
                 if (strstr($value,'--')===false) {
                     $tnum=strstr($value,'/',true);
                     $act=intval(substr(strstr($value,'/'),1));
-//                    echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                    insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                    insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
                 else {
                     $tnum=strstr($value,'/',true);
-//                    echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
                 }
             }
         }
@@ -496,7 +496,7 @@ function replay_deal_uestc($standtable) {
 
 
 function replay_deal_hustvjson($html) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $statarr=json_decode($html);
 /*    echo "<pre>";
     var_dump($statarr);
@@ -509,7 +509,7 @@ function replay_deal_hustvjson($html) {
         $uname=$username[$statarr[$i][0]];
         if ($uname=="") $uname=$statarr[$i][0];
         $value=$statarr[$i][0];
-        $pid=$_POST['pid'.$statarr[$i][1]];
+        $pid=$probs[$statarr[$i][1]]['pid'];
         $act=date("Y-m-d H:i:s",$sttime+intval($statarr[$i][3]));
         $res=$crow[5]->innertext;
         if ($statarr[$i][2]==1) $res="Accepted";
@@ -522,7 +522,7 @@ function replay_deal_hustvjson($html) {
 
 
 function replay_deal_fzuhtml($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -535,20 +535,20 @@ function replay_deal_fzuhtml($standtable) {
             if (strstr($value,'--')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_usuhtml($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr.row0, tr.row1");
     $unum=sizeof($rows);
     for ($i=0;$i<$unum;$i++) {
@@ -562,8 +562,8 @@ function replay_deal_usuhtml($standtable) {
                 $value=trim(strstr($value,"<",true));
                 $tnum=-intval($value);
                 $wat=$crow[$j+2]->find("span",0)->plaintext.":0";
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".$wat."<br />\n";
-                inswa($tnum,$sttime,$sttime+replay_to_second($wat),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".$wat."<br />\n";
+                inswa($tnum,$sttime,$sttime+replay_to_second($wat),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
@@ -572,15 +572,15 @@ function replay_deal_usuhtml($standtable) {
                 $tnum=trim(strip_tags(strstr(strstr($value,'+'),"<",true)));
                 if ($tnum=="") $tnum=0;
                 else $tnum=intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".$act."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".$act."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_sguhtml($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -592,8 +592,8 @@ function replay_deal_sguhtml($standtable) {
             if (strstr($value,"-")!=null) {
                 $value=strip_tags($value);
                 $tnum=-intval($value);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
@@ -602,15 +602,15 @@ function replay_deal_sguhtml($standtable) {
                 $tnum=strip_tags(strstr(strstr($value,'+'),"<br>",true));
                 if ($tnum=="") $tnum=0;
                 else $tnum=intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_amt2011($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=2;$i<$unum;$i++) {
@@ -621,22 +621,22 @@ function replay_deal_amt2011($standtable) {
             if (trim(strip_tags($value))=="&nbsp;") continue;
             if (strstr($value,'-')!=null) {
                 $tnum=intval(strstr(substr(strstr($value,"("),1),")",true));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=replay_to_second(strstr($value,'(',true));
                 $tnum=intval(substr(strstr($value,'('),1,-1));
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_nwerc($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -647,22 +647,22 @@ function replay_deal_nwerc($standtable) {
             if (trim(strip_tags($value))=="0") continue;
             if (strstr($value,'(')==null) {
                 $tnum=intval($value);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=intval(trim(strstr(substr(strstr($value,'('),1),'+',true)))*60;
                 $tnum=intval(trim(strstr($value,'(',true)))-1;
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_ncpc($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-4;$i++) {
@@ -674,23 +674,23 @@ function replay_deal_ncpc($standtable) {
             if (strstr($value,"-")!=null) {
                 $value=trim(strstr($value,'<',true));
                 $tnum=intval($value)-1;
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=intval(trim(strip_tags(strstr($value,"<small>"))))*60;
                 //echo $act;
                 $tnum=trim(strstr($value,'<',true))-1;
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_uva($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -701,22 +701,22 @@ function replay_deal_uva($standtable) {
             if (trim(strip_tags($value))=="00:00:00\t\t\t\t(0)") continue;
             if (strstr($value,"00:00:00")) {
                 $tnum=intval(strstr(substr(strstr($value,"("),1),")",true));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=replay_to_second(trim(strstr($value,'(',true)));
                 $tnum=intval(strstr(substr(strstr($value,"("),1),")",true));
-//                echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+$act-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_gcpc($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-2;$i++) {
@@ -727,23 +727,23 @@ function replay_deal_gcpc($standtable) {
             if ($value=="0") continue;
             if (strstr($value,"+")==null) {
                 $tnum=intval($value);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=intval(trim(strstr(substr(strstr($value,"("),1),'+',true)))*60;
                 //echo $act;
                 $tnum=trim(strstr($value,'(',true));
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,$act,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_phuket($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("li");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -755,20 +755,20 @@ function replay_deal_phuket($standtable) {
             if (strstr($value,'-')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_spacific($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=0;$i<$unum-1;$i++) {
@@ -782,20 +782,20 @@ function replay_deal_spacific($standtable) {
             if (strstr($value,'--')===false) {
                 $tnum=strstr($value,'/',true);
                 $act=intval(substr(strstr($value,'/'),1));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr($value,'/',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_spoj($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -809,20 +809,20 @@ function replay_deal_spoj($standtable) {
             if (strstr($value,'-')!==false) {
                 $tnum=strstr(substr(strstr($value,'('),1),')',true);
                 $act=strtotime(strstr($value,'(',true));
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$act)."<br />\n";
-                insac($tnum,$sttime,$act-$sttime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$act)."<br />\n";
+                insac($tnum,$sttime,$act-$sttime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=strstr(substr(strstr($value,'('),1),')',true);
-//                echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+//                echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_openjudge($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -834,8 +834,8 @@ function replay_deal_openjudge($standtable) {
             if (strstr($value,":")==null) {
                 $tnum=strstr(substr(strstr($value,'('),1),')',true);
                 $tnum=-intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
@@ -846,15 +846,15 @@ function replay_deal_openjudge($standtable) {
                 }
                 if ($tnum=="") $tnum=0;
                 else $tnum=-intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_scu($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum-1;$i++) {
@@ -866,23 +866,23 @@ function replay_deal_scu($standtable) {
             if (strstr($value,":")==null) {
                 $tnum=$value;
                 $tnum=-intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
                 $act=strstr($value,'<',true).":00";
                 $tnum=substr(strstr($value,'>'),1);
                 $tnum=intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
 }
 
 function replay_deal_hust($standtable) {
-    global $_POST,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
     $rows=$standtable->find("tr");
     $unum=sizeof($rows);
     for ($i=1;$i<$unum;$i++) {
@@ -894,8 +894,8 @@ function replay_deal_hust($standtable) {
             if (strstr($value,":")==null) {
                 $tnum=strstr(substr(strstr($value,'('),1),')',true);
                 $tnum=-intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                inswa($tnum,$sttime,$edtime,$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
             else {
                 $tnum=0;
@@ -906,8 +906,8 @@ function replay_deal_hust($standtable) {
                 }
                 if ($tnum=="") $tnum=0;
                 else $tnum=-intval($tnum);
-                //echo $uname." ".$_POST['pid'.$j]." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
-                insac($tnum,$sttime,replay_to_second($act),$_POST['pid'.$j],convert_str($uname),$mcid,$sfreq);
+                //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
+                insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }

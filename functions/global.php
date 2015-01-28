@@ -133,13 +133,18 @@ function get_substitle() {
     return $substitle[0];
 }
 
-function convert_str($str) {
+function convert_str($mixed) {
     global $db;
-    if ($str===null) return "";
-    if (get_magic_quotes_gpc()) { 
-        return $str; 
+    if(is_array($mixed)){
+        foreach($mixed as $k=>$v) $mixed[$k]=convert_str($v);
+        return $mixed;
+    }else{
+        if ($mixed===null) return "";
+        if (get_magic_quotes_gpc()) { 
+            return $mixed; 
+        }
+        return $db->escape($mixed); 
     }
-    return $db->escape($str); 
 }
 function hash_password($pwd) {
     return sha1(md5($pwd));

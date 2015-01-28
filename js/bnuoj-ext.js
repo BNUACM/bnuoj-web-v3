@@ -3008,3 +3008,202 @@ jQuery.fn.populate = function (a, b) {
         }
     });
 })(jQuery);
+
+(function($){
+
+    $.fn.problemlist = function(method){
+        var template="\
+            <fieldset>\
+                <label class=\"input-prepend\"><span class=\"add-on\">Problem</span><input type=\"text\" class=\"input-mini plable\" name=\"lable\" value=\"\" /></label>\
+                OJ: <select class=\"vpname input-small\">"+$.fn.problemlist.ojoptions+"</select>\
+                <input class=\"vpid input-medium\" type=\"text\" name=\"vpid\" value=\"\" placeholder=\"Problem ID\" />\
+                <input class=\"vpid\" type=\"hidden\" name=\"pid\" value=\"\" />\
+                <br /><span></span>\
+                <div class=\"selptype hide\">\
+                    <label class=\"radio inline\"><input type=\"radio\" class=\"ptype\" name=\"ptype\" value=\"1\" checked=\"checked\" /> CF</label>\
+                    <label class=\"radio inline\"><input type=\"radio\" class=\"ptype\" name=\"ptype\" value=\"2\" /> TC</label>\
+                    <label class=\"radio inline\"><input type=\"radio\" class=\"ptype\" name=\"ptype\" value=\"3\" /> CF Dynamic</label>\
+                </div>\
+                <div class=\"well selpara hide\">\
+                    <div class=\"cf tc\"><label class=\"input\">Base Value (MP) : <input type=\"text\" class=\"pbase input-small\" value=\"\" name=\"base\" /></label></div>\
+                    <div class=\"cf tc\"><label class=\"input\">Min Value: <input type=\"text\" class=\"minp input-small\" value=\"\" name=\"minp\" /></label></div>\
+                    <div class=\"cf tc\"><label class=\"input\">Parameter A: <input type=\"text\" class=\"para_a input-small\" value=\"\" name=\"para_a\" /></label></div>\
+                    <div class=\"cf tc\"><label class=\"input\">Parameter B: <input type=\"text\" class=\"para_b input-small\" value=\"\" name=\"para_b\" /></label></div>\
+                    <div class=\"tc\" style=\"display:none\"><label class=\"input\">Parameter C: <input class=\"para_c input-small\" type=\"text\" name=\"para_c\" /></label></div>\
+                    <div class=\"tc\" style=\"display:none\"><label class=\"input\">Parameter D: <input class=\"para_d input-small\" type=\"text\" name=\"para_d\" /></label></div>\
+                    <div class=\"tc\" style=\"display:none\"><label class=\"input\">Parameter E: <input class=\"para_e input-small\" type=\"text\" name=\"para_e\" /></label></div>\
+                </div>\
+            </fieldset>\
+        ";
+        function deal(id,oj,$target) {
+            $.get("ajax/get_problem_basic.php?vid="+id+"&vname="+oj+"&randomid="+Math.random(),function(data) {
+                var p=eval('('+data+')');
+                if (p.code!=0) {
+                    if (id==$target.prev().val()) {
+                        $target.val("");
+                        $target.next().next().html("Error!");
+                    }
+                }
+                else {
+                    var p=eval('('+data+')');
+                    if (id==$target.prev().val()) {
+                        $target.val(p.pid);
+                        $target.next().next().html("<a href='problem_show.php?pid="+p.pid+"' target='_blank'>"+p.title+"</a>");
+                    }
+                }
+            });
+        }
+        function fill($target, options){
+            $target.find("input[type!=radio]").each(function(){
+                var name=$(this).attr("name");
+                if(options[name]) $(this).val(options[name]);
+            });
+            $target.find("input[type=radio]").each(function(){
+                var name=$(this).attr("name");
+                if(options[name]&&$(this).val()==options[name]) $(this).attr("checked","checked");
+            });
+        }
+        function reset(target){
+            target.pl_next_id=0;
+            target.pl_type=0;
+            $(target).children("fieldset").remove();
+        }
+        var methods = {
+            spawn: function(options){
+                return this.each(function(){
+                    var next_id=this.pl_next_id;
+                    $(this).append(template);
+                    $target=$(this).children("fieldset:last");
+
+                    if(options && options.type==2){
+                        options=$.extend({},$.fn.problemlist.tcdefaults,options);
+                    }else{
+                        options=$.extend({},$.fn.problemlist.cfdefaults,options);
+                    }
+                    if(!options.type) options.type=this.pl_type;
+                    if(!options.lable && next_id<26) options.lable=String.fromCharCode(65+next_id);
+                    fill($target,options);
+                    if(options.type>0){
+                        $target.find(".selptype,.selpara").show();
+                        if(options.type==2) $target.find(".tc").show();
+                    }
+                    $target.find("input").each(function(){
+                        var name=$(this).attr("name");
+                        if(name) $(this).attr("name","prob["+next_id+"]["+name+"]");
+                    });
+                    this.pl_next_id++;
+                });
+            },
+            load: function(url){
+                return this.each(function(){
+                    var root=this;
+                    reset(this);
+                    $.get(url+"&random="+Math.random(),function(data) {
+                        var p=eval('('+data+')');
+                        if(p.prob){
+                            $.each(p.prob, function(ind, prob){
+                                prob.vpid=prob.pid;
+                                prob.ptype=prob.type;
+                                $(root).problemlist('spawn',prob);
+                                $(root).find("span:last").html("<a href='problem_show.php?pid="+prob.pid+"' target='_blank'>"+prob.title+"</a>");
+                            });
+                            var last=$(root).find(".plable:last").val().charCodeAt()-64;
+                            if(last<26 && last>root.pl_next_id) root.pl_next_id=last;
+                        }
+                        $(root).problemlist('spawn');
+                    });
+                });
+            },
+            loadcontest: function(cid){
+                return $(this).problemlist("load","ajax/get_contest_problems.php?cid="+cid);
+            },
+            loadsource: function(src){
+                return $(this).problemlist("load","ajax/get_src_problems.php?src="+src);
+            },
+            settype: function(type){
+                return this.each(function(){
+                    this.pl_type=type;
+                    if(this.pl_type==1){
+                        $(this).find(".selptype,.selpara,.cf").show();
+                    }else{
+                        $(this).find(".selptype,.selpara").hide();
+                    }
+                });
+            },
+            reset: function(){
+                reset(this);
+            },
+            init: function(){
+                return this.each(function(){
+                    var root=this;
+                    reset(this);
+                    $(this).delegate(".vpid","keyup",function(){
+                        var vid=$(this).val();
+                        var vname=$(this).prev().val();
+                        var $target=$(this).next();
+                        deal(vid,vname,$target);
+                    });
+                    $(this).delegate(".vpname","change",function() {
+                        var vid=$(this).next().val();
+                        var vname=$(this).val();
+                        var $target=$(this).next().next();
+                        deal(vid,vname,$target);
+                    });
+                    $(this).delegate(".ptype","change",function() {
+                        var ptp=$(this).val();
+                        if (ptp=='0') {
+                            $(this).nextAll("div").hide();
+                        } else if (ptp=='1'||ptp=='3') {
+                            var aa=$(this).parents(".selptype").nextAll(".selpara").children(".cf");
+                            $(this).parents(".selptype").nextAll(".selpara").children().hide();
+                            aa.find(".pbase").val($.fn.problemlist.cfdefaults.base);
+                            aa.find(".minp").val($.fn.problemlist.cfdefaults.minp);
+                            aa.find(".para_a").val($.fn.problemlist.cfdefaults.para_a);
+                            aa.find(".para_b").val($.fn.problemlist.cfdefaults.para_b);
+                            aa.show();
+                            $(this).parent().nextAll(".selpara").show();
+                        } else if (ptp=='2') {
+                            var aa=$(this).parents(".selptype").nextAll(".selpara").children(".tc");
+                            $(this).parents(".selptype").nextAll(".selpara").children().hide();
+                            aa.find(".pbase").val($.fn.problemlist.tcdefaults.base);
+                            aa.find(".minp").val($.fn.problemlist.tcdefaults.minp);
+                            aa.find(".para_a").val($.fn.problemlist.tcdefaults.para_a);
+                            aa.find(".para_b").val($.fn.problemlist.tcdefaults.para_b);
+                            aa.find(".para_c").val($.fn.problemlist.tcdefaults.para_c);
+                            aa.find(".para_d").val($.fn.problemlist.tcdefaults.para_d);
+                            aa.find(".para_e").val($.fn.problemlist.tcdefaults.para_e);
+                            aa.show();
+                            $(this).parent().nextAll(".selpara").show();
+                        }
+                    });
+                    $(this).delegate(".vpid","change",function(){
+                        $(root).problemlist('spawn');
+                    });
+                    $(this).problemlist('spawn');
+                });
+            }
+        };
+
+        if(methods[method]){
+            return methods[method].apply(this,Array.prototype.slice.call(arguments,1));
+        }else{
+            return methods.init.apply(this,arguments);
+        }
+    }
+    $.fn.problemlist.cfdefaults={
+        base: 500,
+        minp: 150,
+        para_a: 2,
+        para_b: 50
+    };
+    $.fn.problemlist.tcdefaults={
+        base: 500,
+        minp: 150,
+        para_a: 0.3,
+        para_b: 0.7,
+        para_c: 4500,
+        para_d: 10,
+        para_e: 10
+    };
+    $.fn.problemlist.ojoptions={};
+})(jQuery);

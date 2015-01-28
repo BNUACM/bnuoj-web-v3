@@ -5,9 +5,7 @@ require_once(dirname(__FILE__)."/../functions/excel_reader2.php");
 require_once(dirname(__FILE__)."/../functions/simple_html_dom.php");
 require_once(dirname(__FILE__)."/../functions/replays.php");
 
-foreach ($_POST as $key => $value) {
-    $_POST[$key]=convert_str($_POST[$key]);
-}
+$_POST=convert_str($_POST);
 
 if (is_numeric($_POST['sfreq'])) $sfreq=intval($_POST['sfreq']);
 else $sfreq=10;
@@ -24,14 +22,16 @@ if ($current_user->is_root()) {
         die(json_encode($ret));
     }
 
-    $pnum=0;
-    while ($_POST['pid'.$pnum]!="") {
-        if (!problem_exist($_POST['pid'.$pnum])) {
-            $ret["msg"]="Invalid problem ID ".$_POST['pid'.$pnum].".";
-            die(json_encode($ret));
-        }
-        $pnum++;
+    $probs=array();
+    foreach($_POST['prob'] as $prob){
+        if($prob['pid']=="") continue;
+        $probs[]=array(
+            'lable'=>$prob['lable'],
+            'pid'=>$prob['pid']
+        );
     }
+    $pnum=sizeof($probs);
+
     if ($_POST['start_time']==""||$_POST['end_time']=="")  {
         $ret["msg"]="Invalid Time!";
         die(json_encode($ret));

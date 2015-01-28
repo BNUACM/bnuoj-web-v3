@@ -57,57 +57,9 @@ if (!contest_started($cid)) {
 ?>
                     </table>
                 </div>
-
-<?php
-if (!contest_started($cid)) {
-    $ccrow=(array)contest_get_problem_basic($cid);
-    $nn = $config["limits"]["problems_on_contest_add"];
-?>
-                <div class='span6'>
-                    <table style="width:100%">
-                        <tr><th colspan="2">Add Problems For Contest</th></tr>
-                        <tr><th colspan="2">Leave Problem ID blank if you don't want to add it.</th></tr>
-<?php
-    for($i=0;$i<$nn;$i++){
-        if ($i>=sizeof($ccrow)) $trow=array();
-        else $trow=$ccrow[$i];
-?>
-
-                        <tr <?= ($i>=$config["limits"]["problems_on_contest_add_cf"])?"class='pextra'":"" ?>>
-                            <th class="span3">Problem <?=chr($i+65)?> <input type="hidden" name="lable<?=$i?>" value="<?=chr($i+65)?>" /></th>
-                            <td class="span9">
-                                <div>
-                                    OJ: <select class="vpname input-small"><?=$ojoptions;?></select>
-                                    <input class="vpid input-medium" type="text" value="<?=$trow["pid"]?>" placeholder="Problem ID" />
-                                    <input class="vpid" type="hidden" name="pid<?=$i?>" value="<?=$trow["pid"]?>" /><?= $i==0?" *":""?>
-                                    <br /><span></span>
-                                </div>
-                                <div class="selptype hide">
-                                    <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="1" <?=($trow['type']==1||$trow['type']==0)?'checked="checked"':'' ?> /> CF</label> &nbsp;&nbsp;
-                                    <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="2" <?=$trow['type']==2?'checked="checked"':'' ?> /> TC</label> &nbsp;&nbsp;
-                                    <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="3" <?=$trow['type']==3?'checked="checked"':'' ?> /> CF Dynamic</label> <br />
-                                </div>
-                                <div class='well selpara hide'>
-                                    <div class='cf tc'><label class="input">Base Value (MP) : <input type="text" class="input-small" value='<?=$trow['base']?>' name="base<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label class="input">Min Value: <input type="text" class="input-small" value='<?=$trow['minp']?>' name="minp<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label class="input">Parameter A: <input type="text" class='paraa input-small' value="<?=$trow['para_a']?>" name="paraa<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label class="input">Parameter B: <input type="text" class='parab input-small' value="<?=$trow['para_b']?>" name="parab<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label class="input">Parameter C: <input class='parac input-small' value="<?=$trow['para_c']?>" type="text" name="parac<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label class="input">Parameter D: <input class='parad input-small' value="<?=$trow['para_d']?>" type="text" name="parad<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label class="input">Parameter E: <input class='parae input-small' value="<?=$trow['para_e']?>" type="text" name="parae<?=$i?>" /></label></div>
-                                </div>
-                            </td>
-                        </tr>
-
-<?php
-    }
-?>
-                    </table>
+                <div id="probs" class="span6<?=contest_started($cid)?' hide':''?>">
                 </div>
             </div>
-<?php
-}
-?>
             <div style='clear:both;'>
                 <input class="btn btn-primary" type="submit" name="Submit" value="Submit" />
                 <span id="msgbox"></span>
@@ -126,6 +78,7 @@ if (!contest_started($cid)) {
 var timezone = jstz.determine_timezone();
 $("#localtz").html(timezone.name()+" GMT"+timezone.offset());
 $("#tzinp").val(timezone.name());
+$.fn.problemlist.ojoptions="<?=addslashes($ojoptions)?>";
 </script>
 <script type="text/javascript" src="js/contest_edit.js?<?=filemtime("js/contest_edit.js") ?>"></script>
 

@@ -88,47 +88,10 @@ if ($_GET['clone']==1) {
         $ccrow=contest_get_problem_basic($ccid);
     }
 }
-$nn = $config["limits"]["problems_on_contest_add"];
 ?>
-                    <div class='span6'>
-                        <table style="width:100%">
-                            <tr><th colspan="2">Add Problems For Contest</th></tr>
-                            <tr><th colspan="2">Leave Problem ID blank if you don't want to add it.</th></tr>
-<?php
-$ccrow=(array) $ccrow;
-for($i=0;$i<$nn;$i++){
-    if ($i>=sizeof($ccrow)) $trow=array();
-    else $trow=$ccrow[$i];
-?>
-                            <tr <?= ($i>=$config["limits"]["problems_on_contest_add_cf"])?"class='pextra'":"" ?>>
-                                <th class="span3">Problem <?=chr($i+65)?> <input type="hidden" name="lable<?=$i?>" value="<?=chr($i+65)?>" /></th>
-                                <td class="span9">
-                                    <div>
-                                        OJ: <select class="vpname input-small"><?=$ojoptions;?></select>
-                                        <input class="vpid input-medium" type="text" value="<?=$trow["pid"]?>" placeholder="Problem ID" />
-                                        <input class="vpid" type="hidden" name="pid<?=$i?>" value="<?=$trow["pid"]?>" /><?= $i==0?" *":""?>
-                                        <br /><span></span>
-                                    </div>
-                                    <div class="selptype hide">
-                                        <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="1" checked="checked" /> CF</label>
-                                        <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="2" /> TC</label>
-                                        <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="3" /> CF Dynamic</label>
-                                    </div>
-                                    <div class='well selpara hide'>
-                                        <div class='cf tc'><label class="input">Base Value (MP) : <input type="text" class="input-small" value='500' name="base<?=$i?>" /></label></div>
-                                        <div class='cf tc'><label class="input">Min Value: <input type="text" class="input-small" value='150' name="minp<?=$i?>" /></label></div>
-                                        <div class='cf tc'><label class="input">Parameter A: <input type="text" class='paraa input-small' value="2" name="paraa<?=$i?>" /></label></div>
-                                        <div class='cf tc'><label class="input">Parameter B: <input type="text" class='parab input-small' value="50" name="parab<?=$i?>" /></label></div>
-                                        <div class='tc' style="display:none"><label class="input">Parameter C: <input class='parac input-small' type="text" name="parac<?=$i?>" /></label></div>
-                                        <div class='tc' style="display:none"><label class="input">Parameter D: <input class='parad input-small' type="text" name="parad<?=$i?>" /></label></div>
-                                        <div class='tc' style="display:none"><label class="input">Parameter E: <input class='parae input-small' type="text" name="parae<?=$i?>" /></label></div>
-                                    </div>
-                                </td>
-                            </tr>
-<?php
-}
-?>
-                        </table>
+                    <div id="probs" class="span6">
+                        <h4>Add Problems For Contest</h4>
+                        <p>Leave Problem ID blank if you don't want to add it.</p>
                     </div>
                 </div>
             </div>
@@ -147,6 +110,7 @@ $("#tzinp").val(timezone.name());
 var searchstr='<?=$_GET['search']?>';
 var conperpage=<?=$config["limits"]["contests_per_page"]?>;
 var cshowtype='<?=$_GET['type']?>';
+$.fn.problemlist.ojoptions="<?=addslashes($ojoptions)?>";
 </script>
 <script type="text/javascript" src="js/contest.js?<?=filemtime("js/contest.js")?>"></script>
 
