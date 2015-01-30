@@ -75,26 +75,9 @@ $(document).ready(function() {
         window.location.href="contest.php?virtual=1";
     });
 
-    function getDuration($obj){
-        var hms=$obj.val().replace(/[,;.-\/]/g,":").replace(/[^0-9:]/g,"").split(":");
-        var duration=hms[0]*3600;
-        if(hms[1]) duration+=hms[1]*60;
-        if(hms[2]) duration+=parseInt(hms[2]);
-        return duration;
-    }
-    function updateTimeSelect(start_time,duration){
-        var lockbefore=Date.parse($("input[name=end_time]").val())-Date.parse($("input[name=lock_board_time]").val());
-        var end_time=new Date();
-        end_time.setTime(start_time+duration*1000);
-        if(end_time.toString()!="Invalid Date") $("input[name=end_time]").val($.format.date(end_time.toString(),"yyyy-MM-dd HH:mm:ss"));
-
-        var lock_time=new Date();
-        lock_time.setTime(end_time.getTime()-lockbefore);
-        if(lock_time.toString()!="Invalid Date") $("input[name=lock_board_time]").val($.format.date(lock_time.toString(),"yyyy-MM-dd HH:mm:ss"));
-    }
     $("input[name=duration]").change(function() {
         var duration=getDuration($(this));
-        var $text=$("#duration_prompt");
+        var $text=$(this).parent().next();
         var hh=Math.round(duration/3600);
         var mm=Math.round(duration%3600/60);
         var ss=duration%60;
@@ -110,7 +93,7 @@ $(document).ready(function() {
 
     $("input[name=start_time]").change(function(e){
         var start_time=Date.parse($(this).val());
-        var $text=$("#start_time");
+        var $text=$(this).parent().next();
         if(start_time-Date.now()<10*60*1000){
             $text.addClass("text-warning");
         }else{

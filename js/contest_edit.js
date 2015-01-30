@@ -83,23 +83,6 @@ $(document).ready(function() {
         }
     });
 
-    function getDuration($obj){
-        var hms=$obj.val().replace(/[,;.-\/]/g,":").replace(/[^0-9:]/g,"").split(":");
-        var duration=hms[0]*3600;
-        if(hms[1]) duration+=hms[1]*60;
-        if(hms[2]) duration+=parseInt(hms[2]);
-        return duration;
-    }
-    function updateTimeSelect(start_time,duration){
-        var lockbefore=Date.parse($("input[name=end_time]").val())-Date.parse($("input[name=lock_board_time]").val());
-        var end_time=new Date();
-        end_time.setTime(start_time+duration*1000);
-        if(end_time.toString()!="Invalid Date") $("input[name=end_time]").val($.format.date(end_time.toString(),"yyyy-MM-dd HH:mm:ss"));
-
-        var lock_time=new Date();
-        lock_time.setTime(end_time.getTime()-lockbefore);
-        if(lock_time.toString()!="Invalid Date") $("input[name=lock_board_time]").val($.format.date(lock_time.toString(),"yyyy-MM-dd HH:mm:ss"));
-    }
     $("input[name=duration]").change(function() {
         var duration=getDuration($(this));
         var $text=$("#duration_prompt");

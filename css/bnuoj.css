@@ -105,6 +105,8 @@ body {
     text-align: center;
 }
 
+/* form */
+form p.prompt_text {margin:0;}
 
 /* results */
 .ac {
@@ -126,7 +128,6 @@ body {
 .crunning {color:red;}
 .cscheduled {color:blue;}
 .cpassed {color:green;}
-
 
 
 

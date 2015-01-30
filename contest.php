@@ -61,24 +61,23 @@ include_once("functions/contests.php");
                 </div>
                 <div class="row-fluid">
                     <div class="span6">
-                        <table style="width:100%;">
-                            <tr><th>Contest Information</th></tr>
-                            <tr><td><input type="text" name="title" class="input-block-level" placeholder="Contest Title *" /></td></tr>
-                            <tr><td>Type: <label class="radio inline"><input type="radio" name="ctype" value="0" checked="checked" /> ICPC format</label><label class="radio inline"><input type="radio" name="ctype" value="1" /> CF format</label> </td></tr>
-                            <tr><td><textarea name="description" rows="8" class="input-block-level" placeholder="Contest Description"></textarea></td></tr>
-                            <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Start Time* : </span><input id="prependedInput" type="text" name="start_time" value='<?=date("Y-m-d")." 09:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                            <tr><td id="start_time_prompt">( At least after 10 minutes )</td></tr>
-                            <tr><td><div class="input-append input-prepend"><span class="add-on">Duration* : </span><input id="prependedInput" type="text" name="duration" value='5:00:00'/></div></td></tr>
-                            <tr><td id="duration_prompt">( Duration should be between 30 minutes and 15 days )</td></tr>
-                            <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input id="prependedInput" type="text" name="end_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                            <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input id="prependedInput" type="text" name="lock_board_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                            <tr><td>( Set it later than end time if you don't want to lock board )</td></tr>
-                            <tr><td><label class="radio inline"><input type="radio" name="localtime" value="1" />Use local timezone</label><label class="radio inline"><input type="radio" name="localtime" value="0" checked="checked" /> Use server timezone</label></td></tr>
-                            <tr><td>Your timezone: <span id="localtz"></span><input name="localtz" type="hidden" id="tzinp" /></td></tr>
-                            <tr><td><label class="radio inline"><input type="radio" name="hide_others" value="1" /> Hide others' status</label><label class="radio inline"><input type="radio" name="hide_others" value="0" checked="checked" />  Show others' status</label></td></tr>
-                            <tr><td><div class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></div></td></tr>
-                            <tr><td>( Leave it blank if not needed )</td></tr>
-                        </table>
+                        <h4>Contest Information</h4>
+                        <input type="text" name="title" class="input-block-level" placeholder="Contest Title *" />
+                        Type: <label class="radio inline"><input type="radio" name="ctype" value="0" checked="checked" /> ICPC format</label><label class="radio inline"><input type="radio" name="ctype" value="1" /> CF format</label>
+                        <textarea name="description" rows="8" class="input-block-level" placeholder="Contest Description"></textarea>
+                        <label class="input-prepend input-append date datepick"><span class="add-on">Start Time* : </span><input type="text" name="start_time" value='<?=date("Y-m-d")." 09:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <p class="prompt_text">( At least after 10 minutes )</p>
+                        <label class="input-append input-prepend"><span class="add-on">Duration* : </span><input id="prependedInput" type="text" name="duration" value='5:00:00'/></label>
+                        <p class="prompt_text">( Duration should be between 30 minutes and 15 days )</p>
+                        <label class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input type="text" name="end_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <label class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input type="text" name="lock_board_time" value='<?=date("Y-m-d")." 14:00:00"?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <p class="prompt_text">( Set it later than end time if you don't want to lock board )</p>
+                        <label class="radio inline"><input type="radio" name="localtime" value="1" />Use local timezone</label><label class="radio inline"><input type="radio" name="localtime" value="0" checked="checked" /> Use server timezone</label>
+                        <p class="prompt_text">Your timezone: <span id="localtz"></span><input name="localtz" type="hidden" id="tzinp" /></p>
+                        <label class="radio inline"><input type="radio" name="hide_others" value="1" /> Hide others' status</label><label class="radio inline"><input type="radio" name="hide_others" value="0" checked="checked" />  Show others' status</label>
+                        <label class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></label>
+                        <p class="prompt_text">( Leave it blank if not needed )</p>
+                        <label><input type="checkbox" name="owner_viewable" />Allow owner view participant's code</label>
                     </div>
 
 <?php
