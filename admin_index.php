@@ -155,39 +155,7 @@ if ($current_user->is_root()) {
                       <button class="btn btn-primary" type="button" id="cclonesrc">Clone</button>
                     </div>
                     <p><b>Leave Problem ID blank if you don't want to add it.</b></p>
-                    <table style="width:100%" class="table table-condensed">
-<?php
-  for($i=0;$i<$nn;$i++){
-?>
-                        <tr>
-                            <td class="span3">
-                              <div class="input-prepend">
-                                <span class="add-on">Problem </span>
-                                <input id="prependedInput" class="input-mini" type="text" name="lable<?=$i ?>" value="<?=chr($i+65) ?>" style="text-align:center;" />
-                              </div>
-                            </td>
-                            <td class='selpid span9'>
-                                <div><input style="float:left;margin-right:20px" type="text" name="pid<?=$i?>" placeholder="Problem ID" class="input-medium" /></div>
-                                <div style="float:left;display:none" class="selptype inline">
-                                    <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="1" checked="checked" /> CF</label>
-                                    <label class="radio inline"><input type="radio" class='ptype' name="ptype<?=$i?>" value="2" /> TC</label> <br />
-                                </div>
-                                <div class='well selpara' style="display:none;clear:both">
-                                    <div class='cf tc'><label>Base Value (MP) : <input class="input-small" type="text" value='500' name="base<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label>Min Value: <input class="input-small" type="text" value='150' name="minp<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label>Parameter A: <input type="text" class='input-small paraa' value="2" name="paraa<?=$i?>" /></label></div>
-                                    <div class='cf tc'><label>Parameter B: <input type="text" class='input-small parab' value="50" name="parab<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label>Parameter C: <input class='input-small parac' type="text" name="parac<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label>Parameter D: <input class='input-small parad' type="text" name="parad<?=$i?>" /></label></div>
-                                    <div class='tc' style="display:none"><label>Parameter E: <input class='input-small parae' type="text" name="parae<?=$i?>" /></label></div>
-                                    <div class='typenote' style="color:blue"></div>
-                                </div>
-                            </td>
-                        </tr>
-<?php
-  }
-?>
-                    </table>
+                    <div id="cprobs" class="con_probs"></div>
                     <h4>Add User For Contest (Seperate them by characters other than [A-Z0-9a-z_-] )</h4>
                     <textarea name="names" class="input-block-level" rows="8"></textarea>
                     <div class="pull-right" style="margin-top:10px">
@@ -379,23 +347,7 @@ if ($current_user->is_root()) {
                         <button class="btn btn-primary" type="button" id="vclonesrc">Clone</button>
                       </div>
                       <p><b>Fill in order. Leave Problem ID blank if not exists.</b></p>
-                      <table style="width:100%" class="table table-bordered table-condensed">
-<?php
-  for($i=0;$i<$nn;$i++){
-?>
-                        <tr>
-                            <td>Problem <?=chr($i+65) ?><input type="hidden" name="lable<?=$i?>" value="<?=chr($i+65) ?>" /></td>
-                            <td>
-                                OJ: <select class="vpname input-small"><?=$ojoptions; ?></select>
-                                <input class="vpid input-small" name="vpid<?=$i?>" type="text" placeholder="Problem ID"/>
-                                <input class="vpid" type="hidden" name="pid<?=$i?>" />
-                                <br /><span style="overflow:hidden;color:red"></span>
-                            </td>
-                        </tr>
-<?php
-  }
-?>
-                    </table>
+                      <div id="vprobs" class="con_probs"></div>
                     <div class="pull-right">
                       <button class="btn btn-primary" type="submit">Submit</button>
                     </div>
@@ -520,6 +472,9 @@ else {
 ?>
         </div>
 <script type="text/javascript" src="js/admin.js?<?=filemtime("js/admin.js")?>" ></script>
+<script type="text/javascript">
+$.fn.problemlist.ojoptions="<?=addslashes($ojoptions)?>";
+</script>
 <?php
 include("footer.php");
 ?>

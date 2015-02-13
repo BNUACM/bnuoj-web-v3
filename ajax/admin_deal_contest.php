@@ -32,18 +32,20 @@ if ($current_user->is_root()&&contest_get_val($cid,"type")!=99) {
     $challenge_end_time=convert_str($_POST['challenge_end_time']);
     $hide_others=convert_str($_POST['hide_others']);
     $n = $config["limits"]["problems_on_contest_add"];
-    for($i=0;$i<$n;$i++){
-        $pid[$i] = convert_str($_POST['pid'.$i]);
-        $lable[$i] = convert_str($_POST['lable'.$i]);
-        $ptype[$i] = convert_str($_POST['ptype'.$i]);
-        $base[$i] = convert_str($_POST['base'.$i]);
-        $minp[$i] = convert_str($_POST['minp'.$i]);
-        $paraa[$i] = convert_str($_POST['paraa'.$i]);
-        $parab[$i] = convert_str($_POST['parab'.$i]);
-        $parac[$i] = convert_str($_POST['parac'.$i]);
-        $parad[$i] = convert_str($_POST['parad'.$i]);
-        $parae[$i] = convert_str($_POST['parae'.$i]);
+    foreach($_POST['prob'] as $prob){
+        if(convert_str($prob['pid'])=="") continue;
+        $pid[] = convert_str($prob['pid']);
+        $lable[] = convert_str($prob['lable']);
+        $ptype[] = convert_str($prob['ptype']);
+        $base[] = convert_str($prob['base']);
+        $minp[] = convert_str($prob['minp']);
+        $paraa[] = convert_str($prob['para_a']);
+        $parab[] = convert_str($prob['para_b']);
+        $parac[] = convert_str($prob['para_c']);
+        $parad[] = convert_str($prob['para_d']);
+        $parae[] = convert_str($prob['para_e']);
     }
+    $n = min($n, sizeof($pid));
 
     
     $stt=strtotime($start_time);
@@ -97,19 +99,29 @@ if ($current_user->is_root()&&contest_get_val($cid,"type")!=99) {
         //echo $sql_con."\n";
         $pd=false;
         for($i=0;$i<$n;$i++){
-            if($pid[$i] == "")continue;
             if (!problem_exist($pid[$i])) {
                 $ret["msg"].="Failed to add Problem ".$lable[$i].", pid: ".$pid[$i]." not exists.<br />";
             }
             //else echo "Problem ".$lable[$i]." added, pid: ".$pid[$i].".<br />";
         }
         for($i=0;$i<$n;$i++){
-            if($pid[$i] == "") continue;
-            if ($ctype==0) $sql= "insert into contest_problem (cid ,pid,lable) values ('".$cid."','".$pid[$i]."','".$lable[$i]."')";
-            else $sql = "insert into contest_problem (cid ,pid,lable,type,base,minp,para_a,para_b,para_c,para_d,para_e) values
-                ('".$cid."','".$pid[$i]."','".$lable[$i]."','".$ptype[$i]."','".$base[$i]."','".$minp[$i]."','".$paraa[$i]."','".$parab[$i]."','".$parac[$i]."','".$parad[$i]."','".$parae[$i]."')";
+            if ($ctype==0) 
+                $sql= "insert into contest_problem (cid ,pid,lable) 
+                       select * from (select '".$cid."' as cid,'".$pid[$i]."' as pid,'".$lable[$i]."' as lable) as tmp
+                       where not exists (
+                           select cpid from contest_problem where cid='".$cid."' and pid='".$pid[$i]."'
+                       ) limit 1
+
+                ";
+            else $sql = "insert into contest_problem (cid ,pid,lable,type,base,minp,para_a,para_b,para_c,para_d,para_e)
+                         select * from (select '".$cid."' as cid,'".$pid[$i]."' as pid,'".$lable[$i]."' as lable,'".$ptype[$i]."' as ptype,'".$base[$i]."' as base,'".$minp[$i]."' as minp,'".$paraa[$i]."' as paraa,'".$parab[$i]."' as parab,'".$parac[$i]."' as parac,'".$parad[$i]."' as parad,'".$parae[$i]."' as parae) as tmp
+                         where not exists (
+                             select cpid from contest_problem where cid='".$cid."' and pid='".$pid[$i]."'
+                         ) limit 1
+                ";
             $db->query($sql);
         }
+        $db->query("delete from contest_problem where cid='".$cid."' and pid not in (".implode(',',$pid).");");
         $cres=$db->query("select problem.title from contest_problem,problem where cid=".$cid." and contest_problem.pid=problem.pid");
         $str=array();
         foreach ( (array) $db->get_results(null,ARRAY_N) as $crow) {

@@ -12,6 +12,7 @@ function resetpdetail() {
 
 function resetcdetail() {
     $("#cdetail")[0].reset();
+    $("#cprobs").problemlist('reset');
     CKEDITOR.instances.treport.setData("");
 }
 
@@ -66,19 +67,11 @@ function conload(cid) {
         else {
             $("#cdetail").populate(data);
             CKEDITOR.instances.treport.setData(data.report);
-            var ctp=$("input[name='ctype']:checked").val();
-            if (ctp=='0') {
-                $(".selptype , .selpara").hide();
-            } else if (ctp=='1') {
-                $(".tc").hide();
-                $(".cf").show();
-                $(".paraa").val('2');
-                $(".parab").val('50');
-                $(".selptype , .selpara").show();
-                $(".typenote").text("In CF, Parameter A represents the points lost per minute. Parameter B represents the points lost for each incorrect submit.");
-            }
             if ($("input[name='has_cha']:checked").val()=="1") $(".chatimerow").show();
             else $(".chatimerow").hide();
+            $("#cprobs").problemlist("loadcontest",$("#ncid").val());
+            var ctp=$("input[name='ctype']:checked").val();
+            $("#cprobs").problemlist('settype',ctp);
         }
     });
 }
@@ -98,6 +91,8 @@ function newsload(nnid) {
 
 
 $(document).ready(function() {
+    $("#cprobs").problemlist();
+    $("#vprobs").problemlist();
 
     $("option[value=BNU]","select[name=pcoj]").remove();
 
@@ -120,7 +115,6 @@ $(document).ready(function() {
         probload($("#npid").val());
         return false;
     });
-
 
     $("#cdetail").bind("preprocess",function() {
         CKEDITOR.instances.treport.updateElement();
@@ -167,45 +161,10 @@ $(document).ready(function() {
         });
     });
 
-    $(".ptype").change(function() {
-        var ptp=$(this).val();
-    //    alert(ptp);
-        if (ptp=='0') {
-            $(this).nextAll("div").hide();
-        } else if (ptp=='1') {
-            var aa=$(this).parent().parent().nextAll(".selpara").children(".cf");
-            $(this).parent().parent().nextAll(".selpara").children().hide();
-            $(".paraa",aa).val("2");
-            $(".parab",aa).val("50");
-            aa.show();
-            $(this).parent().parent().nextAll(".selpara").children(".typenote").text("In CF, Parameter A represents the points lost per minute. Parameter B represents the points lost for each incorrect submit.").show();
-            $(this).parent().parent().nextAll(".selpara").show();
-        } else if (ptp=='2') {
-            var aa=$(this).parent().parent().nextAll(".selpara").children(".tc");
-            $(this).parent().parent().nextAll(".selpara").children().hide();
-            $(".paraa",aa).val("0.3");
-            $(".parab",aa).val("0.7");
-            $(".parac",aa).val("4500");
-            $(".parad",aa).val("10");
-            $(".parae",aa).val("10");
-            aa.show();
-            $(this).parent().parent().nextAll(".selpara").children(".typenote").html("In TC, parameters defined as below. A + B must equal to 1. Parameter C is the length of this contest in TopCoder. Parameter E is the percentage of penalty for each incorrect submit.<br /><img src='img/tcpoint.png' />").show();
-            $(this).parent().parent().nextAll(".selpara").show();
-
-        }
-    });
-
     $("input[name='ctype']").change(function() {
         var ctp=$(this).val();
-        //alert(ctp);
-        if (ctp=='0') {
-            $(".selptype , .selpara").hide();
-        } else if (ctp=='1') {
-            $(".tc").hide();
-            $(".cf").show();
-            $(".paraa").val('2');
-            $(".parab").val('50');
-            $(".selptype , .selpara").show();
+        $(this).parents("form").children(".con_probs").problemlist("settype",ctp);
+        if (ctp=='1') {
             $(".typenote").text("In CF, Parameter A represents the points lost per minute. Parameter B represents the points lost for each incorrect submit.");
         }
     });
@@ -273,40 +232,6 @@ $(document).ready(function() {
         });
     });
 
-    function deal(id,oj,$target) {
-        $.get("ajax/admin_get_problem_basic.php?vid="+id+"&vname="+oj+"&randomid="+Math.random(),function(data) {
-            var p=eval('('+data+')');
-            if (p.code!=0) {
-                //$target.prev().val(id);
-                if (id==$target.prev().val()) {
-                    $target.val("");
-                    $target.next().next().html("Error!");
-                }
-            }
-            else {
-                var p=eval('('+data+')');
-                if (id==$target.prev().val()) {
-                    $target.val(p.pid);
-                    $target.next().next().html("<a href='problem_show.php?pid="+p.pid+"' target='_blank'>"+p.title+"</a>");
-                }
-            }
-        });
-    }
-
-    $(".vpid").keyup(function() {
-        var vid=$(this).val();
-        var vname=$(this).prev().val();
-        var $target=$(this).next();
-        deal(vid,vname,$target);
-    });
-    $(".vpname").change(function() {
-        var vid=$(this).next().val();
-        var vname=$(this).val();
-        var $target=$(this).next().next();
-        deal(vid,vname,$target);
-    });
-
-
     $("#replaycrawl").ajaxForm({
       beforeSubmit: function (formData, tform, options) {
         tform.trigger("preprocess");
@@ -341,56 +266,22 @@ $(document).ready(function() {
 
 
     $("#cclonecid").click(function() {
-        var val=$("#clcid").val();
-        $(this).attr("disabled", true).addClass("disabled");
-        $.get("ajax/admin_get_contest_problems.php?type=cid&value="+val,function(data) {
-            //alert(data);
-            data=eval('('+data+')');
-            if (data.result==0) $("#cdetail").populate(data,{resetForm:false});
-            else alert("Error Occured!");
-            $("#cclonecid").attr("disabled", false).removeClass("disabled");
-        });
+        $("#cprobs").problemlist("loadcontest",$("#clcid").val());
         return false;
     });
 
     $("#cclonesrc").click(function() {
-        var val=$("#clsrc").val();
-        $(this).attr("disabled", true).addClass("disabled");
-        $.get("ajax/admin_get_contest_problems.php?type=src&value="+val,function(data) {
-            //alert(data);
-            data=eval('('+data+')');
-            if (data.result==0) $("#cdetail").populate(data,{resetForm:false});
-            else alert("Error Occured!");
-            $("#cclonesrc").attr("disabled", false).removeClass("disabled");
-        });
+        $("#cprobs").problemlist("loadsource",$("#clsrc").val());
         return false;
     });
 
     $("#vclonecid").click(function() {
-        var val=$("#vclcid").val();
-        $(this).attr("disabled", true).addClass("disabled");
-        $.get("ajax/admin_get_contest_problems.php?out=v&type=cid&value="+val,function(data) {
-            //alert(data);
-            data=eval('('+data+')');
-            if (data.result==0) $("#replayform").populate(data,{resetForm:false});
-            else alert("Error Occured!");
-            $("#vclonecid").attr("disabled", false).removeClass("disabled");
-            $(".vpid").keyup();
-        });
+        $("#vprobs").problemlist("loadcontest",$("#vclcid").val());
         return false;
     });
 
     $("#vclonesrc").click(function() {
-        var val=$("#vclsrc").val();
-        $(this).attr("disabled", true).addClass("disabled");
-        $.get("ajax/admin_get_contest_problems.php?out=v&type=src&value="+val,function(data) {
-            //alert(data);
-            data=eval('('+data+')');
-            if (data.result==0) $("#replayform").populate(data,{resetForm:false});
-            else alert("Error Occured!");
-            $("#vclonesrc").attr("disabled", false).removeClass("disabled");
-            $(".vpid").keyup();
-        });
+        $("#vprobs").problemlist("loadsource",$("#vclsrc").val());
         return false;
     });
 
@@ -420,7 +311,6 @@ $(document).ready(function() {
 
     $("#userspace").addClass("active");
     var dest=self.document.location.hash;
-    //alert(dest);
     if (dest!="#") $("[href='"+dest+"']","#admintab").click();
 
     $("#genuser input[name='cid']").keyup(function() {
