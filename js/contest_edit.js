@@ -1,7 +1,4 @@
 $(document).ready(function() {
-    $('.datepick').datetimepicker({
-        format: 'yyyy-mm-dd hh:ii:ss'
-    });
 
     $("#cmodifyform").bind("correct",function(){
         window.location.href="contest.php?virtual=1";
@@ -16,4 +13,6 @@ $(document).ready(function() {
     $("#probs").problemlist("loadcontest",getURLPara("cid"));
     $(".ptype:checked").change();
     $("input[name='ctype']:checked").change();
+    $("input[name=end_time]").change();
+    $("input[name=lock_board_time]").change();
 });
