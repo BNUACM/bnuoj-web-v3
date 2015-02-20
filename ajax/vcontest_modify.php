@@ -78,12 +78,14 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
             hide_others='$hide_others',
             type='$ctype',
             password='$pass',
+            ispriviate='$isprivate',
             owner_viewable='$owner_viewable'
             where cid='$cid'";
         else $sql_add_con = "update contest set
             title='$title',
             description='$description',
-            password='$pass'
+            password='$pass',
+            ispriviate='$isprivate'
             where cid='$cid'";
 
         //$sql_add_con = change_in($sql_add_con);
