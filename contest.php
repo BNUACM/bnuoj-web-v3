@@ -6,7 +6,8 @@ include_once("functions/contests.php");
         <div class="span12">
           <button id="arrangevirtual" class="hide btn btn-primary">Arrange VContest</button>
           <div class="btn-group">
-            <button id="showall" class="btn btn-info active">All</button> <button id="showstandard" class="btn btn-info">Standard</button>
+            <button id="showall" class="btn btn-info active">All</button>
+            <button id="showstandard" class="btn btn-info">Standard</button>
             <button id="showvirtual" class="btn btn-info">Virtual</button>
           </div>
           <div class="btn-group">
