@@ -316,7 +316,7 @@ function pcrawler_openjudge_num() {
 }
 
 function pcrawler_sysu($pid) {
-    $url="http://soj.me/$pid";
+    $url="http://222.200.185.45//$pid";
     $content=file_get_contents($url);
     $ret=array();
 
