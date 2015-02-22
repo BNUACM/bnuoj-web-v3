@@ -39,11 +39,14 @@ class Problem {
         if ($vname=="PKU")  $this->info["to_url"]="<a href='http://acm.pku.edu.cn/JudgeOnline/problem?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="OpenJudge")  $this->info["to_url"]="<a href='http://poj.openjudge.cn/practice/$vid' target='_blank'>$vid</a>";
         else if ($vname=="CodeForces")  {
-            $ov=$vid;
-            $v1=$vid[strlen($vid)-1];
-            $tv=$vid;
-            $tv[strlen($vid)-1]='/';
-            $this->info["to_url"]="<a href='http://codeforces.com/problemset/problem/$tv$v1' target='_blank'>$ov</a>";
+            $contest=substr($vid,0,-1);
+            $label=substr($vid,-1);
+            $this->info["to_url"]="<a href='http://codeforces.com/problemset/problem/$contest/$label' target='_blank'>$vid</a>";
+        }
+        else if ($vname=="CodeForcesGym")  {
+            $contest=substr($vid,0,-1);
+            $label=substr($vid,-1);
+            $this->info["to_url"]="<a href='http://codeforces.com/gym/$contest/problem/$label' target='_blank'>$vid</a>";
         }
         else if ($vname=="HDU")  $this->info["to_url"]="<a href='http://acm.hdu.edu.cn/showproblem.php?pid=$vid' target='_blank'>$vid</a>";
         else if ($vname=="SGU")  $this->info["to_url"]="<a href='http://acm.sgu.ru/problem.php?contest=0&problem=$vid' target='_blank'>$vid</a>";

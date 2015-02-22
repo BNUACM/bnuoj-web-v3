@@ -98,20 +98,18 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     return $gnum;
 }
 
-function pcrawler_cf_one($cid,$num,$probs=array()) {
+function pcrawler_cf_one($cid,$num,$url,$ret=array()) {
     global $config;
 
     $pid=$cid.$num;
-    $url=strlen($cid)==6?"http://codeforces.com/gym/$cid/problem/$num":"http://codeforces.com/problemset/problem/$cid/$num";
     $content=file_get_contents($url);
-    isset($probs[$num]) ? $ret=$probs[$num] : $ret=array();
     if (stripos($content,"<title>Codeforces</title>")===false) {
         if (stripos(get_headers($url,1)["Content-Type"], "application/pdf")===false) {
             if (preg_match("/<div class=\"title\">$num\\. (.*)<\\/div>/sU", $content,$matches)) $ret["title"]=trim($matches[1]);
             if (preg_match("/time limit per test<\\/div>(.*) second/sU", $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]))*1000;
             $ret["case_time_limit"]=$ret["time_limit"];
             if (preg_match("/memory limit per test<\\/div>(.*) megabyte/sU", $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
-            if (preg_match("/output<\\/div>.*<div><p>(.*)<\\/div>/sU", $content,$matches)) $ret["description"].=trim($matches[1]);
+            if (preg_match("/output<\\/div>.*<div>(<p>.*)<\\/div>/sU", $content,$matches)) $ret["description"].=trim($matches[1]);
             if (preg_match("/Input<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["input"]=trim($matches[1]);
             if (preg_match("/Output<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["output"]=trim($matches[1]);
             if (preg_match("/Sample test\\(s\\)<\\/div>(.*<\\/div><\\/div>)<\\/div>/sU", $content,$matches)) $ret["sample_in"]=trim($matches[1]);
@@ -120,7 +118,7 @@ function pcrawler_cf_one($cid,$num,$probs=array()) {
             if (preg_match("/<th class=\"left\" style=\"width:100%;\">(.*)<\\/th>/sU", $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
             $ret["special_judge_status"]=0;
         }else{
-            file_put_contents($config["base_local_path"]."external/gym/$cid$num.pdf",file_get_contents($url));
+            file_put_contents($config["base_local_path"]."external/gym/$cid$num.pdf",$content);
             $ret["description"].="<a href=\"external/gym/$cid$num.pdf\">[PDF Link]</a>";
         }
         return $ret;
@@ -129,33 +127,44 @@ function pcrawler_cf_one($cid,$num,$probs=array()) {
 }
 
 function pcrawler_codeforces($cid) {
+    $msg="";
+    $num='A';
+    while ($row=pcrawler_cf_one($cid,$num,"http://codeforces.com/problemset/problem/$cid/$num")) {
+        $row=pcrawler_process_info($row,"cf","http://codeforces.ru/");
+        $id=pcrawler_insert_problem($row,"CodeForces",$cid.$num);
+        $msg.="CodeForces $cid$num has been crawled as $id.<br>";
+        $num++;
+    }
+    $msg.="No problem called CodeForces $cid$num.<br>";
+    return $msg;
+}
+
+function pcrawler_codeforcesgym($cid){
     global $config;
     $msg="";
-    if(strlen($cid)==6) {
-        $html=file_get_html("http://codeforces.com/gym/$cid");
-        $table=$html->find("table.problems",0);
-        $rows=$table->find("tr");
-        $probs=$prob=array();
-        $prob["input"]=$prob["output"]=$prob["sample_in"]=$prob["sample_out"]=$prob["hint"]=$prob["source"]="";
-        if(preg_match("/Dashboard - (.*?) - Codeforces/sU",$html->find("title",0)->innertext,$matches)) $prob["source"]=trim($matches[1]);
-        for($i=1;$i<sizeof($rows);$i++){
-            $row=$rows[$i];
-            preg_match("/class=\"id\">.*?<a href=\"\/gym.*?\">.*?([A-Z]).*?<!--.*?-->(.*?)<!--.*class=\"notice\">.*?<div>(.*?)<\/div>.*?([0-9]*) s, ([0-9]*) MB/s", $row->innertext, $matches);
-            $prob["label"]=$matches[1];
-            $prob["title"]=trim($matches[2]);
-            $prob["time_limit"]=intval($matches[4])*1000;
-            $prob["memory_limit"]=intval($matches[5])*1024;
-            $prob["description"]=trim($matches[3])."<br />";
-            $probs[$prob["label"]]=$prob;
-        }
+    $html=file_get_html("http://codeforces.com/gym/$cid");
+    $table=$html->find("table.problems",0);
+    $rows=$table->find("tr");
+    $probs=$prob=array();
+    $prob["input"]=$prob["output"]=$prob["sample_in"]=$prob["sample_out"]=$prob["hint"]=$prob["source"]="";
+    if(preg_match("/Dashboard - (.*?) - Codeforces/sU",$html->find("title",0)->innertext,$matches)) $prob["source"]=trim($matches[1]);
+    for($i=1;$i<sizeof($rows);$i++){
+        $row=$rows[$i];
+        preg_match("/class=\"id\">.*?<a href=\"\/gym.*?\">.*?([A-Z]).*?<!--.*?-->(.*?)<!--.*class=\"notice\">.*?<div>(.*?)<\/div>.*?([0-9]*) s, ([0-9]*) MB/s", $row->innertext, $matches);
+        $prob["label"]=$matches[1];
+        $prob["title"]=trim($matches[2]);
+        $prob["time_limit"]=intval($matches[4])*1000;
+        $prob["memory_limit"]=intval($matches[5])*1024;
+        $prob["description"]="<p><strong>Input/Output: ".trim($matches[3])."</strong></p>";
+        $probs[$prob["label"]]=$prob;
     }
-    if(strlen($cid) == 6 && stripos($att = file_get_contents("http://codeforces.com/gym/$cid/problem/A"),"<title>Attachments")){
+    if(stripos($att = file_get_contents("http://codeforces.com/gym/$cid/problem/A"),"<title>Attachments")){
         if (preg_match("/<a href=\"(\/gym\/$cid.*?\.pdf)\"/s", $att, $matches)) {
             $pdf=$matches[1];
             file_put_contents($config["base_local_path"]."external/gym/$cid.pdf",file_get_contents("http://codeforces.com/$pdf"));
             foreach($probs as $prob){
                 $prob["description"].="<a href=\"external/gym/$cid.pdf\">[PDF Link]</a>";
-                $id=pcrawler_insert_problem($prob,"CodeForces",$cid.$prob["label"]);
+                $id=pcrawler_insert_problem($prob,"CodeForcesGym",$cid.$prob["label"]);
                 $msg.="CodeForces $cid$prob[label] has been crawled as $id.<br>";
             }
         }else{
@@ -163,9 +172,9 @@ function pcrawler_codeforces($cid) {
         }
     }else{
         $num='A';
-        while ($row=pcrawler_cf_one($cid,$num,$probs)) {
+        while ($row=pcrawler_cf_one($cid,$num,"http://codeforces.com/gym/$cid/problem/$num",$probs[$num])) {
             $row=pcrawler_process_info($row,"cf","http://codeforces.ru/");
-            $id=pcrawler_insert_problem($row,"CodeForces",$cid.$num);
+            $id=pcrawler_insert_problem($row,"CodeForcesGym",$cid.$num);
             $msg.="CodeForces $cid$num has been crawled as $id.<br>";
             $num++;
         }
@@ -173,7 +182,6 @@ function pcrawler_codeforces($cid) {
     }
     return $msg;
 }
-
 
 function pcrawler_codeforces_num() {
     global $db;
