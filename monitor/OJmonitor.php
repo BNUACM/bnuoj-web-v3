@@ -245,7 +245,7 @@ function check_nbut() {
         foreach ($res as $row) {
             $result=$row->find("td",3)->plaintext;
             // echo $result;
-            if (stristr($result,"queu")||stristr($result,"waiting")) $num++;
+            if (stristr($result,"queu")||stristr($result,"waiting")||stristr($result,"compiling")) $num++;
         }
         if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
         return "Normal";
