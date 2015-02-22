@@ -127,8 +127,10 @@ body {
 .cscheduled {color:blue;}
 .cpassed {color:green;}
 
-
-
+/* form */
+form .prompt_text {margin-bottom:0;}
+label,input {margin-top:3px;}
+    label input {margin-top:0;}
 
 /* flip-scroll */
 @media only screen and (max-width: 800px) {

@@ -3207,3 +3207,71 @@ jQuery.fn.populate = function (a, b) {
     };
     $.fn.problemlist.ojoptions={};
 })(jQuery);
+
+(function($){
+    $(document).ready(function(){
+        $(".contest-time-pick").each(function(){
+            var $start_picker=$(this).find("input[name=start_time]");
+            var $end_picker=$(this).find("input[name=end_time]");
+            var $lock_picker=$(this).find("input[name=lock_board_time]");
+            var $duration_picker=$(this).find("input[name=duration]");
+            var lockbefore=moment.duration(moment($end_picker.val()).unix()-moment($lock_picker.val()).unix(),'s');
+
+            function setDuration(duration){
+                var hh=Math.floor(duration.asHours());
+                var mm=duration.minutes();
+                var ss=duration.seconds();
+                $duration_picker.val(hh+":"+(mm<10?"0":"")+mm+":"+(ss<10?"0":"")+ss);
+            }
+
+            function parseDuration(){
+                var duration=moment.duration($duration_picker.val());
+                setDuration(duration);
+                return duration;
+            }
+
+            function updateTimeSelect(){
+                var duration=parseDuration()
+
+                var end_time=moment($start_picker.val()).add(duration);
+                if(end_time.isValid()) $end_picker.val(end_time.format("YYYY-MM-DD HH:mm:ss"));
+
+                var lock_time=end_time.subtract(lockbefore);
+                if(lock_time.isValid()) $lock_picker.val(lock_time.format("YYYY-MM-DD HH:mm:ss"));
+            }
+
+            $(this).children(".date").datetimepicker({
+                format: 'yyyy-mm-dd hh:ii:ss'
+            });
+
+            $duration_picker.change(function(){
+                var $text=$(this).parent().next();
+                var duration=parseDuration();
+                duration.asMinutes()<30 || duration.asDays()>15 ? $text.addClass("text-warning") : $text.removeClass("text-warning");
+                updateTimeSelect();
+            });
+
+            $start_picker.change(function(){
+                var $text=$(this).parent().next();
+                moment($(this).val()).unix() - moment().unix() < 10*60 ? $text.addClass("text-warning") : $text.removeClass("text-warning");
+                updateTimeSelect();
+            });
+
+            $end_picker.change(function(){
+                var $text=$(this).parent().next();
+                var duration = moment.duration(moment($(this).val()).unix()-moment($start_picker.val()).unix(),'s');
+                if(duration.asSeconds()>0){
+                    $text.removeClass("text-warning");
+                    setDuration(duration);
+                }else{
+                    $text.addClass("text-warning");
+                }
+                updateTimeSelect();
+            });
+
+            $lock_picker.change(function(){ 
+                lockbefore=moment.duration(moment($end_picker.val()).unix()-moment($lock_picker.val()).unix(),'s');
+            });
+        });
+    });
+})(jQuery);

@@ -19,43 +19,45 @@ if (contest_exist($cid)&&!contest_passed($cid)&&($current_user->is_root()||$curr
             <input name="cid" value='<?= $cid; ?>' type="hidden" />
             <div class="row-fluid">
                 <div class="span6">
-                    <table style="width:100%;">
-                        <tr><th>Contest Information</th></tr>
+                    <h4>Contest Information</h4>
 
-                        <tr><td><input type="text" name="title" value="<?=contest_get_val($cid,"title") ?>" class="input-block-level" placeholder="Contest Title *" /></td></tr>
+                    <input type="text" name="title" value="<?=contest_get_val($cid,"title") ?>" class="input-block-level" placeholder="Contest Title *" />
 <?php
 if (!contest_started($cid)) {
 ?>
-                        <tr><td>Type: <label class="radio inline"><input type="radio" name="ctype" value="0" <?=contest_get_val($cid,"type")==0?'checked="checked"':'' ?> /> ICPC format</label><label class="radio inline"><input type="radio" name="ctype" value="1" <?=contest_get_val($cid,"type")==1?'checked="checked"':'' ?> /> CF format</label> </td></tr>
+                    Type: <label class="radio inline"><input type="radio" name="ctype" value="0" <?=contest_get_val($cid,"type")==0?'checked="checked"':'' ?> /> ICPC format</label><label class="radio inline"><input type="radio" name="ctype" value="1" <?=contest_get_val($cid,"type")==1?'checked="checked"':'' ?> /> CF format</label>
 <?php
 }
 ?>
-                        <tr><td><textarea name="description" rows="8" class="input-block-level" placeholder="Contest Description"><?=htmlspecialchars(contest_get_val($cid,"description")) ?></textarea></td></tr>
+                    <textarea name="description" rows="8" class="input-block-level" placeholder="Contest Description"><?=htmlspecialchars(contest_get_val($cid,"description")) ?></textarea>
 <?php
 if (!contest_started($cid)) {
 ?>
-                        <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Start Time* : </span><input id="prependedInput" type="text" name="start_time" value='<?=contest_get_val($cid,"start_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                        <tr><td>( At least after 10 minutes )</td></tr>
-                        <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input id="prependedInput" type="text" name="end_time" value='<?=contest_get_val($cid,"end_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                        <tr><td>( Length should be between 30 minutes and 15 days )</td></tr>
-                        <tr><td><div class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input id="prependedInput" type="text" name="lock_board_time" value='<?=contest_get_val($cid,"lock_board_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></div></td></tr>
-                        <tr><td>( Set it later than end time if you don't want to lock board )</td></tr>
-                        <tr><td><label class="radio inline"><input type="radio" name="localtime" value="1" />Use local timezone</label><label class="radio inline"><input type="radio" name="localtime" value="0" checked="checked" /> Use server timezone</label></td></tr>
-                        <tr><td>Your timezone: <span id="localtz"></span><input name="localtz" type="hidden" id="tzinp" /></td></tr>
-                        <tr><td><label class="radio inline"><input type="radio" name="hide_others" value="1" <?=contest_get_val($cid,"hide_others")==1?'checked="checked"':'' ?> /> Hide others' status</label><label class="radio inline"><input type="radio" name="hide_others" value="0" <?=contest_get_val($cid,"hide_others")==0?'checked="checked"':'' ?> />  Show others' status</label></td></tr>
+                    <fieldset class="contest-time-pick">
+                        <label class="input-append input-prepend date datepick"><span class="add-on">Start Time* : </span><input type="text" name="start_time" value='<?=contest_get_val($cid,"start_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <p class="prompt_text">( At least after 10 minutes )</p>
+                        <label class="input-append input-prepend"><span class="add-on">Duration* : </span><input type="text" name="duration" value=''/></label>
+                        <p class="prompt_text">( Duration should be between 30 minutes and 15 days )</p>
+                        <label class="input-append input-prepend date datepick"><span class="add-on">End Time* : </span><input type="text" name="end_time" value='<?=contest_get_val($cid,"end_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <p class="prompt_text">( Has to be later than start time )</p>
+                        <label class="input-append input-prepend date datepick"><span class="add-on">Lock Board Time: </span><input type="text" name="lock_board_time" value='<?=contest_get_val($cid,"lock_board_time") ?>'/><span class="add-on"><i class="icon-th"></i></span></label>
+                        <p class="prompt_text">( Set it later than end time if you don't want to lock board )</p>
+                    </fieldset>
+                    <label class="radio inline"><input type="radio" name="localtime" value="1" />Use local timezone</label><label class="radio inline"><input type="radio" name="localtime" value="0" checked="checked" /> Use server timezone</label>
+                    <p class="prompt_text">Your timezone: <span id="localtz"></span><input name="localtz" type="hidden" id="tzinp" /></p>
+                    <label class="radio inline"><input type="radio" name="hide_others" value="1" <?=contest_get_val($cid,"hide_others")==1?'checked="checked"':'' ?> /> Hide others' status</label><label class="radio inline"><input type="radio" name="hide_others" value="0" <?=contest_get_val($cid,"hide_others")==0?'checked="checked"':'' ?> />  Show others' status</label>
 <?php
 }
 ?>
-                        <tr><td><div class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></div></td></tr>
-                        <tr><td>( Leave it blank if not needed )</td></tr>
+                    <label class="input-prepend"><span class="add-on">Password: </span><input type="password" name="password" /></label>
+                    <p class="prompt_text">( Leave it blank if not needed )</p>
 <?php
 if (!contest_started($cid)) {
 ?>
-    <tr><td><input type="checkbox" name="owner_viewable" <?=contest_get_val($cid,"owner_viewable")==1?'checked="checked"':''?>/>Allow owner view participant's code</td></tr>
-<?
+                    <label><input type="checkbox" name="owner_viewable" <?=contest_get_val($cid,"owner_viewable")==1?'checked="checked"':''?>/>Allow owner view participant's code</label>
+<?php
 }
 ?>
-                    </table>
                 </div>
                 <div id="probs" class="span6<?=contest_started($cid)?' hide':''?>">
                 </div>
@@ -80,6 +82,7 @@ $("#localtz").html(timezone.name()+" GMT"+timezone.offset());
 $("#tzinp").val(timezone.name());
 $.fn.problemlist.ojoptions="<?=addslashes($ojoptions)?>";
 </script>
+<script type="text/javascript" src="js/moment.min.js"></script>
 <script type="text/javascript" src="js/contest_edit.js?<?=filemtime("js/contest_edit.js") ?>"></script>
 
 <?php

@@ -64,10 +64,6 @@ $(document).ready(function() {
         $("input[name='title']",this).focus();
     });
 
-    $(".datepick").datetimepicker({
-        format: 'yyyy-mm-dd hh:ii:ss'
-    });
-
     if ($.cookie(cookie_prefix+"username")!=null) $("#arrangevirtual").show();
 
     $("#arrangeform").bind("correct",function() {
