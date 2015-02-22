@@ -4,3 +4,6 @@
 # ignore upload files
 /uploadstand/*
 /external/*
+
+# ignore real config files
+config.php

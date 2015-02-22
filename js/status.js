@@ -195,7 +195,7 @@ $(document).ready(function() {
                     $("#statusdialog #rresult").html(data.result).removeClass().addClass(get_short(data.result));
                     $("#statusdialog #rmemory").html(data.memory_used);
                     $("#statusdialog #rtime").html(data.time_used);
-                    $("#statusdialog #ruser").html("<a href='userinfo.php?pid="+data.username+"' target='_blank'>"+data.username+"</a>");
+                    $("#statusdialog #ruser").html("<a href='userinfo.php?name="+data.username+"' target='_blank'>"+data.username+"</a>");
                     $("#statusdialog #rpid").html("<a href='problem_show.php?pid="+data.pid+"'>"+data.pid+"</a>");
                     $("#statusdialog #rlang").html(data.language);
                     $("#statusdialog #dcontent").html(data.source).removeClass().addClass('prettyprint');
