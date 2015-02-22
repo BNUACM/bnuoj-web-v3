@@ -1379,8 +1379,8 @@ function pcrawler_codechef($pid) {
     $url="http://www.codechef.com/problems/$pid";
     $content=file_get_contents($url);
     $ret=array();
-    if (stripos($content,"We don't have problems of this category :)</div>")===false) {
-        if (preg_match('/<h1>(.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+    if (stripos($content,"CodeChef</title>")!==false) {
+        if (preg_match('/<h1>(.*)</sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match('/Time Limit:<\/td>\s*<td>(.*) sec/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
         $ret["memory_limit"]="0";
         if (preg_match('/<div class="meta">.*<div class="content">(.*)<\/div>.*<hr \/>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
