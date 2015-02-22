@@ -139,6 +139,27 @@ function pcrawler_codeforces($cid) {
     return $msg;
 }
 
+function pcrawler_codeforces_num() {
+    global $db;
+    $i=1;$one=0;
+    while (true) {
+        if ($one) break;
+        $html=file_get_html("http://www.codeforces.com/problemset/page/$i");
+        $table=$html->find("table.problems",0);
+        $rows=$table->find("tr");
+        for ($j=1;$j<sizeof($rows);$j++) {
+            $row=$rows[$j];
+            $pid=trim($row->find("td",0)->find("a",0)->innertext);
+            $acnum=substr(trim($row->find("td",3)->find("a",0)->plaintext),7);
+            $totnum=0;
+            if ($pid=='1A') $one++;
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='CodeForces' and vid='$pid'");
+        }
+        $i++;
+    }
+    return "Done";
+}
+
 function pcrawler_codeforcesgym($cid){
     global $config;
     $msg="";
@@ -183,23 +204,22 @@ function pcrawler_codeforcesgym($cid){
     return $msg;
 }
 
-function pcrawler_codeforces_num() {
+function pcrawler_codeforcesgym_num() {
     global $db;
-    $i=1;$one=0;
-    while (true) {
-        if ($one) break;
-        $html=file_get_html("http://www.codeforces.com/problemset/page/$i");
+    $html=file_get_html("http://codeforces.com/gyms");
+    $clist=$html->find(".contestList table",0)->find("tr");
+    for($i=1;$i<sizeof($clist);$i++){
+        $cid=substr($clist[$i]->find("td",0)->find("a",0)->href,5);
+        $html=file_get_html("http://codeforces.com/gym/$cid");
         $table=$html->find("table.problems",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
             $row=$rows[$j];
-            $pid=trim($row->find("td",0)->find("a",0)->innertext);
-            $acnum=substr(trim($row->find("td",3)->find("a",0)->plaintext),7);
+            $pid=$cid.trim($row->find("td",0)->find("a",0)->innertext);
+            $acnum= $row->find("td",3)->find("a",0) ? substr(trim($row->find("td",3)->find("a",0)->plaintext),7) : "0";
             $totnum=0;
-            if ($pid=='1A') $one++;
-            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='CodeForces' and vid='$pid'");
+            $db->query("update problem set vacnum='$acnum', vtotalnum='$totnum' where vname='CodeForcesGym' and vid='$pid'");
         }
-        $i++;
     }
     return "Done";
 }
