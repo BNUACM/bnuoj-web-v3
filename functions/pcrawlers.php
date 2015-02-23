@@ -1302,20 +1302,20 @@ function pcrawler_whu_num() {
 function pcrawler_njupt($pid) {
     $url="http://acm.njupt.edu.cn/acmhome/problemdetail.do?&method=showdetail&id=$pid";
     $content=file_get_contents($url);
-    $content=iconv("gbk","UTF-8//IGNORE",$content);
+    $content=iconv("gbk","utf-8//ignore",$content);
     $ret=array();
-    if (stripos($content,"doesn't exit or has been deleted.</LI></UL></font>")===false &&
+    if (stripos($content,"doesn't exit or has been deleted.</LI></UL>")===false &&
         stripos($content,"<strong>500</strong> <span class=\"style1\">System Error.Please Wait...</span>")===false) {
-        if (preg_match('/<h2 style="text-align:center;">(.*)<\/h2>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
-        if (preg_match('/<div align="center">.*时间限制.*(\d*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
-        if (preg_match('/<div align="center">.*运行内存限制.*(\d*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
-        if (preg_match('/<b class="MyB1">描述<\/b><\/p>(.*)<p align="left"><b class="MyB1">输入/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">输入<\/b><\/p>(.*)<p align="left"><b class="MyB1">输出/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">输出<\/b><\/p>(.*)<p align="left"><b class="MyB1">样例输入/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">样例输入<\/b><\/p>(.*)<p align="left"><b class="MyB1">样例输出/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">样例输出<\/b><\/p>(.*)<p align="left"><b class="MyB1">提示/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">提示<\/b><\/p>(.*)<p align="left"><b class="MyB1">题目来源/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
-        if (preg_match('/<b class="MyB1">题目来源<\/b><\/p>(.*)<\/div>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+        if (preg_match("/<h2.*>\s*<strong>(.*)<\/strong>/sU", $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<strong>时间限制.*<strong>(\d*)\s*MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<strong>运行内存限制\s*:\s*(\d*)\s*KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
+        if (preg_match('/<b crawl="description"><\/b>(.*)<b\s*crawl="description">/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<b crawl="input"><\/b>(.*)<b\s*crawl="input">/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<b crawl="output"><\/b>(.*)<b\s*crawl="output">/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/class="pst">\s*样例输入.*<div class="textBG">(.*)<\/div>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/class="pst">\s*样例输出.*<div class="textBG">(.*)<\/div>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<b crawl="hint"><\/b>(.*)<b\s*crawl="hint">/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<b crawl="source"><\/b>(.*)<b\s*crawl="source">/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
 
         $ret["special_judge_status"]=0;
         
