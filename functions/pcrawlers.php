@@ -217,7 +217,7 @@ function pcrawler_hdu($pid) {
     $content=iconv("gbk","UTF-8//IGNORE",$content);
     $ret=array();
 
-    if (stripos($content,"No such problem - <strong>Problem")===false) {
+    if (stripos($content,"Invalid Parameter")===false) {
         if (preg_match("/<h1 style='color:#1A5CC8'>(.*)<\\/h1>/sU", $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match("/Time Limit:.*\\/(.*) MS/sU", $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]));
         $ret["case_time_limit"]=$ret["time_limit"];
