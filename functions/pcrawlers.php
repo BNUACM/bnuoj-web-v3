@@ -1184,6 +1184,7 @@ function pcrawler_whu($pid) {
     $url="http://acm.whu.edu.cn/land/problem/detail?problem_id=$pid";
     $content=file_get_contents($url);
     $ret=array();
+    // If file_get_contents is replaced by curl, finding <div id="tt">Ooooops!</div> could be a fallback to dertermine whether the problem exists.
     if ($content !== false) {
         if (preg_match('/<div id="tt">.*- (.*)? <\/div>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match('/<strong>Time Limit<\/strong>: ([0-9]*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
