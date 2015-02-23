@@ -48,6 +48,16 @@ function adjustlist(flag,name) {
         sel.remove(6);
         return;
     }
+    if (name=="CodeForcesGym") {
+        sel.remove(14);
+        sel.remove(13);
+        sel.remove(12);
+        sel.remove(10);
+        sel.remove(9);
+        sel.remove(7);
+        sel.remove(6);
+        return;
+    }
     if (name=="HDU") {
         sel.remove(14);
         sel.remove(13);
