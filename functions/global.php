@@ -129,7 +129,7 @@ function get_all_vnames() {
 
 function get_substitle() {
     global $db;
-    $substitle=$db->get_row("select substitle from config",ARRAY_N);
+    $substitle=$db->get_row("select value from config where name='substitle'",ARRAY_N);
     return $substitle[0];
 }
 
