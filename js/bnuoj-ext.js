@@ -3107,8 +3107,6 @@ jQuery.fn.populate = function (a, b) {
                                 $(root).problemlist('spawn',prob);
                                 $(root).find("span:last").html("<a href='problem_show.php?pid="+prob.pid+"' target='_blank'>"+prob.title+"</a>");
                             });
-                            var last=$(root).find(".plable:last").val().charCodeAt()-64;
-                            if(last<26 && last>root.pl_next_id) root.pl_next_id=last;
                         }
                         $(root).problemlist('spawn');
                     });
@@ -3177,7 +3175,7 @@ jQuery.fn.populate = function (a, b) {
                         }
                     });
                     $(this).delegate(".vpid","change",function(){
-                        $(root).problemlist('spawn');
+                        if($(this).parent().is(":last-child")) $(root).problemlist('spawn');
                     });
                     $(this).problemlist('spawn');
                 });
