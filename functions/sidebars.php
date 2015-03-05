@@ -193,7 +193,7 @@ function sidebar_item_content_user_stat($user) {
 
 function sidebar_item_content_problem_stat($problem) {
     if (!$problem->is_valid()) return "";
-    $stat=$problem->get_stat();
+    $stat=$problem->get_val("stat");
     $pid=$problem->get_val("pid");
     $value=sidebar_item_top()."            <div id='probpie' class='highcharts-container'>
             </div>

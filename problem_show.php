@@ -186,7 +186,7 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
             </div>
 <?php
   }
-  $p_cat=$show_problem->get_tagged_category();
+  $p_cat=$show_problem->get_val("tagged_category");
   if (sizeof($p_cat)>0) {
 ?>
             <h3> Tags <button class="btn btn-danger" id="ptags">Toggle</button> </h3>
@@ -295,11 +295,11 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
       </form>
     </div>
 
-<script type="text/javascript" src="js/adjlist.js?<?=filemtime("js/adjlist.js") ?>" ></script>
 <script type="text/javascript">
 var ppid='<?= $pid ?>';
 var pvid="<?= $show_problem->get_val("vid") ?>";
 var pvname="<?= $show_problem->get_val("vname") ?>";
+var support_lang=<?= json_encode($show_problem->get_val("support_lang")) ?>;
 </script>
 <script type="text/javascript" src="js/problem_show.js?<?= filemtime("js/problem_show.js") ?>"></script>
 <?php

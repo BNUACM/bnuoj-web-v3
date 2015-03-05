@@ -5,31 +5,14 @@ class Problem {
     private $info=array();
     private $valid=false;
 
-    function set_problem($pid) {
+    private function get_to_page($problemperpage) {
         global $db;
-        $sql="select * from problem where pid='$pid'";
-        $db->query($sql);
-        $num=$db->num_rows;
-        if ($num==0) return false;
-        $this->valid=true;
-        unset($this->info);
-        $this->info["pid"]=$pid;
-        // $this->info=$db->get_row(null,ARRAY_A);
-        return true;
-    }
-
-    function get_to_page($problemperpage) {
-        global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["to_page"])) return $this->info["to_page"];
         $querypage="select count(*) from problem where pid<'".$db->escape($this->info["pid"])."' and hide=0";
         list($ppage)=$db->get_row($querypage,ARRAY_A);
         return $this->info["to_page"]=intval($ppage/$problemperpage)+1;
     }
-    function get_to_url() {
+    private function get_to_url() {
         global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["to_url"])) return $this->info["to_url"];
         if (!isset($this->info["vname"])) $this->get_val("vname");
         if (!isset($this->info["vid"])) $this->get_val("vid");
         
@@ -77,42 +60,39 @@ class Problem {
         return $this->info["to_url"];
     }
 
-    function get_i64io_info() {
+    private function load_ojinfo(){
         global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["i64io_info"])) return $this->info["i64io_info"];
         if (!isset($this->info["vname"])) $this->get_val("vname");
         $vname=$db->escape($this->info["vname"]);
         $ojrow=$db->get_row("select * from ojinfo where name='$vname'",ARRAY_A);
         $this->info["i64io_info"]=$ojrow['int64io'];
         $this->info["java_class"]=$ojrow['javaclass'];
+        $this->info["support_lang"]=explode(',',$ojrow['supportlang']);
+    }
+
+    private function get_i64io_info() {
+        $this->load_ojinfo();
         return $this->info["i64io_info"];
     }
 
-    function get_java_class() {
-        global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["java_class"])) return $this->info["java_class"];
-        if (!isset($this->info["vname"])) $this->get_val("vname");
-        $vname=$db->escape($this->info["vname"]);
-        $ojrow=$db->get_row("select * from ojinfo where name='$vname'",ARRAY_A);
-        $this->info["i64io_info"]=$ojrow['int64io'];
-        $this->info["java_class"]=$ojrow['javaclass'];
+    private function get_java_class() {
+        $this->load_ojinfo();
         return $this->info["java_class"];
     }
 
-    function get_tagged_category() {
+    private function get_support_lang() {
+        $this->load_ojinfo();
+        return $this->info["support_lang"];
+    }
+
+    private function get_tagged_category() {
         global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["tagged_category"])) return $this->info["tagged_category"];
         $this->info["tagged_category"]=$db->get_results("select name,catid,weight from category, problem_category where pid='".$db->escape($this->info["pid"])."' and category.id=problem_category.catid and weight>0",ARRAY_A);
         return $this->info["tagged_category"];
     }
 
-    function get_stat() {
+    private function get_stat() {
         global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info["stat"])) return $this->info["stat"];
         $this->info["stat"]=array();
         $pid=$db->escape($this->info['pid']);
         list($this->info["stat"]["num_ac"])=$db->get_row("select count(*) from status where pid='$pid' and result='Accepted'",ARRAY_N);
@@ -137,42 +117,38 @@ class Problem {
             $this->info["stat"]["num_ac"];
         return $this->info["stat"];
     }
-    function get_time_limit() {
-        if (!$this->valid) return null;
-        if (isset($this->info["time_limit"])) return $this->info[$str];
+
+    private function get_time_limit() {
         $this->get_col("time_limit");
         if ($this->info["time_limit"]=="0") $this->info["time_limit"]="Unknown ";
         return $this->info["time_limit"];
     }
-    function get_case_time_limit() {
-        if (!$this->valid) return null;
-        if (isset($this->info["case_time_limit"])) return $this->info[$str];
+
+    private function get_case_time_limit() {
         $this->get_col("case_time_limit");
         if ($this->info["case_time_limit"]=="0") $this->info["case_time_limit"]="Unknown ";
         return $this->info["case_time_limit"];
     }
-    function get_memory_limit() {
-        if (!$this->valid) return null;
-        if (isset($this->info["memory_limit"])) return $this->info[$str];
+
+    private function get_memory_limit() {
         $this->get_col("memory_limit");
         if ($this->info["memory_limit"]=="0") $this->info["memory_limit"]="Unknown ";
         return $this->info["memory_limit"];
     }
-    function get_description() {
-        if (!$this->valid) return null;
-        if (isset($this->info["description"])) return $this->info["description"];
+
+    private function get_description() {
         $this->get_col("description");
         $this->info["description"]=preg_replace('/<head[\s\S]*\/head>/', "", $this->info["description"]);
         return $this->info["description"];
     }
-    function get_col($str) {
+
+    private function get_col($str) {
         global $db;
-        if (!$this->valid) return null;
-        if (isset($this->info[$str])) return $this->info[$str];
         $row=$db->get_row("select $str from problem where pid='".$db->escape($this->info["pid"])."'",ARRAY_N);
         return $this->info[$str]=$row[0];
     }
-    function get_val($str) {
+
+    public function get_val($str) {
         if (!$this->valid) return null;
         if (isset($this->info[$str])) return $this->info[$str];
         $tstr="get_".$str;
@@ -180,7 +156,19 @@ class Problem {
         else return $this->get_col($str);
     }
 
-    function is_valid() {
+    public function set_problem($pid) {
+        global $db;
+        $sql="select * from problem where pid='$pid'";
+        $db->query($sql);
+        $num=$db->num_rows;
+        if ($num==0) return false;
+        $this->valid=true;
+        unset($this->info);
+        $this->info["pid"]=$pid;
+        return true;
+    }
+
+    public function is_valid() {
         return $this->valid;
     }
 }
@@ -251,6 +239,11 @@ function problem_get_category_parent_from_id($id) {
     global $db;
     list($parent)=$db->get_row("select parent from category where id='$id'",ARRAY_N);
     return $parent;
+}
+
+function problem_support_lang($vname){
+    global $db;
+    return explode(',',$db->get_row("select supportlang from ojinfo where name='$vname'",ARRAY_N)[0]);
 }
 
 ?>

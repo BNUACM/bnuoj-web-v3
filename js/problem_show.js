@@ -1,6 +1,5 @@
 $(document).ready(function() {
     $("#problem").addClass("active");
-    adjustlist(pvid,pvname);
     $(".submitprob").click(function() {
         if ($.cookie(cookie_prefix+"username")==null) $("#logindialog").modal("show");
         else $("#submitdialog").modal("show");
@@ -43,4 +42,8 @@ $(document).ready(function() {
     });
 
     $("#utags").select2();
+
+    $("#lang option").each(function(){
+        if( $.inArray($(this).val(), support_lang)==-1 ) $(this).remove();
+    });
 });

@@ -70,6 +70,12 @@ if ($lang==0) {
     echo json_encode($ret);
     die();
 }
+list($vname)=@$db->get_row("select vname from problem where pid='$pid'",ARRAY_N);
+if (!in_array($lang,problem_support_lang($vname))){
+    $ret["msg"]="Language Invalid.";
+    echo json_encode($ret);
+    die();
+}
 if (time()-strtotime($current_user->get_val("last_submit_time"))<5) {
     $ret["msg"]="Too Fast!";
     echo json_encode($ret);
@@ -103,7 +109,6 @@ else {
     if (contest_get_val($cid,"has_cha")=="1") $msg=$config["contact"]["pretest"]."\n".$nowid;
     else $msg=$config["contact"]["submit"]."\n".$nowid;
 
-    list($vname)=@$db->get_row("select vname from problem where pid='$pid'",ARRAY_N);
     $msg=$msg."\n".$vname;
     if (@fwrite($fp,$msg)===FALSE) {
         if ($cid=="0") $ret["msg"]="Transmitted.";
