@@ -20,8 +20,10 @@ else $start = "0";
                   <option value='Memory Limit Exceed'>Memory Limit Exceed</option>
                   <option value='Output Limit Exceed'>Output Limit Exceed</option>
                   <option value='Presentation Error'>Presentation Error</option>
-                  <option value='Restricted Function'>Restricted Function</option>
                   <option value='Compile Error'>Compile Error</option>
+                  <option value='Restricted Function'>Restricted Function</option>
+                  <option value='Waiting'>Waiting</option>
+                  <option value='Judge Error'>Judge Error</option>
                 </select>
               </label>
               <label>Language:
