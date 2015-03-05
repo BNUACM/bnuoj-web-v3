@@ -326,6 +326,7 @@ if ($current_user->is_root()) {
                                 <label class="radio inline"><input type="radio" name="ctype" value="openjudge" /> OpenJudge</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="scu" /> SCU</label>
                                 <label class="radio inline"><input type="radio" name="ctype" value="hust" /> HUST</label>
+                                <label class="radio inline"><input type="radio" name="ctype" value="cfgym" /> CodeForcesGym</label>
                             </td>
                         </tr>
                         <tr><td>Extra Information: </td><td><input type="text" name="extrainfo" class="input-xlarge" /></td></tr>

@@ -439,6 +439,29 @@ if ($current_user->is_root()) {
         replay_add_contest();
         replay_deal_hust($standtable);
     }
+    else if ($_POST["ctype"]=="cfgym") {
+        $page=1;
+        $filename="replay_cid_$mcid"."_$page.html";
+        replay_move_uploaded_file($filename,"/page/$page");
+        $html=file_get_html("../uploadstand/" . $filename);
+        $standtable=$html->find("table.standings",0);
+        $nprob=sizeof($standtable->find("tr",0)->children())-4;
+        if ($nprob!=$pnum) {
+            $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
+            die(json_encode($ret));   
+        }
+        $pages=max(sizeof($html->find("span.page-index")),1);
+        replay_add_contest();
+        while($page<=$pages){
+            replay_deal_cfgym($standtable);
+            if(++$page<=$pages) {
+                $filename="replay_cid_$mcid"."_$page.html";
+                replay_move_uploaded_file($filename,"/page/$page");
+                $html=file_get_html("../uploadstand/" . $filename);
+                $standtable=$html->find("table.standings",0);
+            }
+        }
+    }
     $ret["code"]=0;
     $ret["msg"]="Successfully Added.";
 }

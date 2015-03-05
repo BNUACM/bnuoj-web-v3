@@ -53,14 +53,14 @@ function insac($tnum,$sttime,$act,$pid,$name,$mcid,$pert=10) {
 }
 
 
-function replay_move_uploaded_file($filename) {
+function replay_move_uploaded_file($filename, $append="") {
     global $_FILES,$_POST,$ret;
     if (sizeof($_FILES)!=0) {
         move_uploaded_file($_FILES["file"]["tmp_name"], "../uploadstand/" . $filename);
     }
     else {
         $tuCurl=curl_init();
-        curl_setopt($tuCurl,CURLOPT_URL,$_POST["repurl"]);
+        curl_setopt($tuCurl,CURLOPT_URL,$_POST["repurl"].$append);
         curl_setopt($tuCurl,CURLOPT_RETURNTRANSFER,1);
         curl_setopt($tuCurl,CURLOPT_FOLLOWLOCATION,1);
         curl_setopt($tuCurl,CURLOPT_USERAGENT,"BNUOJ");
@@ -908,6 +908,32 @@ function replay_deal_hust($standtable) {
                 else $tnum=-intval($tnum);
                 //echo $uname." ".$probs[$j]['pid']." ".date("Y-m-d H:i:s",$sttime+replay_to_second($act)-10)." * $tnum + ".date("Y-m-d H:i:s",$sttime+replay_to_second($act))."<br />\n";
                 insac($tnum,$sttime,replay_to_second($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }
+        }
+    }
+}
+
+function replay_deal_cfgym($standtable) {
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    $rows=$standtable->find("tr");
+    $unum=sizeof($rows);
+    for ($i=1;$i<$unum;$i++) {
+        $crow=$rows[$i]->children();
+        if($crow[0]->innertext=="&nbsp;") break;
+        $uname=strip_tags($crow[1]->innertext);
+        for ($j=0;$j<$pnum;$j++) {
+            $accell=$crow[$j+4]->find("span.cell-accepted",0);
+            $rjcell=$crow[$j+4]->find("span.cell-rejected",0);
+            $timecell=$crow[$j+4]->find("span.cell-time",0);
+            if ($accell) {
+                $tnum=substr($accell->innertext,1);
+                $act=intval(substr($timecell->innertext,0,2))*60+intval(substr($timecell->innertext,3));
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }else if(strpos($rjcell->innertext,'-')!==FALSE){
+                $tnum=strstr($value,'-',true);
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }
