@@ -97,7 +97,6 @@ var ceclick=function() {
         data=eval("("+data+")");
         $("#statusdialog #dcontent").removeClass().html(data.msg);
     });
-    $("#rejudge").click(rejudge)
     return false;
 }
 
