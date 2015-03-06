@@ -12,7 +12,7 @@ else showpage=parseInt(showpage);
 var ceclick=function() {
     var row=$(this).parent().parent();
     var runid=$(this).attr("runid");
-    $("#statusdialog #dtitle span").text("Compile Info of Run "+runid);
+    $("#statusdialog h3 span").text("Compile Info of Run "+runid);
     $("#statusdialog #rejudge").hide() || true;
     $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
     $("#statusdialog #rcontrol,#statusdialog #copybtn").hide();
@@ -185,7 +185,7 @@ $(document).ready(function() {
             $("a.showsource").click(function() {
                 var trunid=$(this).attr("runid");
                 var row=$(this).parent().parent();
-                $("#statusdialog #dtitle span").text("Source of Run "+trunid);
+                $("#statusdialog h3 span").text("Source of Run "+trunid);
                 $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
                 $.get('ajax/get_source.php',{ runid: trunid, randomid: Math.random() }, function(data) {
                     data=eval("("+data+")");
