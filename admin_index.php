@@ -266,6 +266,7 @@ if ($current_user->is_root()) {
                       <option value="OpenJudge">OpenJudge</option>
                       <option value="SCU">SCU</option>
                       <option value="HUST">HUST</option>
+                      <option value="CFGYM">CodeForcesGym</option>
                     </select>
                   </label>
                   <div class="input-append">

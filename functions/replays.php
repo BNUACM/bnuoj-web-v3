@@ -53,14 +53,14 @@ function insac($tnum,$sttime,$act,$pid,$name,$mcid,$pert=10) {
 }
 
 
-function replay_move_uploaded_file($filename, $append="") {
+function replay_move_uploaded_file($filename) {
     global $_FILES,$_POST,$ret;
     if (sizeof($_FILES)!=0) {
         move_uploaded_file($_FILES["file"]["tmp_name"], "../uploadstand/" . $filename);
     }
     else {
         $tuCurl=curl_init();
-        curl_setopt($tuCurl,CURLOPT_URL,$_POST["repurl"].$append);
+        curl_setopt($tuCurl,CURLOPT_URL,$_POST["repurl"]);
         curl_setopt($tuCurl,CURLOPT_RETURNTRANSFER,1);
         curl_setopt($tuCurl,CURLOPT_FOLLOWLOCATION,1);
         curl_setopt($tuCurl,CURLOPT_USERAGENT,"BNUOJ");
@@ -913,26 +913,18 @@ function replay_deal_hust($standtable) {
     }
 }
 
-function replay_deal_cfgym($standtable) {
+function replay_deal_cfgym($rows) {
     global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
-    $rows=$standtable->find("tr");
-    $unum=sizeof($rows);
-    for ($i=1;$i<$unum;$i++) {
-        $crow=$rows[$i]->children();
-        if($crow[0]->innertext=="&nbsp;") break;
-        $uname=strip_tags($crow[1]->innertext);
-        for ($j=0;$j<$pnum;$j++) {
-            $accell=$crow[$j+4]->find("span.cell-accepted",0);
-            $rjcell=$crow[$j+4]->find("span.cell-rejected",0);
-            $timecell=$crow[$j+4]->find("span.cell-time",0);
-            if ($accell) {
-                $tnum=substr($accell->innertext,1);
-                $act=intval(substr($timecell->innertext,0,2))*60+intval(substr($timecell->innertext,3));
-                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
-            }else if(strpos($rjcell->innertext,'-')!==FALSE){
-                $tnum=strstr($value,'-',true);
-                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+    foreach($rows as $row){
+        $uname=isset($row["party"]["teamName"]) ? $row["party"]["teamName"].": " : "";
+        foreach($row["party"]["members"] as $member) $uname.=$member["handle"]." ";
+        foreach($row["problemResults"] as $j=>$prob){
+            if(isset($prob['bestSubmissionTimeSeconds'])){
+                $tnum=$prob['rejectedAttemptCount'];
+                $act=$prob['bestSubmissionTimeSeconds'];
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }else{
+                $tnum=$prob['rejectedAttemptCount'];
                 inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
@@ -1194,6 +1186,40 @@ function replay_crawl_hust($cid) {
     $res["name"]=$title;
     $res["description"]=$res["repurl"]="http://acm.hust.edu.cn/contestrank.php?cid=$cid";
     $res["ctype"]="hust";
+    $res["code"]=0;
+    $res["isvirtual"]=0;
+    return $res;
+}
+
+function replay_crawl_cfgym($cid) {
+    global $config;
+    $res=array();
+    $json=json_decode(file_get_contents("http://codeforces.com/api/".
+            "contest.standings?contestId=$cid&from=1&count=1"),true);
+    if ($json["status"]!="OK") {
+        $res["code"]=1;
+        return $res;
+    }
+    $res["pnum"]=sizeof($json["result"]["problems"]);
+    foreach($json["result"]["problems"] as $problem){
+        $vpid=problem_get_id_from_virtual("CodeForcesGym",
+                $cid.$problem["index"]);
+        if ($vpid==null) {
+            $res["code"]=1;
+            return $res;
+        }
+        $res["prob"][]=$vpid;
+    }
+    $con=$json["result"]["contest"];
+    $res["start_time"]=date("Y-m-d H:i:s",$con["startTimeSeconds"]);
+    $res["end_time"]=date("Y-m-d H:i:s",$con["startTimeSeconds"] +
+            $con["durationSeconds"]);
+    $res["name"]=$con["name"];
+    $res["description"]=isset($con["description"]) ? $con["description"] :
+            "http://codeforces.com/gym/$cid";
+    $res["repurl"]="http://codeforces.com/api/contest.standings".
+            "?contestId=$cid&from=1&showUnofficial=true";
+    $res["ctype"]="cfgym";
     $res["code"]=0;
     $res["isvirtual"]=0;
     return $res;
