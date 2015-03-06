@@ -27,6 +27,7 @@ else {
     $ret["msg"]="Please login as root!";
 }
 
-echo json_encode($ret);
+// JSON_FORCE_OBJECT is required to work with jquery.repopulate if array contained
+echo json_encode($ret, JSON_FORCE_OBJECT);
 
 ?>

@@ -953,7 +953,7 @@ function replay_crawl_zju($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/contestInfo.do?contestId=$cid");
     $sttime=trim(strstr($html->find(".dateLink",0)->plaintext,"(",true));
@@ -1002,7 +1002,7 @@ function replay_crawl_hustv($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=date("Y-m-d H:i:s",$html->find("#overview tr",1)->find("td",1)->plaintext/1000);
     $edtime=date("Y-m-d H:i:s",$html->find("#overview tr",2)->find("td",1)->plaintext/1000);
@@ -1047,7 +1047,7 @@ function replay_crawl_uestc($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=trim($html->find("#big_title span.h4",0)->plaintext);
     $edtime=trim($html->find("#big_title span.h4",1)->plaintext);
@@ -1079,7 +1079,7 @@ function replay_crawl_uva($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime="";
     $edtime="";
@@ -1111,7 +1111,7 @@ function replay_crawl_openjudge($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".$i]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=trim($html->find("dd.start-time-dd",0)->plaintext);
     $edtime=trim($html->find("dd.end-time-dd",0)->plaintext);
@@ -1144,7 +1144,7 @@ function replay_crawl_scu($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime="";
     $edtime=trim($html->find("table",0)->find("td",2)->plaintext);
@@ -1177,7 +1177,7 @@ function replay_crawl_hust($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     preg_match('/Start Time: <.*>(.*)</sU',$html,$matches);
     $sttime=$matches[1];
