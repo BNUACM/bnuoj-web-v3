@@ -447,7 +447,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($json["result"]["problems"]);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_cfgym($json["result"]["rows"]);
