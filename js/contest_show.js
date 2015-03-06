@@ -23,7 +23,9 @@ var showpfunc=function(gcpid) {
         $("#submitdialog").on("shown",function() {
             $("#submitdialog textarea").focus();
         });
-        adjustlist("",$("#submitdialog").attr("name"));
+        $("#lang option").each(function(){
+          if( $.inArray($(this).val(), support_lang)==-1 ) $(this).remove();
+        });
         if ($.cookie(cookie_prefix+"defaultshare")=="0") $("input[name='isshare']:nth(1)").attr("checked",true);
         else $("input[name='isshare']:nth(0)").attr("checked",true);
 

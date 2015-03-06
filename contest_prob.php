@@ -256,3 +256,7 @@ if(contest_get_val($cid,"owner_viewable")){
 <?php
 }
 ?>
+
+<script type="text/javascript">
+var support_lang=<?= json_encode($show_problem->get_val("support_lang")) ?>;
+</script>

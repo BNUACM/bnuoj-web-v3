@@ -158,7 +158,6 @@ var lim_times=<?=$config["status"]["max_refresh_times"]?>;
 </script>
 <link href="css/prettify.css" type="text/css" rel="stylesheet" />
 <script type="text/javascript" src="js/prettify.js"></script>
-<script type="text/javascript" src="js/adjlist.js?<?=filemtime("js/adjlist.js")?>" ></script>
 <script type="text/javascript" src="js/animator.js"></script>
 <script type="text/javascript" src="js/rankingTableUpdate.js"></script>
 <script type="text/javascript" src="js/contest_show.js?<?= filemtime("js/contest_show.js") ?>"></script>
