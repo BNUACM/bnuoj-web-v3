@@ -1038,6 +1038,7 @@ function replay_crawl_uestc($cid) {
         return $res;
     }
     $titles=$html->find("div.list ul");
+    $res["pnum"]=sizeof($titles);
     for ($i=0;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("li a",1);
 //        echo $title;
@@ -1070,6 +1071,7 @@ function replay_crawl_uva($cid) {
         return $res;
     }
     $titles=$html->find("div.tabbertab table tr");
+    $res["pnum"]=sizeof($titles)-1;
     for ($i=1;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("td",1);
 //        echo $title;
@@ -1103,6 +1105,7 @@ function replay_crawl_openjudge($cid) {
         return $res;
     }
     $titles=$html->find("table td.title a");
+    $res["pnum"]=sizeof($titles);
     for ($i=0;$i<sizeof($titles);$i++) {
         $title=trim($titles[$i]->innertext);
         if ($title==null) continue;
@@ -1135,6 +1138,7 @@ function replay_crawl_scu($cid) {
         return $res;
     }
     $titles=$html->find("table",1)->find("tr");
+    $res["pnum"]=sizeof($titles)-2;
     for ($i=1;$i<sizeof($titles)-1;$i++) {
         $title=$titles[$i]->find("td a",0);
         //echo $title;
@@ -1168,6 +1172,7 @@ function replay_crawl_hust($cid) {
         return $res;
     }
     $titles=$html->find("table",1)->find("tr");
+    $res["pnum"]=sizeof($titles)-1;
     for ($i=1;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("td",1)->plaintext;
         //echo $title;
