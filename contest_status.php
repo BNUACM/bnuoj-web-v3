@@ -99,7 +99,7 @@ if (contest_get_val($cid,"hide_others")&&!$current_user->is_root()&&!(contest_ge
         <div id="statusdialog" class="modal hide fade" style="display:none">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>
+            <h3 id="dtitle">
               <span>Title</span>
 <?php if($current_user->is_root()) { ?>
               <button id="rejudge" class="btn btn-warning">Rejudge</button></h3>

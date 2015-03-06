@@ -214,48 +214,41 @@ $(document).ready(function() {
                     else $("#rshare").show();
 
                     prettyPrint();
-                    $("#sharey")
-                        .off("click")
-                        .click(function() {
-                            $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 1} ,function(data) {
-                                $("#sharen").removeClass("active");
-                                $("#sharey").addClass("active");
+                    $("#sharey").off("click").click(function() {
+                        $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 1} ,function(data) {
+                            $("#sharen").removeClass("active");
+                            $("#sharey").addClass("active");
+                            data=eval("("+data+")");
+                            if (data.code==0) {
+                                $("#sharenote").show();
+                            } else alert(data.msg);
+                        });
+                    });
+                    $("#sharen").off("click").click(function() {
+                        $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 0} ,function(data) {
+                            $("#sharey").removeClass("active");
+                            $("#sharen").addClass("active");
+                            data=eval("("+data+")");
+                            if (data.code==0) {
+                                $("#sharenote").hide();
+                            } else alert(data.msg);
+                        });
+                    });
+                    if ($("#rejudge")) {
+                        $("#rejudge").show().off("click").click(function() {
+                            $.get('ajax/admin_deal_rejudge_run.php', { runid: trunid, random: Math.random() }, function(data){
                                 data=eval("("+data+")");
                                 if (data.code==0) {
-                                    $("#sharenote").show();
-                                } else alert(data.msg);
+                                    $("td:eq(3)",row).html("Rejudging  <img src='img/select2-spinner.gif' />");
+                                    $(row).addClass("fetching");
+                                    rtimes=0;
+                                    clearTimeout(refr);
+                                    updateResult();
+                                    $("#statusdialog").modal('hide');
+                                }
+                                alert(data.msg);
                             });
                         });
-                    $("#sharen")
-                        .off("click")
-                        .click(function() {
-                            $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 0} ,function(data) {
-                                $("#sharey").removeClass("active");
-                                $("#sharen").addClass("active");
-                                data=eval("("+data+")");
-                                if (data.code==0) {
-                                    $("#sharenote").hide();
-                                } else alert(data.msg);
-                            });
-                        });
-                    if ("#rejudge") {
-                        $("#rejudge")
-                            .show()
-                            .off("click")
-                            .click(function() {
-                                $.get('ajax/admin_deal_rejudge_run.php', { runid: trunid, random: Math.random() }, function(data){
-                                    data=eval("("+data+")");
-                                    if (data.code==0) {
-                                        $("td:eq(3)",row).html("Rejudging  <img src='img/select2-spinner.gif' />");
-                                        $(row).addClass("fetching");
-                                        rtimes=0;
-                                        clearTimeout(refr);
-                                        updateResult();
-                                        $("#statusdialog").modal('hide');
-                                    }
-                                    alert(data.msg);
-                                });
-                            });
                     }
                 });
                 $("#statusdialog").modal("show");
