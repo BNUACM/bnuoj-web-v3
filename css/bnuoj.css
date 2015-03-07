@@ -129,8 +129,6 @@ body {
 
 /* form */
 form .prompt_text {margin-bottom:0;}
-label,input {margin-top:3px;}
-    label input {margin-top:0;}
 
 /* flip-scroll */
 @media only screen and (max-width: 800px) {
@@ -293,4 +291,9 @@ table.cstanding a.cha_click:hover
   float: none;
   display: inline;
   margin: auto;
+}
+
+/*** contest ***/
+#arrangeform textarea {
+  margin-bottom: 3px;
 }
