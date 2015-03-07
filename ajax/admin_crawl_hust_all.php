@@ -29,8 +29,8 @@ if ($current_user->is_root()) {
         $mcid = $row['Auto_increment'];
         $pnum=$res["pnum"];
         for ($i=0;$i<$pnum;$i++) {
-            $res["pid$i"]=$res["vpid$i"];
-            $res["lable$i"]=chr(ord('A')+$i);
+            $probs[$i]["pid"]=$res["prob"][$i];
+            $probs[$i]["lable"]=chr(ord('A')+$i);
         }
         $_POST=$res;
 
