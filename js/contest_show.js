@@ -88,7 +88,7 @@ var rtimes=0;
 
 var ceclick=function() {
     var runid=$(this).attr("runid");
-    $("#statusdialog h3 span").text("Compile Info of Run "+runid);
+    $("#statusdialog h3").text("Compile Info of Run "+runid);
     $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
     $("#statusdialog #rcontrol,#statusdialog #copybtn").hide();
     $("#statusdialog").modal("show");
@@ -236,7 +236,7 @@ var statusfunc=function(data,slabel) {
             $("a.showsource").click(function() {
                 var trunid=$(this).attr("runid");
                 var row=$(this).parent().parent();
-                $("#statusdialog h3 span").text("Source of Run "+trunid);
+                $("#statusdialog h3").text("Source of Run "+trunid);
                 $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
                 $.get('ajax/get_source.php',{ cid: getURLPara("cid"), runid: trunid, randomid: Math.random() }, function(data) {
                     data=eval("("+data+")");
