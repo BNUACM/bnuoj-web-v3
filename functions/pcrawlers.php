@@ -168,7 +168,7 @@ function pcrawler_codeforcesgym($cid){
     $rows=$table->find("tr");
     $probs=$prob=array();
     $prob["input"]=$prob["output"]=$prob["sample_in"]=$prob["sample_out"]=$prob["hint"]=$prob["source"]="";
-    if(preg_match("/Dashboard - (.*?) - Codeforces/sU",$html->find("title",0)->innertext,$matches)) $prob["source"]=trim($matches[1]);
+    if(preg_match("/Dashboard - (.*) - Codeforces/sU",$html->find("title",0)->innertext,$matches)) $prob["source"]=trim($matches[1]);
     for($i=1;$i<sizeof($rows);$i++){
         $row=$rows[$i];
         preg_match("/class=\"id\">.*?<a href=\"\/gym.*?\">.*?([A-Z]).*?<!--.*?-->(.*?)<!--.*class=\"notice\">.*?<div>(.*?)<\/div>.*?([0-9]*) s, ([0-9]*) MB/s", $row->innertext, $matches);
@@ -180,9 +180,10 @@ function pcrawler_codeforcesgym($cid){
         $probs[$prob["label"]]=$prob;
     }
     if(stripos($att = file_get_contents("http://codeforces.com/gym/$cid/problem/A"),"<title>Attachments")){
-        if (preg_match("/<a href=\"(\/gym\/$cid.*?\.pdf)\"/s", $att, $matches)) {
-            $pdf=$matches[1];
-            file_put_contents($config["base_local_path"]."external/gym/$cid.pdf",file_get_contents("http://codeforces.com/$pdf"));
+        if (preg_match("/<a href=\"(\/gym\/$cid.*?\.(pdf|doc))\"/s", $att, $matches)) {
+            $path=$matches[1];
+            $ext=$matches[2];
+            file_put_contents($config["base_local_path"]."external/gym/$cid.$ext",file_get_contents("http://codeforces.com/$path"));
             foreach($probs as $prob){
                 $prob["description"].="<a href=\"external/gym/$cid.pdf\">[PDF Link]</a>";
                 $id=pcrawler_insert_problem($prob,"CodeForcesGym",$cid.$prob["label"]);

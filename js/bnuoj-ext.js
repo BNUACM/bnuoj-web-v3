@@ -3129,7 +3129,9 @@ jQuery.fn.populate = function (a, b) {
                 });
             },
             reset: function(){
-                reset(this);
+                return this.each(function(){
+                    reset(this);
+                });
             },
             init: function(){
                 return this.each(function(){

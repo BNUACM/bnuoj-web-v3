@@ -244,9 +244,14 @@ $(document).ready(function() {
         if (responseText.code=='0') {
           $("#msgbox",form).fadeTo(100,0.1,function() {
             $(this).html(responseText.msg).removeClass().addClass('alert alert-success').fadeTo(100,1,function(){
-                $("#replayform").populate(responseText);
-                $("input:submit,button:submit,.btn",form).removeAttr("disabled").removeClass("disabled");
-                $(".vpid").keyup();
+              $("#replayform").populate(responseText);
+              $("#vprobs").problemlist('reset');
+              $.each(responseText.prob, function(i, pid){
+                $("#vprobs").problemlist('spawn', {"vpid": pid});
+              });
+              $("#vprobs").problemlist('spawn');
+              $("input:submit,button:submit,.btn",form).removeAttr("disabled").removeClass("disabled");
+              $(".vpid").keyup();
             });
           });
         }

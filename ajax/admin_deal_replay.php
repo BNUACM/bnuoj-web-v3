@@ -439,6 +439,19 @@ if ($current_user->is_root()) {
         replay_add_contest();
         replay_deal_hust($standtable);
     }
+    else if ($_POST["ctype"]=="cfgym") {
+        $page=1;
+        $filename="replay_cid_".$mcid.".json";
+        replay_move_uploaded_file($filename);
+        $json=json_decode(file_get_contents("../uploadstand/".$filename),true);
+        $nprob=sizeof($json["result"]["problems"]);
+        if ($nprob!=$pnum) {
+            $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
+            die(json_encode($ret));
+        }
+        replay_add_contest();
+        replay_deal_cfgym($json["result"]["rows"]);
+    }
     $ret["code"]=0;
     $ret["msg"]="Successfully Added.";
 }

@@ -913,6 +913,24 @@ function replay_deal_hust($standtable) {
     }
 }
 
+function replay_deal_cfgym($rows) {
+    global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
+    foreach($rows as $row){
+        $uname=isset($row["party"]["teamName"]) ? $row["party"]["teamName"].": " : "";
+        foreach($row["party"]["members"] as $member) $uname.=$member["handle"]." ";
+        foreach($row["problemResults"] as $j=>$prob){
+            if(isset($prob['bestSubmissionTimeSeconds'])){
+                $tnum=$prob['rejectedAttemptCount'];
+                $act=$prob['bestSubmissionTimeSeconds'];
+                insac($tnum,$sttime,$act,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }else{
+                $tnum=$prob['rejectedAttemptCount'];
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }
+        }
+    }
+}
+
 function replay_crawl_zju($cid) {
     $res=array();
     $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showContestProblems.do?contestId=$cid");
@@ -927,7 +945,7 @@ function replay_crawl_zju($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/contestInfo.do?contestId=$cid");
     $sttime=trim(strstr($html->find(".dateLink",0)->plaintext,"(",true));
@@ -976,7 +994,7 @@ function replay_crawl_hustv($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=date("Y-m-d H:i:s",$html->find("#overview tr",1)->find("td",1)->plaintext/1000);
     $edtime=date("Y-m-d H:i:s",$html->find("#overview tr",2)->find("td",1)->plaintext/1000);
@@ -1012,6 +1030,7 @@ function replay_crawl_uestc($cid) {
         return $res;
     }
     $titles=$html->find("div.list ul");
+    $res["pnum"]=sizeof($titles);
     for ($i=0;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("li a",1);
 //        echo $title;
@@ -1021,7 +1040,7 @@ function replay_crawl_uestc($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid$i"]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=trim($html->find("#big_title span.h4",0)->plaintext);
     $edtime=trim($html->find("#big_title span.h4",1)->plaintext);
@@ -1044,6 +1063,7 @@ function replay_crawl_uva($cid) {
         return $res;
     }
     $titles=$html->find("div.tabbertab table tr");
+    $res["pnum"]=sizeof($titles)-1;
     for ($i=1;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("td",1);
 //        echo $title;
@@ -1053,7 +1073,7 @@ function replay_crawl_uva($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime="";
     $edtime="";
@@ -1077,6 +1097,7 @@ function replay_crawl_openjudge($cid) {
         return $res;
     }
     $titles=$html->find("table td.title a");
+    $res["pnum"]=sizeof($titles);
     for ($i=0;$i<sizeof($titles);$i++) {
         $title=trim($titles[$i]->innertext);
         if ($title==null) continue;
@@ -1085,7 +1106,7 @@ function replay_crawl_openjudge($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".$i]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime=trim($html->find("dd.start-time-dd",0)->plaintext);
     $edtime=trim($html->find("dd.end-time-dd",0)->plaintext);
@@ -1109,6 +1130,7 @@ function replay_crawl_scu($cid) {
         return $res;
     }
     $titles=$html->find("table",1)->find("tr");
+    $res["pnum"]=sizeof($titles)-2;
     for ($i=1;$i<sizeof($titles)-1;$i++) {
         $title=$titles[$i]->find("td a",0);
         //echo $title;
@@ -1118,7 +1140,7 @@ function replay_crawl_scu($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     $sttime="";
     $edtime=trim($html->find("table",0)->find("td",2)->plaintext);
@@ -1142,6 +1164,7 @@ function replay_crawl_hust($cid) {
         return $res;
     }
     $titles=$html->find("table",1)->find("tr");
+    $res["pnum"]=sizeof($titles)-1;
     for ($i=1;$i<sizeof($titles);$i++) {
         $title=$titles[$i]->find("td",1)->plaintext;
         //echo $title;
@@ -1151,7 +1174,7 @@ function replay_crawl_hust($cid) {
             $res["code"]=1;
             return $res;
         }
-        $res["vpid".($i-1)]=$tname;
+        $res["prob"][]=$tname;
     }
     preg_match('/Start Time: <.*>(.*)</sU',$html,$matches);
     $sttime=$matches[1];
@@ -1163,6 +1186,40 @@ function replay_crawl_hust($cid) {
     $res["name"]=$title;
     $res["description"]=$res["repurl"]="http://acm.hust.edu.cn/contestrank.php?cid=$cid";
     $res["ctype"]="hust";
+    $res["code"]=0;
+    $res["isvirtual"]=0;
+    return $res;
+}
+
+function replay_crawl_cfgym($cid) {
+    global $config;
+    $res=array();
+    $json=json_decode(file_get_contents("http://codeforces.com/api/".
+            "contest.standings?contestId=$cid&from=1&count=1"),true);
+    if ($json["status"]!="OK") {
+        $res["code"]=1;
+        return $res;
+    }
+    $res["pnum"]=sizeof($json["result"]["problems"]);
+    foreach($json["result"]["problems"] as $problem){
+        $vpid=problem_get_id_from_virtual("CodeForcesGym",
+                $cid.$problem["index"]);
+        if ($vpid==null) {
+            $res["code"]=1;
+            return $res;
+        }
+        $res["prob"][]=$vpid;
+    }
+    $con=$json["result"]["contest"];
+    $res["start_time"]=date("Y-m-d H:i:s",$con["startTimeSeconds"]);
+    $res["end_time"]=date("Y-m-d H:i:s",$con["startTimeSeconds"] +
+            $con["durationSeconds"]);
+    $res["name"]=$con["name"];
+    $res["description"]=isset($con["description"]) ? $con["description"] :
+            "http://codeforces.com/gym/$cid";
+    $res["repurl"]="http://codeforces.com/api/contest.standings".
+            "?contestId=$cid&from=1&showUnofficial=true";
+    $res["ctype"]="cfgym";
     $res["code"]=0;
     $res["isvirtual"]=0;
     return $res;
