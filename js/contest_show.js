@@ -85,13 +85,12 @@ var defaultfunc=function(data){
     $("#contest_nav li").removeAttr("disabled").removeClass("disabled");
 };
 
-
 var refr;
 var rtimes=0;
 
 var ceclick=function() {
     var runid=$(this).attr("runid");
-    $("#statusdialog #dtitle").text("Compile Info of Run "+runid);
+    $("#statusdialog h3").text("Compile Info of Run "+runid);
     $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
     $("#statusdialog #rcontrol,#statusdialog #copybtn").hide();
     $("#statusdialog").modal("show");
@@ -238,7 +237,8 @@ var statusfunc=function(data,slabel) {
             $("a.ceinfo").click(ceclick);
             $("a.showsource").click(function() {
                 var trunid=$(this).attr("runid");
-                $("#statusdialog #dtitle").text("Source of Run "+trunid);
+                var row=$(this).parent().parent();
+                $("#statusdialog h3").text("Source of Run "+trunid);
                 $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
                 $.get('ajax/get_source.php',{ cid: getURLPara("cid"), runid: trunid, randomid: Math.random() }, function(data) {
                     data=eval("("+data+")");
@@ -267,7 +267,7 @@ var statusfunc=function(data,slabel) {
                     else $("#rshare").show();
 
                     prettyPrint();
-                    $("#sharey").click(function() {
+                    $("#sharey").off("click").click(function() {
                         $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 1} ,function(data) {
                             $("#sharen").removeClass("active");
                             $("#sharey").addClass("active");
@@ -277,7 +277,7 @@ var statusfunc=function(data,slabel) {
                             } else alert(data.msg);
                         });
                     });
-                    $("#sharen").click(function() {
+                    $("#sharen").off("click").click(function() {
                         $.get("ajax/deal_share.php", {randomid: Math.random(), runid: trunid, type: 0} ,function(data) {
                             $("#sharey").removeClass("active");
                             $("#sharen").addClass("active");
@@ -287,6 +287,22 @@ var statusfunc=function(data,slabel) {
                             } else alert(data.msg);
                         });
                     });
+                    if ($("#rejudge")) {
+                        $("#rejudge").off("click").click(function() {
+                            $.get('ajax/admin_deal_rejudge_run.php', { runid: trunid, random: Math.random() }, function(data){
+                                data=eval("("+data+")");
+                                if (data.code==0) {
+                                    $("td:eq(3)",row).html("Rejudging  <img src='img/select2-spinner.gif' />");
+                                    $(row).addClass("fetching");
+                                    rtimes=0;
+                                    clearTimeout(refr);
+                                    updateResult();
+                                    $("#statusdialog").modal('hide');
+                                }
+                                alert(data.msg);
+                            });
+                        });
+                    }
                 });
 
                 $("#statusdialog").modal("show");
