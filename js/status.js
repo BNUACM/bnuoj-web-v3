@@ -13,7 +13,6 @@ var ceclick=function() {
     var row=$(this).parent().parent();
     var runid=$(this).attr("runid");
     $("#statusdialog h3 span").text("Compile Info of Run "+runid);
-    $("#statusdialog #rejudge").hide() || true;
     $("#statusdialog #dcontent").html('<img src="img/ajax-loader.gif" /> Loading...');
     $("#statusdialog #rcontrol,#statusdialog #copybtn").hide();
     $("#statusdialog").modal("show");
@@ -235,7 +234,7 @@ $(document).ready(function() {
                         });
                     });
                     if ($("#rejudge")) {
-                        $("#rejudge").show().off("click").click(function() {
+                        $("#rejudge").off("click").click(function() {
                             $.get('ajax/admin_deal_rejudge_run.php', { runid: trunid, random: Math.random() }, function(data){
                                 data=eval("("+data+")");
                                 if (data.code==0) {
