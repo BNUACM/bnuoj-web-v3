@@ -98,28 +98,36 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     return $gnum;
 }
 
-function pcrawler_cf_one($cid,$num,$url,$ret=array()) {
+function pcrawler_cf_one($cid,$num,$url,$ret=array(),$default_desc="") {
     global $config;
 
     $pid=$cid.$num;
     $content=file_get_contents($url);
+    $content_type=get_headers($url,1)["Content-Type"];
     if (stripos($content,"<title>Codeforces</title>")===false) {
-        if (stripos(get_headers($url,1)["Content-Type"], "application/pdf")===false) {
-            if (preg_match("/<div class=\"title\">$num\\. (.*)<\\/div>/sU", $content,$matches)) $ret["title"]=trim($matches[1]);
-            if (preg_match("/time limit per test<\\/div>(.*) second/sU", $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]))*1000;
-            $ret["case_time_limit"]=$ret["time_limit"];
-            if (preg_match("/memory limit per test<\\/div>(.*) megabyte/sU", $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
-            if (preg_match("/output<\\/div>.*<div>(<p>.*)<\\/div>/sU", $content,$matches)) $ret["description"].=trim($matches[1]);
-            if (preg_match("/Input<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["input"]=trim($matches[1]);
-            if (preg_match("/Output<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["output"]=trim($matches[1]);
-            if (preg_match("/Sample test\\(s\\)<\\/div>(.*<\\/div><\\/div>)<\\/div>/sU", $content,$matches)) $ret["sample_in"]=trim($matches[1]);
-            $ret["sample_out"]="";
-            if (preg_match("/Note<\\/div>(.*)<\\/div><\\/div>/sU", $content,$matches)) $ret["hint"]=trim($matches[1]);
-            if (preg_match("/<th class=\"left\" style=\"width:100%;\">(.*)<\\/th>/sU", $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
-            $ret["special_judge_status"]=0;
+        if (stripos($content,"<title>Attachments")!==false) {
+            $ret["description"].=$default_desc;
         }else{
-            file_put_contents($config["base_local_path"]."external/gym/$cid$num.pdf",$content);
-            $ret["description"].="<a href=\"external/gym/$cid$num.pdf\">[PDF Link]</a>";
+            if (stripos($content_type,"text/html")!==false) {
+                if (preg_match("/<div class=\"title\">$num\\. (.*)<\\/div>/sU", $content,$matches)) $ret["title"]=trim(html_entity_decode($matches[1]));
+                if (preg_match("/time limit per test<\\/div>(.*) second/sU", $content,$matches)) $ret["time_limit"]=intval(trim($matches[1]))*1000;
+                $ret["case_time_limit"]=$ret["time_limit"];
+                if (preg_match("/memory limit per test<\\/div>(.*) megabyte/sU", $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
+                if (preg_match("/output<\\/div>.*<div>(<p>.*)<\\/div>/sU", $content,$matches)) $ret["description"].=trim(html_entity_decode($matches[1]));
+                if (preg_match("/Input<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["input"]=trim($matches[1]);
+                if (preg_match("/Output<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["output"]=trim($matches[1]);
+                if (preg_match("/Sample test\\(s\\)<\\/div>(.*<\\/div><\\/div>)<\\/div>/sU", $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+                $ret["sample_out"]="";
+                if (preg_match("/Note<\\/div>(.*)<\\/div><\\/div>/sU", $content,$matches)) $ret["hint"]=trim(html_entity_decode($matches[1]));
+                if (preg_match("/<th class=\"left\" style=\"width:100%;\">(.*)<\\/th>/sU", $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+                $ret["special_judge_status"]=0;
+            }else{
+                if(stripos($content_type,"application/pdf")!==false) $ext="pdf";
+                else if(stripos($content_type,"application/msword")!==false) $ext="doc";
+                else if(stripos($content_type,"application/application/vnd.openxmlformats-officedocument.wordprocessingml.document")!==false) $ext="docx";
+                file_put_contents($config["base_local_path"]."external/gym/$cid$num.$ext",$content);
+                $ret["description"].="<a href=\"external/gym/$cid$num.$ext\">[Attachment Link]</a>";
+            }
         }
         return $ret;
     }
@@ -171,36 +179,34 @@ function pcrawler_codeforcesgym($cid){
     if(preg_match("/Dashboard - (.*) - Codeforces/sU",$html->find("title",0)->innertext,$matches)) $prob["source"]=trim($matches[1]);
     for($i=1;$i<sizeof($rows);$i++){
         $row=$rows[$i];
-        preg_match("/class=\"id\">.*?<a href=\"\/gym.*?\">.*?([A-Z]).*?<!--.*?-->(.*?)<!--.*class=\"notice\">.*?<div>(.*?)<\/div>.*?([0-9]*) s, ([0-9]*) MB/s", $row->innertext, $matches);
+        preg_match("/class=\"id\">.*<a href=\"\/gym.*\">.*([A-Za-z0-9]+)\s*<\/a>.*<!--.*-->(.*)<!--.*class=\"notice\">.*<div.*>(.*)<\/div>.*([0-9]*) s, ([0-9]*) MB/sU", $row->innertext, $matches);
         $prob["label"]=$matches[1];
-        $prob["title"]=trim($matches[2]);
-        $prob["time_limit"]=intval($matches[4])*1000;
+        $prob["title"]=trim(html_entity_decode($matches[2]));
+        $prob["time_limit"]=$prob["case_time_limit"]=intval($matches[4])*1000;
         $prob["memory_limit"]=intval($matches[5])*1024;
         $prob["description"]="<p><strong>Input/Output: ".trim($matches[3])."</strong></p>";
+        $prob["special_judge_status"]=0;
+        $prob["author"]="";
         $probs[$prob["label"]]=$prob;
     }
-    if(stripos($att = file_get_contents("http://codeforces.com/gym/$cid/problem/A"),"<title>Attachments")){
-        if (preg_match("/<a href=\"(\/gym\/$cid.*?\.(pdf|doc))\"/s", $att, $matches)) {
+    //Trying to get attchments
+    $default_desc="";
+    if(stripos($att = file_get_contents("http://codeforces.com/gym/$cid/attachments"),"<title>Attachments")!==false){
+        if (preg_match("/<a href=\"(\/gym\/$cid.*\.(pdf|doc|ps|zip))\"/sU", $att, $matches)) {
             $path=$matches[1];
             $ext=$matches[2];
             file_put_contents($config["base_local_path"]."external/gym/$cid.$ext",file_get_contents("http://codeforces.com/$path"));
-            foreach($probs as $prob){
-                $prob["description"].="<a href=\"external/gym/$cid.pdf\">[PDF Link]</a>";
-                $id=pcrawler_insert_problem($prob,"CodeForcesGym",$cid.$prob["label"]);
-                $msg.="CodeForces $cid$prob[label] has been crawled as $id.<br>";
-            }
+            $default_desc="<a href=\"external/gym/$cid.$ext\">[Attachment Link]</a>";
         }else{
             $msg="Fetch attachments failed";
         }
-    }else{
-        $num='A';
-        while ($row=pcrawler_cf_one($cid,$num,"http://codeforces.com/gym/$cid/problem/$num",$probs[$num])) {
-            $row=pcrawler_process_info($row,"cf","http://codeforces.ru/");
-            $id=pcrawler_insert_problem($row,"CodeForcesGym",$cid.$num);
-            $msg.="CodeForces $cid$num has been crawled as $id.<br>";
-            $num++;
-        }
-        $msg.="No problem called CodeForces $cid$num.<br>";
+    }
+    foreach($probs as $num=>$prob){
+      $row=pcrawler_cf_one($cid,$num,"http://codeforces.com/gym/$cid/problem/$num",$prob,$default_desc);
+      $row=pcrawler_process_info($row,"cf","http://codeforces.ru/");
+      $id=pcrawler_insert_problem($row,"CodeForcesGym",$cid.$num);
+      $msg.="CodeForces $cid$num has been crawled as $id.<br>";
+      $num++;
     }
     return $msg;
 }

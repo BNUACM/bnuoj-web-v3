@@ -180,6 +180,19 @@ function monitor_codeforces() {
     pcrawler_codeforces_num();
 }
 
+function monitor_codeforcesgym() {
+    global $db;
+    $json=json_decode(file_get_contents("http://codeforces.com/api/contest.list?gym=true"));
+    if($json->status!="OK") return;
+    foreach($json->result as $contest){
+        $row = $db->get_row("select pid from problem where vname='CodeForcesGym' and vid like '$contest->id%'",ARRAY_N);
+        if($row[0]) continue;
+        echo "CodeForcesGym ".$contest->id."\n";
+        pcrawler_codeforcesgym($contest->id);
+    }
+    pcrawler_codeforcesgym_num();
+}
+
 function monitor_sgu() {
     $i=1;
     while (true) {
