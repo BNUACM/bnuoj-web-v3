@@ -68,8 +68,8 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     $db->query("select pid from problem where vname like '$vname' and vid like '$vid'");
     if ($db->num_rows==0) {
         $sql_add_pro = "insert into problem 
-        (title,description,input,output,sample_in,sample_out,hint,source,author,hide,memory_limit,time_limit,special_judge_status,case_time_limit,basic_solver_value,number_of_testcase,isvirtual,vname,vid) values
-        ('".$db->escape($ret["title"])."','".$db->escape($ret["description"])."','".$db->escape($ret["input"])."','".$db->escape($ret["output"])."','".$db->escape($ret["sample_in"])."','".$db->escape($ret["sample_out"])."','".$db->escape($ret["hint"])."','".$db->escape($ret["source"])."','".$db->escape($ret["author"])."','0','".$ret["memory_limit"]."','".$ret["time_limit"]."','".$ret["special_judge_status"]."','".$ret["case_time_limit"]."','0','0',1,'$vname','$vid')";
+        (title,description,input,output,sample_in,sample_out,hint,source,author,hide,memory_limit,time_limit,special_judge_status,case_time_limit,basic_solver_value,number_of_testcase,isvirtual,vname,vid,vacnum,vtotalnum) values
+        ('".$db->escape($ret["title"])."','".$db->escape($ret["description"])."','".$db->escape($ret["input"])."','".$db->escape($ret["output"])."','".$db->escape($ret["sample_in"])."','".$db->escape($ret["sample_out"])."','".$db->escape($ret["hint"])."','".$db->escape($ret["source"])."','".$db->escape($ret["author"])."','0','".$ret["memory_limit"]."','".$ret["time_limit"]."','".$ret["special_judge_status"]."','".$ret["case_time_limit"]."','0','0',1,'$vname','$vid',".intval($ret['vacnum']).",".intval($ret['vtotalnum']).")";
         $db->query($sql_add_pro);
         $gnum=$db->insert_id;
     }
@@ -91,7 +91,9 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
                             special_judge_status='".$ret["special_judge_status"]."',
                             case_time_limit='".$ret["case_time_limit"]."',
                             vname='$vname',
-                            vid='$vid'
+                            vid='$vid',
+                            vacnum=".intval($ret['vacnum']).",
+                            vtotalnum=".intval($ret['vtotalnum'])."
                             where pid=$gnum";
         $db->query($sql_add_pro);
     }    
@@ -727,36 +729,56 @@ function pcrawler_lightoj_num(){
     return "Done";
 }
 
-// function pcrawler_uestc($pid){
-//     $url = "http://acm.uestc.edu.cn/problem.php?pid=$pid";
-//     $content = file_get_contents($url);
-//     $ret = array();
+use \Michelf\MarkdownExtra;
+function pcrawler_uestc($pid){
+    $url = "http://acm.uestc.edu.cn/problem/data/$pid";
+    $data = json_decode(file_get_contents($url), true);
 
-//     if (strpos($content, '<h2><center>ERROR!</center></h2>') !== false) return "No problem called UESTC $pid.<br>";
-//     if (stripos($content, "Can not find problem") === false){
-//         if (preg_match('/<div id="big_title">.*<h2>(.*)<\/h2>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
-//         if (preg_match('/<h3>Time Limit: <span class="h4">(.*)ms<\/span>/sU', $content, $matches)) $ret["time_limit"] = intval(trim($matches[1]));
-//         $ret["case_time_limit"] = $ret["time_limit"];
-//         if (preg_match('/Memory Limit: <span class="h4">(.*)kB<\/span>/sU', $content, $matches)) $ret["memory_limit"] = intval(trim($matches[1]));
-//         if (preg_match('/<h2>Description<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["description"] = trim($matches[1]);
-//         if (preg_match('/<h2>Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["input"] = trim($matches[1]);
-//         if (preg_match('/<h2>Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["output"] = trim($matches[1]);
-//         if (preg_match('/<h2>Sample Input<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_in"] = trim($matches[1]);
-//         if (preg_match('/<h2>Sample Output<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["sample_out"] = trim($matches[1]);
-//         if (preg_match('/<h2>Source<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
-//         if (preg_match('/<h2>Hint<\/h2>.*<div class="bg">.*<\/div>(.*)<div class="bg">.*<\/div>/sU', $content, $matches)) $ret["hint"] = trim(strip_tags($matches[1]));
-//         if (strpos($content, '') !== false) $ret["special_judge_status"] = 1;
-//         else $ret["special_judge_status"] = 0;
+    if ($data['result']==="error") return "No problem called UESTC $pid.<br>";
+    $problem = $data['problem'];
+    $ret = array(
+        'description' => $problem['description'],
+        'input' => $problem['input'],
+        'output' => $problem['output'],
+        'hint' => $problem['hint']
+    );
+    foreach($ret as &$one){
+        $one = MarkdownExtra::defaultTransform($one);
+    }
+    unset($one);
+    $ret = array_merge($ret,array(
+        'title' => $problem['title'],
+        'time_limit' => $problem['timeLimit'],
+        'case_time_limit' => $problem['timeLimit'],
+        'memory_limit' => $problem['memoryLimit'],
+        'source' => $problem['source'] ? $problem['source'] : "UESTC",
+        'special_judge_status' => 0, //TODO(crccw): fetch info about spj
+        'vacnum' => $problem['solved'],
+        'vtotalnum' => $problem['tried']
+    ));
+    if(json_decode($problem['sampleInput'])){
+        $ret['sample_in'] = $ret['sample_out'] = "";
+        $sample_in = json_decode($problem['sampleInput'], true);
+        $sample_out = json_decode($problem['sampleOutput'], true);
+        $sample_count = sizeof($sample_in);
+        for($i=0;$i<$sample_count;$i++){
+            $ret['sample_in'] .= '<p>Input</p>';
+            $ret['sample_in'] .= '<pre>'.$sample_in[$i].'</pre>';
+            $ret['sample_in'] .= '<p>Output</p>';
+            $ret['sample_in'] .= '<pre>'.$sample_out[$i].'</pre>';
+        }
+    }else{
+        $ret['sample_in'] = $problem['sampleInput'];
+        $ret['sample_out'] = $problem['sampleOutput'];
+    }
 
-//         $ret = pcrawler_process_info($ret, "uestc", "http://acm.uestc.edu.cn/");
-//         $id = pcrawler_insert_problem($ret, "UESTC", $pid);
-//         return "UESTC $pid has been crawled as $id.<br>";
-//     }
-//     else{
-//         return "No problem called UESTC $pid.<br>";
-//     }
-// }
+    $ret = pcrawler_process_info($ret, "uestc", "http://acm.uestc.edu.cn/");
+    $id = pcrawler_insert_problem($ret, "UESTC", $pid);
+    return "UESTC $pid has been crawled as $id.<br>";
+}
 
+function pcrawler_uestc_num(){
+}
 
 function pcrawler_ural($pid){
     $url = "http://acm.timus.ru/problem.aspx?space=1&num=$pid";
@@ -1406,19 +1428,20 @@ function pcrawler_acdream($pid) {
         if (preg_match('/<h3 class="problem-header">(.*)<\/h3>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match('/Time Limit:&nbsp;.*\/(\d*)MS/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]));
         if (preg_match('/Memory Limit:&nbsp;.*\/(\d*)KB/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]));
-        if (preg_match('/<h4>Problem Description<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
-        if (preg_match('/<h4>Input<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
-        if (preg_match('/<h4>Output<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
-        if (preg_match('/<h4>Sample Input<\/h4><div class="accordion-inner"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
-        if (preg_match('/<h4>Sample Output<\/h4><div class="accordion-inner"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
-        if (preg_match('/<h4>Hint<\/h4><div class="accordion-inner">(.*)<\/div><h4>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
-        if (preg_match('/<h4>Source<\/h4><div class="accordion-inner">(.*)<\/div>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
+        if (preg_match('/<h4>Problem Description<\/h4><div class="prob-content">(.*)<\/div><h4>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<h4>Input<\/h4><div class="prob-content">(.*)<\/div><h4>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<h4>Output<\/h4><div class="prob-content">(.*)<\/div><h4>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<h4>Sample Input<\/h4><div class="prob-content"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
+        if (preg_match('/<h4>Sample Output<\/h4><div class="prob-content"><pre.*>(.*)<\/pre><\/div><h4>/sU', $content,$matches)) $ret["sample_out"]=trim($matches[1]);
+        if (preg_match('/<h4>Hint<\/h4><div class="prob-content">(.*)<\/div><h4>/sU', $content,$matches)) $ret["hint"]=trim($matches[1]);
+        if (preg_match('/<h4>Source<\/h4><div class="prob-content">(.*)<\/div>/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
 
         if (stripos($content,"class=\"user user-red\">Special Judge</span>",0) !== false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
         
         $ret=pcrawler_process_info($ret,"acdream","http://acdream.info/",false);
         $id=pcrawler_insert_problem($ret,"ACdream",$pid);
+        error_log(json_encode($ret));
         return "ACdream $pid has been crawled as $id.<br>";
     }
     else return "No problem called ACdream $pid.<br>";

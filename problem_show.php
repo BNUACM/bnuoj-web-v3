@@ -1,3 +1,9 @@
+        <script src="https://www.cdnjs.net/ajax/libs/mathjax/2.5.1/MathJax.js?config=TeX-AMS_HTML"></script>
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
 <?php
 include_once('functions/problems.php');
 $pid = intval(convert_str($_GET['pid']));
