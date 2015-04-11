@@ -544,6 +544,26 @@ function monitor_hrbust() {
 }
 
 function monitor_uestc() {
+    $ch=curl_init();
+    curl_setopt($ch,CURLOPT_URL,'http://acm.uestc.edu.cn/problem/search');
+    curl_setopt($ch,CURLOPT_POST,1);
+    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($ch,CURLOPT_HTTPHEADER,array('Content-Type:application/json;charset=UTF-8'));
+    $page=1;
+    while(true){
+        curl_setopt($ch,CURLOPT_POSTFIELDS,'{"currentPage":'.$page.',"orderFields":"id","orderAsc":"true"}');
+        $data=curl_exec($ch);
+        $data=json_decode($data,true);
+        if($data['pageInfo']['currentPage']!=$page) break;
+        foreach($data['list'] as $prob){
+            $pid=$prob['problemId'];
+            if(problem_get_id_from_virtual("UESTC",$pid)) continue;
+            echo "UESTC $pid\n";
+            pcrawler_uestc($pid);
+        }
+        $page++;
+    }
+    curl_close($ch);
 }
 
 $ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
@@ -556,7 +576,5 @@ foreach ($ojs as $one) {
     ob_implicit_flush();
     $name();
 }
-
-// echo monitor_uestc();
 
 ?>
