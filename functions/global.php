@@ -2,6 +2,7 @@
 //put some global functions here
 include_once(dirname(__FILE__)."/db_basic.php");
 include_once(dirname(__FILE__)."/cookie.php");
+require_once(dirname(__FILE__)."/../vendor/autoload.php");
 
 if ($config["use_latex_render"]) include_once(dirname(__FILE__)."/latexrender/latex.php");
 

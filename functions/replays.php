@@ -53,7 +53,7 @@ function insac($tnum,$sttime,$act,$pid,$name,$mcid,$pert=10) {
 }
 
 
-function replay_move_uploaded_file($filename) {
+function replay_move_uploaded_file($filename, $cookiejar="") {
     global $_FILES,$_POST,$ret;
     if (sizeof($_FILES)!=0) {
         move_uploaded_file($_FILES["file"]["tmp_name"], "../uploadstand/" . $filename);
@@ -64,6 +64,9 @@ function replay_move_uploaded_file($filename) {
         curl_setopt($tuCurl,CURLOPT_RETURNTRANSFER,1);
         curl_setopt($tuCurl,CURLOPT_FOLLOWLOCATION,1);
         curl_setopt($tuCurl,CURLOPT_USERAGENT,"BNUOJ");
+        if($cookiejar!==""){
+            curl_setopt($tuCurl, CURLOPT_COOKIEFILE, $cookiejar);
+        }
         $html=curl_exec($tuCurl);
         curl_close($tuCurl);
         file_put_contents("../uploadstand/" . $filename,$html);
@@ -455,39 +458,18 @@ function replay_deal_fdulocal2012($standtable) {
 
 function replay_deal_uestc($standtable) {
     global $probs,$sttime,$edtime,$mcid,$pnum,$sfreq;
-    $rows=$standtable->find("tr");
-    $unum=sizeof($rows);
-    for ($i=1;$i<$unum;$i++) {
-        $crow=$rows[$i]->children();
-        $uname=strip_tags($crow[1]->innertext);
-        for ($j=0;$j<$pnum;$j++) {
-            $value=trim($crow[$j+4]->innertext);
-            if ($value=="") continue;
-            if (strstr($value,'(')!==false) {
-                if (strstr($value,'-')===false) {
-                    $act=intval(strstr($value,'<',true))*60;
-                    $tnum=intval(substr(strstr($value,'('),1,-1));
-//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act)."<br />\n";
-                    insac($tnum-1,$sttime,intval($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
-                }
-                else {
-                    $tnum=intval(substr(strstr($value,'-'),1,-1));
-//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
-                }
-            }
-            else {
-                if (strstr($value,'--')===false) {
-                    $tnum=strstr($value,'/',true);
-                    $act=intval(substr(strstr($value,'/'),1));
-//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
-                    insac($tnum-1,$sttime,intval($act)*60,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
-                }
-                else {
-                    $tnum=strstr($value,'/',true);
-//                    echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
-                    inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
-                }
+    foreach($standtable as $contestant){
+        $uname = $contestant['name'];
+        foreach($contestant['itemList'] as $j=>$prob){
+            if(!$prob['solved']&&$prob['tried']==0) continue;
+            $tnum=$prob['tried'];// AC not count
+            if($prob['solved']){
+                $act=$prob['solvedTime']/1000;
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$sttime+$act*60)."<br />\n";
+                insac($tnum,$sttime,intval($act),$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
+            }else{
+                //echo $uname." ".$probs[$j]['pid']." ".$tnum." * ".date("Y-m-d H:i:s",$edtime-10)."<br />\n";
+                inswa($tnum,$sttime,$edtime,$probs[$j]['pid'],convert_str($uname),$mcid,$sfreq);
             }
         }
     }

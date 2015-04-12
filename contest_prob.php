@@ -31,7 +31,18 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
           <p class="alert alert-error">Problem Unavailable!</p>
 <?php
   } else {
-
+?>
+<?php
+  if ($show_problem->get_val('vname')=='UESTC') {
+?>
+        <script src="js/Mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
+<?php
+  }
 ?>
           <div id="showproblem">
             <ul class="nav nav-pills" id="probpagi">

@@ -77,7 +77,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_licstar($standtable);
@@ -91,7 +91,7 @@ if ($current_user->is_root()) {
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
 //        echo htmlspecialchars($standtable);die();
         replay_add_contest();
@@ -105,7 +105,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_ural($standtable);
@@ -116,7 +116,7 @@ if ($current_user->is_root()) {
         $data = new Spreadsheet_Excel_Reader("../uploadstand/" . $filename);
         if ($pnum!=$data->colcount()-5) {
             $ret["msg"]="Expected ".($data->colcount()-5)." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_zju($data);
@@ -129,7 +129,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-7;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_jhinv($standtable);
@@ -142,7 +142,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_zjuhtml($standtable);
@@ -155,7 +155,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_neerc($standtable);
@@ -168,7 +168,7 @@ if ($current_user->is_root()) {
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_2011shstatus($standtable);
@@ -181,7 +181,7 @@ if ($current_user->is_root()) {
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_icpcinfostatus($standtable);
@@ -194,7 +194,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_icpccn($standtable);
@@ -207,7 +207,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_pc2sum($standtable);
@@ -232,23 +232,32 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-10;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_fdulocal2012($standtable);
     }
     else if ($_POST["ctype"]=="uestc") {
-        $filename="replay_cid_".$mcid.".html";
-        replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
-        $standtable=$html->find(".ranktable table",0);
-        $nprob=sizeof($standtable->find("tr",0)->children())-4;
+        $filename="replay_cid_".$mcid.".json";
+        $cookiejar="/tmp/uestc_crawl.cookie";
+        preg_match('/rankList\/([0-9]+)/',$_POST['repurl'],$matches);
+        $cid = $matches[1];
+        $ch = curl_init();
+        curl_setopt($ch,CURLOPT_URL,"http://acm.uestc.edu.cn/contest/data/$cid");
+        curl_setopt($ch,CURLOPT_COOKIEJAR,$cookiejar);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
+        $contest=curl_exec($ch);
+        curl_close($ch);
+        replay_move_uploaded_file($filename, $cookiejar);
+        $data=json_decode(file_get_html("../uploadstand/" . $filename), true);
+        $nprob=sizeof($data['rankList']['problemList']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
-        replay_deal_uestc($standtable);
+        replay_deal_uestc($data['rankList']['rankList']);
     }
     else if ($_POST["ctype"]=="hustvjson") {
         $filename="replay_cid_".$mcid.".json";
@@ -265,7 +274,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_fzuhtml($standtable);
@@ -278,7 +287,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-7;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_usuhtml($standtable);
@@ -291,7 +300,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_sguhtml($standtable);
@@ -304,7 +313,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_amt2011($standtable);
@@ -317,7 +326,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_nwerc($standtable);
@@ -330,7 +339,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_ncpc($standtable);
@@ -343,7 +352,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_uva($standtable);
@@ -356,7 +365,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_gcpc($standtable);
@@ -369,7 +378,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("div.problems",0)->children())-3;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_phuket($standtable);
@@ -382,7 +391,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_spacific($standtable);
@@ -395,7 +404,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_spoj($standtable);
@@ -408,7 +417,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_openjudge($standtable);
@@ -421,7 +430,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_scu($standtable);
@@ -434,7 +443,7 @@ if ($current_user->is_root()) {
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
-            die(json_encode($ret));   
+            die(json_encode($ret));
         }
         replay_add_contest();
         replay_deal_hust($standtable);

@@ -203,15 +203,21 @@ function check_spoj() {
 
 function check_uestc() {
     global $maxwaitnum, $timeoutopts;
-    $html=file_get_html("http://acm.uestc.edu.cn/status.php", false, $timeoutopts);
-    if ($html==null||$html->find("div.list",0)==null) return "Down: cannot connect.";
+    $ch=curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://acm.uestc.edu.cn/status/search");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json;charset=UTF-8'));
+    curl_setopt($ch, CURLOPT_POSTFIELDS,
+      "{\"currentPage\":1,\"contestId\":-1,\"result\":0,\"orderFields\":\"statusId\",\"orderAsc\":\"false\"}");
+    $data=curl_exec($ch);
+    if ($data==null) return "Down: cannot connect.";
     else {
+        $data=json_decode($data, true);
         $num=0;
-        $res=$html->find("div.list ul");
-        foreach ($res as $row) {
-            $result=$row->find("li",3)->plaintext;
-            // echo $result;
-            if (stristr($result,"queu")||stristr($result,"waiting")) $num++;
+        foreach($data['list'] as $row){
+            $status = $row['returnType'];
+            if(stristr($status, 'Judging')||stristr($status, 'Queuing')) $num++;
         }
         if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
         return "Normal";
@@ -420,6 +426,9 @@ function check_hrbust() {
         if ($num>$maxwaitnum) return "Possibly down: more than $maxwaitnum queuings.";
         return "Normal";
     }
+}
+
+function check_codeforcesgym(){
 }
 
 

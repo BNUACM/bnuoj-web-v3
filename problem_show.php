@@ -10,6 +10,18 @@ $lastlang=$_COOKIE[$config["cookie_prefix"]."lastlang"];
 if ($lastlang==null) $lastlang=1;
 include_once("header.php");
 ?>
+<?php
+if ($show_problem->get_val('vname')=='UESTC') {
+?>
+        <script src="js/Mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+        });
+        </script>
+<?php
+}
+?>
         <div class="span12">
 <?php
 if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_user->is_root())) {
