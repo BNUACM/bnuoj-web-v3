@@ -1223,7 +1223,7 @@ function pcrawler_zju_num() {
 }
 
 function pcrawler_nbut($pid) {
-    $url="http://ac.nbutoj.com/Problem/view.xhtml?id=$pid";
+    $url="https://ac.2333.moe/Problem/view.xhtml?id=$pid";
     $content=file_get_contents($url);
     $ret=array();
     if (stripos($content,"<h3>[] </h3>")===false) {
@@ -1242,7 +1242,7 @@ function pcrawler_nbut($pid) {
 
         $ret["special_judge_status"]=0;
         
-        $ret=pcrawler_process_info($ret,"nbut","http://ac.nbutoj.com/Problem/",false);
+        $ret=pcrawler_process_info($ret,"nbut","https://ac.2333.moe/Problem/",false);
         $id=pcrawler_insert_problem($ret,"NBUT",$pid);
         return "NBUT $pid has been crawled as $id.<br>";
     }
@@ -1254,7 +1254,7 @@ function pcrawler_nbut_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://cdn.ac.nbutoj.com/Problem.xhtml?page=$i");
+        $html=file_get_html("https://ac.2333.moe/Problem.xhtml?page=$i");
         //echo $html;
         $table=$html->find("table tbody",0);
         $rows=$table->find("tr");
