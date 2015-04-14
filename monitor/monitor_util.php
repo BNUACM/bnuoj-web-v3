@@ -305,7 +305,7 @@ function monitor_nbut() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://cdn.ac.nbutoj.com/Problem.xhtml?page=$i");
+        $html=file_get_html("http://ac.2333.moe/Problem.xhtml?page=$i");
         //echo $html;
         $table=$html->find("table tbody",0);
         $rows=$table->find("tr");

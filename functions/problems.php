@@ -39,7 +39,7 @@ class Problem {
         else if ($vname=="SPOJ")  $this->info["to_url"]="<a href='http://www.spoj.pl/problems/$vid/' target='_blank'>$vid</a>";
         else if ($vname=="UESTC")  $this->info["to_url"]="<a href='http://acm.uestc.edu.cn/#/problem/show/$vid' target='_blank'>$vid</a>";
         else if ($vname=="FZU")  $this->info["to_url"]="<a href='http://acm.fzu.edu.cn/problem.php?pid=$vid' target='_blank'>$vid</a>";
-        else if ($vname=="NBUT")  $this->info["to_url"]="<a href='http://cdn.ac.nbutoj.com/Problem/view.xhtml?id=$vid' target='_blank'>$vid</a>";
+        else if ($vname=="NBUT")  $this->info["to_url"]="<a href='http://ac.2333.moe/Problem/view.xhtml?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="WHU")  $this->info["to_url"]="<a href='http://acm.whu.edu.cn/land/problem/detail?problem_id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="SYSU")  $this->info["to_url"]="<a href='http://soj.sysu.edu.cn/$vid' target='_blank'>$vid</a>";
         else if ($vname=="SCU")  $this->info["to_url"]="<a href='http://cstest.scu.edu.cn/soj/problem.action?id=$vid' target='_blank'>$vid</a>";
