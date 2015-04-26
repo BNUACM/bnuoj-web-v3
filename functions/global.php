@@ -117,7 +117,7 @@ function match_lang($lang) {
 function get_ip() {
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
     if($ip=="") $ip = $_SERVER['REMOTE_ADDR'];
-    return $ip;
+    return convert_str(htmlspecialchars($ip));
 }
 
 function get_all_vnames() {
