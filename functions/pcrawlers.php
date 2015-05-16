@@ -761,11 +761,16 @@ function pcrawler_uestc($pid){
         $sample_in = json_decode($problem['sampleInput'], true);
         $sample_out = json_decode($problem['sampleOutput'], true);
         $sample_count = sizeof($sample_in);
-        for($i=0;$i<$sample_count;$i++){
-            $ret['sample_in'] .= '<p>Input</p>';
-            $ret['sample_in'] .= '<pre>'.$sample_in[$i].'</pre>';
-            $ret['sample_in'] .= '<p>Output</p>';
-            $ret['sample_in'] .= '<pre>'.$sample_out[$i].'</pre>';
+        if($sample_count==1){
+            $ret['sample_in'] = $sample_in[0];
+            $ret['sample_out'] = $sample_out[0];
+        }else{
+            for($i=0;$i<$sample_count;$i++){
+                $ret['sample_in'] .= '<p>Input</p>';
+                $ret['sample_in'] .= '<pre>'.$sample_in[$i].'</pre>';
+                $ret['sample_in'] .= '<p>Output</p>';
+                $ret['sample_in'] .= '<pre>'.$sample_out[$i].'</pre>';
+            }
         }
     }else{
         $ret['sample_in'] = $problem['sampleInput'];
