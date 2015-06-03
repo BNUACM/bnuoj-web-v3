@@ -1176,7 +1176,7 @@ function replay_crawl_hust($cid) {
 function replay_crawl_cfgym($cid) {
     global $config;
     $res=array();
-    $json=json_decode(file_get_contents("http://codeforces.com/api/".
+    $json=json_decode(get_url("http://codeforces.com/api/".
             "contest.standings?contestId=$cid&from=1&count=1"),true);
     if ($json["status"]!="OK") {
         $res["code"]=1;

@@ -49,7 +49,7 @@ if ($current_user->is_root()) {
 
         $filename="replay_cid_".$mcid.".json";
         replay_move_uploaded_file($filename);
-        $html=file_get_contents("../uploadstand/" . $filename);
+        $html=get_url("../uploadstand/" . $filename);
         replay_add_contest();
         replay_deal_hustvjson($html);
         $total++;

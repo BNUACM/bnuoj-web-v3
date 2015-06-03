@@ -104,7 +104,7 @@ function pcrawler_cf_one($cid,$num,$url,$ret=array(),$default_desc="") {
     global $config;
 
     $pid=$cid.$num;
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $content_type=get_headers($url,1)["Content-Type"];
     if (stripos($content,"<title>Codeforces</title>")===false) {
         if (stripos($content,"<title>Attachments")!==false) {
@@ -193,11 +193,11 @@ function pcrawler_codeforcesgym($cid){
     }
     //Trying to get attchments
     $default_desc="";
-    if(stripos($att = file_get_contents("http://codeforces.com/gym/$cid/attachments"),"<title>Attachments")!==false){
+    if(stripos($att = get_url("http://codeforces.com/gym/$cid/attachments"),"<title>Attachments")!==false){
         if (preg_match("/<a href=\"(\/gym\/$cid.*\.(pdf|doc|ps|zip))\"/sU", $att, $matches)) {
             $path=$matches[1];
             $ext=$matches[2];
-            file_put_contents($config["base_local_path"]."external/gym/$cid.$ext",file_get_contents("http://codeforces.com/$path"));
+            file_put_contents($config["base_local_path"]."external/gym/$cid.$ext",get_url("http://codeforces.com/$path"));
             $default_desc="<a href=\"external/gym/$cid.$ext\">[Attachment Link]</a>";
         }else{
             $msg="Fetch attachments failed";
@@ -235,7 +235,7 @@ function pcrawler_codeforcesgym_num() {
 
 function pcrawler_fzu($pid) {
     $url="http://acm.fzu.edu.cn/problem.php?pid=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
 
     if (stripos($content,"<font size=\"+3\">No Such Problem!</font>")===false) {
@@ -290,7 +290,7 @@ function pcrawler_fzu_num() {
 
 function pcrawler_hdu($pid) {
     $url="http://acm.hdu.edu.cn/showproblem.php?pid=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $content=iconv("gbk","UTF-8//IGNORE",$content);
     $ret=array();
 
@@ -340,7 +340,7 @@ function pcrawler_hdu_num() {
 
 function pcrawler_openjudge($pid) {
     $url="http://poj.openjudge.cn/practice/$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
 
     if (stripos($content,"<div id=\"pageTitle\"><h2>")!==false) {
@@ -391,7 +391,7 @@ function pcrawler_openjudge_num() {
 
 function pcrawler_sysu($pid) {
     $url="http://soj.sysu.edu.cn/$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
 
     if (stripos($content,"<div id=\"error_msg\">")===false) {
@@ -437,7 +437,7 @@ function pcrawler_sysu_num() {
 
 function pcrawler_scu($pid) {
     $url="http://acm.scu.edu.cn/soj/problem.action?id=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     $content=iconv("gbk","UTF-8//IGNORE",$content);
     //$content=mb_convert_encoding($content,"UTF-8","GBK, GB2312, windows-1252");
@@ -445,7 +445,7 @@ function pcrawler_scu($pid) {
         if (preg_match('/<h1 align="center">.*: (.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         $ret["case_time_limit"]=$ret["time_limit"]=$ret["memory_limit"]="0";
 
-        $ret["description"]=file_get_contents("http://acm.scu.edu.cn/soj/problem/$pid");
+        $ret["description"]=get_url("http://acm.scu.edu.cn/soj/problem/$pid");
         $ret["description"]=mb_convert_encoding($ret["description"],"UTF-8","GBK, GB2312, windows-1252");
 
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
@@ -483,7 +483,7 @@ function pcrawler_scu_num() {
 
 function pcrawler_hust($pid) {
     $url="http://acm.hust.edu.cn/problem/show/$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
 
     if (stripos($content,"<h2>Oops! Error.")===false) {
@@ -536,7 +536,7 @@ function pcrawler_hust_num() {
 
 function pcrawler_pku($pid){
     $url = "http://poj.org/problem?id=$pid";
-    $content = file_get_contents($url);
+    $content = get_url($url);
     $ret = array();
     
     if (trim($content) == "") return "No problem called PKU $pid.<br>";
@@ -590,7 +590,7 @@ function pcrawler_pku_num() {
 
 function pcrawler_sgu($pid) {
     $url="http://acm.sgu.ru/problem.php?contest=0&problem=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     $content=iconv("windows-1251","UTF-8//IGNORE",$content);
     //$content=mb_convert_encoding($content,"UTF-8","GBK, GB2312, windows-1252");
@@ -732,7 +732,7 @@ function pcrawler_lightoj_num(){
 use \Michelf\MarkdownExtra;
 function pcrawler_uestc($pid){
     $url = "http://acm.uestc.edu.cn/problem/data/$pid";
-    $data = json_decode(file_get_contents($url), true);
+    $data = json_decode(get_url($url), true);
 
     if ($data['result']==="error") return "No problem called UESTC $pid.<br>";
     $problem = $data['problem'];
@@ -787,7 +787,7 @@ function pcrawler_uestc_num(){
 
 function pcrawler_ural($pid){
     $url = "http://acm.timus.ru/problem.aspx?space=1&num=$pid";
-    $content = file_get_contents($url);
+    $content = get_url($url);
     $ret = array();
 
     if (strpos($content, '<DIV STYLE="color:Red; text-align:center;">Problem not found</DIV>') !== false) return "No problem called ural $pid.<br>";
@@ -955,7 +955,7 @@ function pcrawler_uva($pid){
     global $db;
     $ret = array();
     list($url) = $db->get_row("select url from vurl where voj='UVA' and vid='$pid'", ARRAY_N);
-    $content = file_get_contents($url);
+    $content = get_url($url);
     
     if ($url == "") return "No problem called UVA $pid.<br>";
     if (stripos($content, "<h3>") !== false){
@@ -972,7 +972,7 @@ function pcrawler_uva($pid){
         $pdflink = $matches[1];
 
         if ($purl != "")  {
-            $content = file_get_contents("http://uva.onlinejudge.org/".$purl);
+            $content = get_url("http://uva.onlinejudge.org/".$purl);
         } else {
             $content = "";
         }
@@ -980,7 +980,7 @@ function pcrawler_uva($pid){
         $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
         $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
         
-        file_put_contents("/var/www/contest/".$pdflink, file_get_contents("http://uva.onlinejudge.org/".$pdflink));
+        file_put_contents("/var/www/contest/".$pdflink, get_url("http://uva.onlinejudge.org/".$pdflink));
         $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
 
         $ret = pcrawler_process_info($ret, "uva/".$cate, "http://uva.onlinejudge.org/external/".$cate."/");
@@ -1041,7 +1041,7 @@ function pcrawler_uvalive($pid){
     global $db;
     $ret = array();
     list($url) = $db->get_row("select url from vurl where voj='UVALive' and vid='$pid'", ARRAY_N);
-    $content = file_get_contents($url);
+    $content = get_url($url);
     
     if ($url == "") return "No problem called UVALive $pid.<br>";
     if (stripos($content, "<h3>") !== false){
@@ -1058,7 +1058,7 @@ function pcrawler_uvalive($pid){
         $pdflink = $matches[1];
 
         if ($purl != "")  {
-            $content = file_get_contents("https://icpcarchive.ecs.baylor.edu/".$purl);
+            $content = get_url("https://icpcarchive.ecs.baylor.edu/".$purl);
         } else {
             $content = "";
         }
@@ -1066,7 +1066,7 @@ function pcrawler_uvalive($pid){
         $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
         $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
         
-        file_put_contents("/var/www/contest/".$pdflink, file_get_contents("https://icpcarchive.ecs.baylor.edu/".$pdflink));
+        file_put_contents("/var/www/contest/".$pdflink, get_url("https://icpcarchive.ecs.baylor.edu/".$pdflink));
         $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
 
         $ret = pcrawler_process_info($ret, "uvalive/".$cate, "https://icpcarchive.ecs.baylor.edu/external/".$cate."/");
@@ -1123,7 +1123,7 @@ function pcrawler_uvalive_num() {
 
 function pcrawler_spoj($pid) {
     $url="http://www.spoj.com/problems/$pid/";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     $content=iconv("iso-8859-2","UTF-8//IGNORE",$content);
     if (stripos($content,"Wrong problem code!")===false) {
@@ -1181,7 +1181,7 @@ function pcrawler_spoj_num() {
 
 function pcrawler_zju($pid) {
     $url="http://acm.zju.edu.cn/onlinejudge/showProblem.do?problemCode=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     if (stripos($content,"<div id=\"content_title\">Message</div>")===false) {
         if (preg_match('/<span class="bigProblemTitle">(.*)<\/span>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
@@ -1229,7 +1229,7 @@ function pcrawler_zju_num() {
 
 function pcrawler_nbut($pid) {
     $url="https://ac.2333.moe/Problem/view.xhtml?id=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     if (stripos($content,"<h3>[] </h3>")===false) {
         if (preg_match('/<li id="title"><h3>\[.*\] (.*)<\/h3>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
@@ -1281,7 +1281,7 @@ function pcrawler_nbut_num() {
 
 function pcrawler_whu($pid) {
     $url="http://acm.whu.edu.cn/land/problem/detail?problem_id=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     // If file_get_contents is replaced by curl, finding <div id="tt">Ooooops!</div> could be a fallback to dertermine whether the problem exists.
     if ($content !== false) {
@@ -1310,7 +1310,7 @@ function pcrawler_whu_num() {
     global $db;
     $i=1;
     while (true) {
-        $html=file_get_contents("http://acm.whu.edu.cn/land/problem/list?volume=$i");
+        $html=get_url("http://acm.whu.edu.cn/land/problem/list?volume=$i");
         $chr="problem_data = ";
         $pos1=stripos($html,$chr)+strlen($chr);
         $pos2=stripos($html,"var is_admin",$pos1);
@@ -1332,7 +1332,7 @@ function pcrawler_whu_num() {
 
 function pcrawler_njupt($pid) {
     $url="http://acm.njupt.edu.cn/acmhome/problemdetail.do?&method=showdetail&id=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $content=iconv("gbk","utf-8//ignore",$content);
     $ret=array();
     if (stripos($content,"doesn't exit or has been deleted.</LI></UL>")===false &&
@@ -1382,7 +1382,7 @@ function pcrawler_njupt_num() {
 
 function pcrawler_aizu($pid) {
     $url="http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $content=iconv("SHIFT_JIS","UTF-8//IGNORE",$content);
     $ret=array();
     if (stripos($content,"<h1 class=\"title\">")!==false) {
@@ -1427,7 +1427,7 @@ function pcrawler_aizu_num() {
 
 function pcrawler_acdream($pid) {
     $url="http://acdream.info/problem?pid=$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     if (stripos($content,"<h1 align=\"center\">The Problem is not Available!!</h1>")===false) {
         if (preg_match('/<h3 class="problem-header">(.*)<\/h3>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
@@ -1478,7 +1478,7 @@ function pcrawler_acdream_num() {
 
 function pcrawler_codechef($pid) {
     $url="http://www.codechef.com/problems/$pid";
-    $content=file_get_contents($url);
+    $content=get_url($url);
     $ret=array();
     if (stripos($content,"CodeChef</title>")!==false) {
         if (preg_match('/<h1>(.*)</sU', $content,$matches)) $ret["title"]=trim($matches[1]);
@@ -1548,7 +1548,7 @@ function pcrawler_codechef_sources() {
 
 function pcrawler_hrbust($pid){
     $url = "http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblem&problem_id=$pid";
-    $content = file_get_contents($url);
+    $content = get_url($url);
     $ret = array();
     
     if (stripos($content, "<td class=\"problem_mod_title\">") !== false){

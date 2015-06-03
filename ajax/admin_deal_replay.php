@@ -215,7 +215,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="pc2run") {
         $filename="replay_cid_".$mcid.".txt";
         replay_move_uploaded_file($filename);
-        $str=file_get_contents("../uploadstand/" . $filename);
+        $str=get_url("../uploadstand/" . $filename);
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
@@ -262,7 +262,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="hustvjson") {
         $filename="replay_cid_".$mcid.".json";
         replay_move_uploaded_file($filename);
-        $html=file_get_contents("../uploadstand/" . $filename);
+        $html=get_url("../uploadstand/" . $filename);
         replay_add_contest();
         replay_deal_hustvjson($html);
     }
@@ -452,7 +452,7 @@ if ($current_user->is_root()) {
         $page=1;
         $filename="replay_cid_".$mcid.".json";
         replay_move_uploaded_file($filename);
-        $json=json_decode(file_get_contents("../uploadstand/".$filename),true);
+        $json=json_decode(get_url("../uploadstand/".$filename),true);
         $nprob=sizeof($json["result"]["problems"]);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
