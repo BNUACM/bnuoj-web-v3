@@ -21,12 +21,12 @@ function monitor_uva() {
     global $timeoutopts;
     for ($i=1;$i<3;$i++) {
         $url="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=$i";
-        $html=file_get_html($url, false, $timeoutopts);
+        $html=str_get_html(get_url($url, false, $timeoutopts));
         $main_a=$html->find("#col3_content_wrapper table a");
         foreach($main_a as $lone_a) {
             $l2url=$lone_a->href;
             $l2url="http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-            $html2=file_get_html($l2url);
+            $html2=str_get_html(get_url($l2url));
             $rows=$html2->find("#col3_content_wrapper table",0)->find("tr");
             for ($i=1;$i<sizeof($rows);$i++) {
                 $row=$rows[$i];
@@ -48,12 +48,12 @@ function monitor_uva() {
 function monitor_uvalive() {
     global $timeoutopts;
     $url="http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
-    $html=file_get_html($url, false, $timeoutopts);
+    $html=str_get_html(get_url($url, false, $timeoutopts));
     $main_a=$html->find(".maincontent table a");
     foreach($main_a as $lone_a) {
         $l2url=$lone_a->href;
         $l2url="http://livearchive.onlinejudge.org/".htmlspecialchars_decode($l2url);
-        $html2=file_get_html($l2url);
+        $html2=str_get_html(get_url($l2url));
         $rows=$html2->find(".maincontent table",0)->find("tr");
         for ($i=1;$i<sizeof($rows);$i++) {
             $row=$rows[$i];
@@ -77,7 +77,7 @@ function monitor_spoj() {
     foreach ( array("tutorial","classical") as $typec ) {
         $i=0;$pd=true;
         while ($pd) {
-            $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50), false, $timeoutopts);
+            $html=str_get_html(get_url("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50), false, $timeoutopts));
             if ($html == null) break;
             $table=$html->find("table.problems",0);
             if ($table == null) break;
@@ -104,7 +104,7 @@ function monitor_hdu() {
     global $db, $timeoutopts;
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hdu.edu.cn/listproblem.php?vol=$i", false, $timeoutopts);
+        $html=str_get_html(get_url("http://acm.hdu.edu.cn/listproblem.php?vol=$i", false, $timeoutopts));
         $table=$html->find("table",4);
         $txt=explode(";",$table->find("script",0)->innertext);
         if (sizeof($txt)<2) break;
@@ -121,7 +121,7 @@ function monitor_hdu() {
 }
 
 function monitor_ural() {
-    $html=file_get_html("http://acm.timus.ru/problemset.aspx?space=1&page=all", false, $timeoutopts);
+    $html=str_get_html(get_url("http://acm.timus.ru/problemset.aspx?space=1&page=all", false, $timeoutopts));
     $table=$html->find("table.problemset",0);
     $rows=$table->find("tr");
     for ($j=2;$j<sizeof($rows)-2;$j++) {
@@ -138,7 +138,7 @@ function monitor_ural() {
 function monitor_pku() {
     $i=1;
     while (true) {
-        $html=file_get_html("http://poj.org/problemlist?volume=$i");
+        $html=str_get_html(get_url("http://poj.org/problemlist?volume=$i"));
         $table=$html->find("table",4);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -160,7 +160,7 @@ function monitor_codeforces() {
     $i=1;$one=0;
     while (true) {
         if ($one) break;
-        $html=file_get_html("http://www.codeforces.com/problemset/page/$i");
+        $html=str_get_html(get_url("http://www.codeforces.com/problemset/page/$i"));
         $table=$html->find("table.problems",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
@@ -196,7 +196,7 @@ function monitor_codeforcesgym() {
 function monitor_sgu() {
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.sgu.ru/problemset.php?contest=0&volume=$i");
+        $html=str_get_html(get_url("http://acm.sgu.ru/problemset.php?contest=0&volume=$i"));
         $table=$html->find("table",11);
         $rows=$table->find("tr");
         if (sizeof($rows)<3) break;
@@ -260,7 +260,7 @@ function monitor_zju() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i");
+        $html=str_get_html(get_url("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i"));
         $table=$html->find("table.list",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -282,7 +282,7 @@ function monitor_fzu() {
 
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.fzu.edu.cn/list.php?vol=$i");
+        $html=str_get_html(get_url("http://acm.fzu.edu.cn/list.php?vol=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -305,7 +305,7 @@ function monitor_nbut() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("https://ac.2333.moe/Problem.xhtml?page=$i");
+        $html=str_get_html(get_url("https://ac.2333.moe/Problem.xhtml?page=$i"));
         //echo $html;
         $table=$html->find("table tbody",0);
         $rows=$table->find("tr");
@@ -348,7 +348,7 @@ function monitor_whu() {
 
 function monitor_sysu() {
 
-    $html=file_get_html("http://soj.me/problem_tab.php?start=1000&end=999999");
+    $html=str_get_html(get_url("http://soj.me/problem_tab.php?start=1000&end=999999"));
     $table=$html->find("table",0);
     $rows=$table->find("tr");
     for ($j=1;$j<sizeof($rows);$j++) {
@@ -368,7 +368,7 @@ function monitor_openjudge() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://poj.openjudge.cn/practice/?page=$i");
+        $html=str_get_html(get_url("http://poj.openjudge.cn/practice/?page=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -391,7 +391,7 @@ function monitor_openjudge() {
 function monitor_scu() {
     $i=0;
     while (true) {
-        $html=file_get_html("http://cstest.scu.edu.cn/soj/problems.action?volume=$i");
+        $html=str_get_html(get_url("http://cstest.scu.edu.cn/soj/problems.action?volume=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<4) break;
@@ -414,7 +414,7 @@ function monitor_hust() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hust.edu.cn/problem/list/$i");
+        $html=str_get_html(get_url("http://acm.hust.edu.cn/problem/list/$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -437,7 +437,7 @@ function monitor_hust() {
 function monitor_njupt() {
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i");
+        $html=str_get_html(get_url("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i"));
         $table=$html->find("table",1);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -458,7 +458,7 @@ function monitor_njupt() {
 
 function monitor_aizu() {
     for ($i=0; $i<=100; ++$i) {
-        $html=file_get_html("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i");
+        $html=str_get_html(get_url("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
@@ -480,7 +480,7 @@ function monitor_acdream() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acdream.info/problem/list?page=$i");
+        $html=str_get_html(get_url("http://acdream.info/problem/list?page=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -502,7 +502,7 @@ function monitor_acdream() {
 
 function monitor_codechef() {
     foreach ( array("easy", "medium", "hard", "challenge", "extcontest", "school") as $typec ) {
-        $html=file_get_html("http://www.codechef.com/problems/$typec/");
+        $html=str_get_html(get_url("http://www.codechef.com/problems/$typec/"));
         if ($html == null) break;
         $table=$html->find("table.problems",0);
         if ($table == null) break;
@@ -524,7 +524,7 @@ function monitor_codechef() {
 function monitor_hrbust() {
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i");
+        $html=str_get_html(get_url("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i"));
         $table=$html->find("table.ojlist",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;

@@ -154,7 +154,7 @@ function pcrawler_codeforces_num() {
     $i=1;$one=0;
     while (true) {
         if ($one) break;
-        $html=file_get_html("http://www.codeforces.com/problemset/page/$i");
+        $html=str_get_html(get_url("http://www.codeforces.com/problemset/page/$i"));
         $table=$html->find("table.problems",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
@@ -173,7 +173,7 @@ function pcrawler_codeforces_num() {
 function pcrawler_codeforcesgym($cid){
     global $config;
     $msg="";
-    $html=file_get_html("http://codeforces.com/gym/$cid");
+    $html=str_get_html(get_url("http://codeforces.com/gym/$cid"));
     $table=$html->find("table.problems",0);
     $rows=$table->find("tr");
     $probs=$prob=array();
@@ -215,11 +215,11 @@ function pcrawler_codeforcesgym($cid){
 
 function pcrawler_codeforcesgym_num() {
     global $db;
-    $html=file_get_html("http://codeforces.com/gyms");
+    $html=str_get_html(get_url("http://codeforces.com/gyms"));
     $clist=$html->find(".contestList table",0)->find("tr");
     for($i=1;$i<sizeof($clist);$i++){
         $cid=substr($clist[$i]->find("td",0)->find("a",0)->href,5);
-        $html=file_get_html("http://codeforces.com/gym/$cid");
+        $html=str_get_html(get_url("http://codeforces.com/gym/$cid"));
         $table=$html->find("table.problems",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
@@ -268,7 +268,7 @@ function pcrawler_fzu_num() {
 
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.fzu.edu.cn/list.php?vol=$i");
+        $html=str_get_html(get_url("http://acm.fzu.edu.cn/list.php?vol=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -320,7 +320,7 @@ function pcrawler_hdu_num() {
     global $db;
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hdu.edu.cn/listproblem.php?vol=$i");
+        $html=str_get_html(get_url("http://acm.hdu.edu.cn/listproblem.php?vol=$i"));
         $table=$html->find("table",4);
         $txt=explode(";",$table->find("script",0)->innertext);
         if (sizeof($txt)<2) break;
@@ -369,7 +369,7 @@ function pcrawler_openjudge_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://poj.openjudge.cn/practice/?page=$i");
+        $html=str_get_html(get_url("http://poj.openjudge.cn/practice/?page=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -419,7 +419,7 @@ function pcrawler_sysu($pid) {
 function pcrawler_sysu_num() {
     global $db;
 
-    $html=file_get_html("http://soj.me/problem_tab.php?start=1000&end=999999");
+    $html=str_get_html(get_url("http://soj.me/problem_tab.php?start=1000&end=999999"));
     $table=$html->find("table",0);
     $rows=$table->find("tr");
     for ($j=1;$j<sizeof($rows);$j++) {
@@ -462,7 +462,7 @@ function pcrawler_scu_num() {
     global $db;
     $i=0;
     while (true) {
-        $html=file_get_html("http://acm.scu.edu.cn/soj/problems.action?volume=$i");
+        $html=str_get_html(get_url("http://acm.scu.edu.cn/soj/problems.action?volume=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<4) break;
@@ -513,7 +513,7 @@ function pcrawler_hust_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hust.edu.cn/problem/list/$i");
+        $html=str_get_html(get_url("http://acm.hust.edu.cn/problem/list/$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -569,7 +569,7 @@ function pcrawler_pku_num() {
 
     $i=1;
     while (true) {
-        $html=file_get_html("http://poj.org/problemlist?volume=$i");
+        $html=str_get_html(get_url("http://poj.org/problemlist?volume=$i"));
         $table=$html->find("table",4);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -615,7 +615,7 @@ function pcrawler_sgu_num() {
     global $db;
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.sgu.ru/problemset.php?contest=0&volume=$i");
+        $html=str_get_html(get_url("http://acm.sgu.ru/problemset.php?contest=0&volume=$i"));
         $table=$html->find("table",11);
         $rows=$table->find("tr");
         if (sizeof($rows)<3) break;
@@ -816,13 +816,13 @@ function pcrawler_ural($pid){
 function pcrawler_ural_num() {
     global $db;
 
-    $content=file_get_html("http://acm.timus.ru/problemset.aspx?space=1&page=all");
+    $content=str_get_html(get_url("http://acm.timus.ru/problemset.aspx?space=1&page=all"));
     $table=$content->find("table",4);
     // echo $table;
     $rows=$table->find("tr");
     for ($j=3;$j<sizeof($rows)-1;$j++) {
         $i=$rows[$j]->find("td",1)->plaintext;
-        $html=file_get_html("http://acm.timus.ru/problem.aspx?num=$i");
+        $html=str_get_html(get_url("http://acm.timus.ru/problem.aspx?num=$i"));
         $pid=$i;
         if (preg_match('/All accepted submissions \((\d*)\)/s', $html, $matches)) $acnum = trim($matches[1]);
         if (preg_match('/All submissions \((\d*)\)/s', $html, $matches)) $totnum = trim($matches[1]);
@@ -838,12 +838,12 @@ function pcrawler_uva_urls() {
     global $db;
     for ($cate = 1; $cate <= 2; ++$cate) {
         $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=$cate";
-        $html = file_get_html($url);
+        $html = str_get_html(get_url($url));
         $main_a = $html->find("#col3_content_wrapper table a");
         foreach($main_a as $lone_a) {
             $l2url = $lone_a->href;
             $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-            $html2 = file_get_html($l2url);
+            $html2 = str_get_html(get_url($l2url));
             $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
             for ($i = 1; $i < sizeof($rows); $i++) {
                 $row = $rows[$i];
@@ -863,12 +863,12 @@ function pcrawler_uva_urls() {
 function pcrawler_uvalive_urls() {
     global $db;
     $url = "https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8&category=1";
-    $html = file_get_html($url);
+    $html = str_get_html(get_url($url));
     $main_a = $html->find(".maincontent table a");
     foreach($main_a as $lone_a) {
         $l2url = $lone_a->href;
         $l2url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
+        $html2 = str_get_html(get_url($l2url));
         $rows = $html2->find(".maincontent table", 0)->find("tr");
         for ($i = 1; $i < sizeof($rows); $i++) {
             $row = $rows[$i];
@@ -887,7 +887,7 @@ function pcrawler_uvalive_urls() {
 function pcrawler_uva_sources() {
     global $db;
     $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8";
-    $html = file_get_html($url);
+    $html = str_get_html(get_url($url));
     $main_a = $html->find("#col3_content_wrapper table a");
     $fir = 0;
     $trans = array(" :: "=>", ");
@@ -896,12 +896,12 @@ function pcrawler_uva_sources() {
         $fir++;
         if ($fir < 4 || $fir > 6) continue;
         $l2url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
+        $html2 = str_get_html(get_url($l2url));
         $l2main_a = $html2->find("#col3_content_wrapper table a");
         foreach($l2main_a as $ltow_a) {
             $l3url = $ltow_a->href;
             $l3url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($l3url)."&limit=2000&limitstart=0";
-            $html3 = file_get_html($l3url);
+            $html3 = str_get_html(get_url($l3url));
             $source = $html3->find(".contentheading", 0)->plaintext;
             $source = substr($source, 8);
             $source = trim(strtr($source, $trans));
@@ -920,7 +920,7 @@ function pcrawler_uva_sources() {
 function pcrawler_uvalive_sources() {
     global $db;
     $url = "https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8";
-    $html = file_get_html($url);
+    $html = str_get_html(get_url($url));
     $main_a = $html->find(".maincontent table a");
     $fir = 1;
     $trans = array(" :: "=>", ");
@@ -931,12 +931,12 @@ function pcrawler_uvalive_sources() {
             continue;
         }
         $l2url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
+        $html2 = str_get_html(get_url($l2url));
         $l2main_a = $html2->find(".maincontent table a");
         foreach($l2main_a as $ltow_a) {
             $l3url = $ltow_a->href;
             $l3url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($l3url);
-            $html3 = file_get_html($l3url);
+            $html3 = str_get_html(get_url($l3url));
             $source = $html3->find(".contentheading", 0)->plaintext;
             $source = substr($source, 8);
             $source = trim(strtr($source, $trans));
@@ -997,12 +997,12 @@ function pcrawler_uva_num() {
 
     for ($cate = 1; $cate <= 2; ++$cate) {
         $url = "http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=$cate";
-        $html=file_get_html($url);
+        $html=str_get_html(get_url($url));
         $main_a=$html->find("#col3_content_wrapper table a");
         foreach($main_a as $lone_a) {
             $l2url=$lone_a->href;
             $l2url="http://uva.onlinejudge.org/".htmlspecialchars_decode($l2url);
-            $html2=file_get_html($l2url);
+            $html2=str_get_html(get_url($l2url));
             $rows=$html2->find("#col3_content_wrapper table",0)->find("tr");
             for ($i=1;$i<sizeof($rows);$i++) {
                 $row=$rows[$i];
@@ -1082,12 +1082,12 @@ function pcrawler_uvalive_num() {
     global $db;
 
     $url="http://livearchive.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=1";
-    $html=file_get_html($url);
+    $html=str_get_html(get_url($url));
     $main_a=$html->find(".maincontent table a");
     foreach($main_a as $lone_a) {
         $l2url=$lone_a->href;
         $l2url="http://livearchive.onlinejudge.org/".htmlspecialchars_decode($l2url);
-        $html2=file_get_html($l2url);
+        $html2=str_get_html(get_url($l2url));
         $rows=$html2->find(".maincontent table",0)->find("tr");
         for ($i=1;$i<sizeof($rows);$i++) {
             $row=$rows[$i];
@@ -1149,7 +1149,7 @@ function pcrawler_spoj_num() {
     foreach ( array("tutorial","classical") as $typec ) {
         $i=0;$pd=true;
         while ($pd) {
-            $html=file_get_html("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50));
+            $html=str_get_html(get_url("http://www.spoj.pl/problems/$typec/sort=0,start=".($i*50)));
             if ($html == null) break;
             $table=$html->find("table.problems",0);
             if ($table == null) break;
@@ -1163,7 +1163,7 @@ function pcrawler_spoj_num() {
                 }
                 $used[$pid]=true;
 
-                $phtml=file_get_html("http://www.spoj.pl/ranks/$pid/");
+                $phtml=str_get_html(get_url("http://www.spoj.pl/ranks/$pid/"));
                 if ($phtml == null) continue;
                 $ptable=$phtml->find("table.problems",0);
                 if ($ptable == null) break;
@@ -1208,7 +1208,7 @@ function pcrawler_zju_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i");
+        $html=str_get_html(get_url("http://acm.zju.edu.cn/onlinejudge/showProblems.do?contestId=1&pageNumber=$i"));
         $table=$html->find("table.list",0);
         $rows=$table->find("tr");
         if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
@@ -1259,7 +1259,7 @@ function pcrawler_nbut_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("https://ac.2333.moe/Problem.xhtml?page=$i");
+        $html=str_get_html(get_url("https://ac.2333.moe/Problem.xhtml?page=$i"));
         //echo $html;
         $table=$html->find("table tbody",0);
         $rows=$table->find("tr");
@@ -1361,7 +1361,7 @@ function pcrawler_njupt_num() {
     global $db;
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i");
+        $html=str_get_html(get_url("http://acm.njupt.edu.cn/acmhome/problemList.do?method=show&page=$i"));
         $table=$html->find("table",1);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;
@@ -1406,7 +1406,7 @@ function pcrawler_aizu($pid) {
 function pcrawler_aizu_num() {
     global $db;
     for ($i=0; $i<=100; ++$i) {
-        $html=file_get_html("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i");
+        $html=str_get_html(get_url("http://judge.u-aizu.ac.jp/onlinejudge/finder.jsp?volumeNo=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         for ($j=1;$j<sizeof($rows);$j++) {
@@ -1457,11 +1457,11 @@ function pcrawler_acdream_num() {
     $got=array();
     $i=1;
     while (true) {
-        $html=file_get_html("http://acdream.info/problem/list?page=$i");
+        $html=str_get_html(get_url("http://acdream.info/problem/list?page=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
-        if (isset($got[$rows[1]->find("td",0)->plaintext])) break;
-        for ($j=1;$j<sizeof($rows);$j++) {
+        if ($rows[1]->find("td",0)->innertext === "No Problems are matched.") break;
+        for ($j=1;$j<sizeof($rows)-1;$j++) {
             $row=$rows[$j];
             //echo htmlspecialchars($row);
             $pid=$row->find("td",0)->plaintext;
@@ -1500,7 +1500,7 @@ function pcrawler_codechef($pid) {
 function pcrawler_codechef_num() {
     global $db;
     foreach ( array("easy", "medium", "hard", "challenge", "extcontest", "school") as $typec ) {
-        $html=file_get_html("http://www.codechef.com/problems/$typec/");
+        $html=str_get_html(get_url("http://www.codechef.com/problems/$typec/"));
         if ($html == null) break;
         $table=$html->find("table.problems",0);
         if ($table == null) break;
@@ -1524,7 +1524,7 @@ function pcrawler_codechef_num() {
 function pcrawler_codechef_sources() {
     global $db;
     $url = "http://www.codechef.com/contests";
-    $html = file_get_html($url);
+    $html = str_get_html(get_url($url));
     $main_a = $html->find("table", 3)->find("a");
     $fir = 4;
     foreach($main_a as $lone_a) {
@@ -1535,7 +1535,7 @@ function pcrawler_codechef_sources() {
         $source = $lone_a->plaintext;
         $l2url = $lone_a->href;
         $l2url = "https://www.codechef.com".htmlspecialchars_decode($l2url);
-        $html2 = file_get_html($l2url);
+        $html2 = str_get_html(get_url($l2url));
         $rows = $html2->find("tr.problemrow");
         foreach($rows as $row) {
             $pid = trim($row->find("td", 1)->plaintext);
@@ -1581,7 +1581,7 @@ function pcrawler_hrbust_num() {
 
     $i=1;
     while (true) {
-        $html=file_get_html("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i");
+        $html=str_get_html(get_url("http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblemVolume&vol=$i"));
         $table=$html->find("table.ojlist",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<2) break;

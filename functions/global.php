@@ -195,4 +195,20 @@ function randomstr($l) {
     return implode($pass);
 }
 
+function get_url($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $content = curl_exec($ch);
+    curl_close($ch);
+    if(curl_errno($ch)){
+      throw new Exception(curl_error($ch));
+    }
+
+    return $content;
+}
+
 ?>

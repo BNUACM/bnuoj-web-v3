@@ -72,7 +72,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="licstar") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("#standings",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
@@ -85,7 +85,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="ctu") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         if ($html->find("meta",0)==null) $standtable=$html->find("table",1);
         else $standtable=$html->find("table table",0);
         $nprob=strlen($_POST['extrainfo']);
@@ -100,7 +100,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="ural") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table.monitor",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
@@ -124,7 +124,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="jhinv") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("#standings",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-7;
         if ($nprob!=$pnum) {
@@ -137,7 +137,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="zjuhtml") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find(".list",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -150,7 +150,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="neerc") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",1);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -163,7 +163,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="2011shstatus") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
@@ -176,7 +176,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="icpcinfostatus") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=strlen($_POST['extrainfo']);
         if ($nprob!=$pnum) {
@@ -189,7 +189,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="icpccn") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
@@ -202,7 +202,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="pc2sum") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
@@ -227,7 +227,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="fdulocal2012") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-10;
         if ($nprob!=$pnum) {
@@ -250,7 +250,7 @@ if ($current_user->is_root()) {
         $contest=curl_exec($ch);
         curl_close($ch);
         replay_move_uploaded_file($filename, $cookiejar);
-        $data=json_decode(file_get_html("../uploadstand/" . $filename), true);
+        $data=json_decode(str_get_html(get_url("../uploadstand/" . $filename), true));
         $nprob=sizeof($data['rankList']['problemList']);
         if ($nprob!=$pnum) {
             $ret["msg"]="Expected ".$nprob." problems, got $pnum . Add failed.";
@@ -269,7 +269,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="fzuhtml") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -282,7 +282,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="usuhtml") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",4);
         $nprob=sizeof($standtable->find("tr",0)->children())-7;
         if ($nprob!=$pnum) {
@@ -295,7 +295,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="sguhtml") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",5);
         $nprob=sizeof($standtable->find("tr",0)->children())-5;
         if ($nprob!=$pnum) {
@@ -308,7 +308,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="amt2011") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
@@ -321,7 +321,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="nwerc") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table.scoreboard",0);
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
@@ -334,7 +334,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="ncpc") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table#standings",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -347,7 +347,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="uva") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",1);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -360,7 +360,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="gcpc") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table.scoreboard",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -373,7 +373,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="phuket") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("ul#scoreBoard",0);
         $nprob=sizeof($standtable->find("div.problems",0)->children())-3;
         if ($nprob!=$pnum) {
@@ -386,7 +386,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="spacific") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-6;
         if ($nprob!=$pnum) {
@@ -399,7 +399,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="spoj") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table.problems",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -412,7 +412,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="openjudge") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {
@@ -425,7 +425,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="scu") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",0);
         $nprob=sizeof($standtable->find("tr",1)->children())-5;
         if ($nprob!=$pnum) {
@@ -438,7 +438,7 @@ if ($current_user->is_root()) {
     else if ($_POST["ctype"]=="hust") {
         $filename="replay_cid_".$mcid.".html";
         replay_move_uploaded_file($filename);
-        $html=file_get_html("../uploadstand/" . $filename);
+        $html=str_get_html(get_url("../uploadstand/" . $filename));
         $standtable=$html->find("table",1);
         $nprob=sizeof($standtable->find("tr",0)->children())-4;
         if ($nprob!=$pnum) {

@@ -915,7 +915,7 @@ function replay_deal_cfgym($rows) {
 
 function replay_crawl_zju($cid) {
     $res=array();
-    $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/showContestProblems.do?contestId=$cid");
+    $html=str_get_html(get_url("http://acm.zju.edu.cn/onlinejudge/showContestProblems.do?contestId=$cid"));
     if ($html->find("div.message")!=null) {
         $res["code"]=1;
         return $res;
@@ -929,7 +929,7 @@ function replay_crawl_zju($cid) {
         }
         $res["prob"][]=$tname;
     }
-    $html=file_get_html("http://acm.zju.edu.cn/onlinejudge/contestInfo.do?contestId=$cid");
+    $html=str_get_html(get_url("http://acm.zju.edu.cn/onlinejudge/contestInfo.do?contestId=$cid"));
     $sttime=trim(strstr($html->find(".dateLink",0)->plaintext,"(",true));
     $length=$html->find(".contestInfoTable tr", 3)->find("td",1)->plaintext;
     $edtime=date("Y-m-d H:i:s",strtotime($sttime)+strtotime($length)-time());
@@ -1006,7 +1006,7 @@ function replay_crawl_hustv($cid) {
 
 function replay_crawl_uestc($cid) {
     $res=array();
-    $html=file_get_html("http://acm.uestc.edu.cn/contest.php?cid=$cid");
+    $html=str_get_html(get_url("http://acm.uestc.edu.cn/contest.php?cid=$cid"));
     if ($html->find("div#login_all")!=null) {
         $res["code"]=1;
         return $res;
@@ -1039,7 +1039,7 @@ function replay_crawl_uestc($cid) {
 
 function replay_crawl_uva($cid) {
     $res=array();
-    $html=file_get_html("http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=13&page=show_contest&contest=$cid");
+    $html=str_get_html(get_url("http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=13&page=show_contest&contest=$cid"));
     if ($html->find("h1")!=null) {
         $res["code"]=1;
         return $res;
@@ -1073,7 +1073,7 @@ function replay_crawl_uva($cid) {
 function replay_crawl_openjudge($cid) {
     global $config;
     $res=array();
-    $html=file_get_html("http://poj.openjudge.cn/$cid/");
+    $html=str_get_html(get_url("http://poj.openjudge.cn/$cid/"));
     if ($html->find("div#error")!=null) {
         $res["code"]=1;
         return $res;
@@ -1106,7 +1106,7 @@ function replay_crawl_openjudge($cid) {
 
 function replay_crawl_scu($cid) {
     $res=array();
-    $html=file_get_html("http://acm.scu.edu.cn/soj/contest/contest.action?cid=$cid");
+    $html=str_get_html(get_url("http://acm.scu.edu.cn/soj/contest/contest.action?cid=$cid"));
     if ($html->find("table",0)==null) {
         $res["code"]=1;
         return $res;
@@ -1140,7 +1140,7 @@ function replay_crawl_scu($cid) {
 
 function replay_crawl_hust($cid) {
     $res=array();
-    $html=file_get_html("http://acm.hust.edu.cn/contest.php?cid=$cid");
+    $html=str_get_html(get_url("http://acm.hust.edu.cn/contest.php?cid=$cid"));
     if ($html->find("table",1)==null) {
         $res["code"]=1;
         return $res;
