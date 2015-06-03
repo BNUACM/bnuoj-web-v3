@@ -204,9 +204,6 @@ function get_url($url) {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     $content = curl_exec($ch);
     curl_close($ch);
-    if(curl_errno($ch)){
-      throw new Exception(curl_error($ch));
-    }
 
     return $content;
 }
