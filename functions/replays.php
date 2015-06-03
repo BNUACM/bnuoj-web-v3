@@ -1106,7 +1106,7 @@ function replay_crawl_openjudge($cid) {
 
 function replay_crawl_scu($cid) {
     $res=array();
-    $html=file_get_html("http://cstest.scu.edu.cn/soj/contest/contest.action?cid=$cid");
+    $html=file_get_html("http://acm.scu.edu.cn/soj/contest/contest.action?cid=$cid");
     if ($html->find("table",0)==null) {
         $res["code"]=1;
         return $res;
@@ -1131,7 +1131,7 @@ function replay_crawl_scu($cid) {
     $res["start_time"]=$sttime;
     $res["end_time"]=$edtime;
     $res["name"]=$title;
-    $res["description"]=$res["repurl"]="http://cstest.scu.edu.cn/soj/contest/rank.action?cid=$cid";
+    $res["description"]=$res["repurl"]="http://acm.scu.edu.cn/soj/contest/rank.action?cid=$cid";
     $res["ctype"]="scu";
     $res["code"]=0;
     $res["isvirtual"]=0;

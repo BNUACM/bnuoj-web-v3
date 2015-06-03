@@ -42,7 +42,7 @@ class Problem {
         else if ($vname=="NBUT")  $this->info["to_url"]="<a href='https://ac.2333.moe/Problem/view.xhtml?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="WHU")  $this->info["to_url"]="<a href='http://acm.whu.edu.cn/land/problem/detail?problem_id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="SYSU")  $this->info["to_url"]="<a href='http://soj.sysu.edu.cn/$vid' target='_blank'>$vid</a>";
-        else if ($vname=="SCU")  $this->info["to_url"]="<a href='http://cstest.scu.edu.cn/soj/problem.action?id=$vid' target='_blank'>$vid</a>";
+        else if ($vname=="SCU")  $this->info["to_url"]="<a href='http://acm.scu.edu.cn/soj/problem.action?id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="HUST")  $this->info["to_url"]="<a href='http://acm.hust.edu.cn/problem/show/$vid' target='_blank'>$vid</a>";
         else if ($vname=="NJUPT")  $this->info["to_url"]="<a href='http://acm.njupt.edu.cn/acmhome/problemdetail.do?&method=showdetail&id=$vid' target='_blank'>$vid</a>";
         else if ($vname=="Aizu")  $this->info["to_url"]="<a href='http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=$vid' target='_blank'>$vid</a>";

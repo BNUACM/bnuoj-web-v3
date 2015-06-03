@@ -436,7 +436,7 @@ function pcrawler_sysu_num() {
 }
 
 function pcrawler_scu($pid) {
-    $url="http://cstest.scu.edu.cn/soj/problem.action?id=$pid";
+    $url="http://acm.scu.edu.cn/soj/problem.action?id=$pid";
     $content=file_get_contents($url);
     $ret=array();
     $content=iconv("gbk","UTF-8//IGNORE",$content);
@@ -445,13 +445,13 @@ function pcrawler_scu($pid) {
         if (preg_match('/<h1 align="center">.*: (.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         $ret["case_time_limit"]=$ret["time_limit"]=$ret["memory_limit"]="0";
 
-        $ret["description"]=file_get_contents("http://cstest.scu.edu.cn/soj/problem/$pid");
+        $ret["description"]=file_get_contents("http://acm.scu.edu.cn/soj/problem/$pid");
         $ret["description"]=mb_convert_encoding($ret["description"],"UTF-8","GBK, GB2312, windows-1252");
 
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
         $ret["special_judge_status"]=0;
 
-        $ret=pcrawler_process_info($ret,"scu/$pid","http://cstest.scu.edu.cn/soj/problem/$pid/",false);
+        $ret=pcrawler_process_info($ret,"scu/$pid","http://acm.scu.edu.cn/soj/problem/$pid/",false);
         $id=pcrawler_insert_problem($ret,"SCU",$pid);
         return "SCU $pid has been crawled as $id.<br>";
     }
@@ -462,7 +462,7 @@ function pcrawler_scu_num() {
     global $db;
     $i=0;
     while (true) {
-        $html=file_get_html("http://cstest.scu.edu.cn/soj/problems.action?volume=$i");
+        $html=file_get_html("http://acm.scu.edu.cn/soj/problems.action?volume=$i");
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<4) break;
