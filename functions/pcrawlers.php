@@ -1125,15 +1125,17 @@ function pcrawler_spoj($pid) {
     $url="http://www.spoj.com/problems/$pid/";
     $content=get_url($url);
     $ret=array();
-    $content=iconv("iso-8859-2","UTF-8//IGNORE",$content);
     if (stripos($content,"Wrong problem code!")===false) {
-        if (preg_match('/<h1>\d*\. (.*)<\/h1>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
+        if (preg_match('/<h2 id="problem-name".* - (.*)<\/h2>/sU', $content,$matches)) $ret["title"]=trim($matches[1]);
         if (preg_match('/<td>Time limit:<\/td><td>(\d*)s/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
-        $ret["memory_limit"]="0";
+        if (preg_match('/<td>Memory limit:<\/td><td>(\d*)MBs/sU', $content,$matches)) $ret["memory_limit"]=intval(trim($matches[1]))*1024;
 
-        if (preg_match('/<p align="justify">(.*)<hr>.*?<table.*?class="probleminfo"/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<div id="problem-body">(.*)<h3>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
+        if (preg_match('/<h3>Input<\/h3>(.*)<h3>/sU', $content,$matches)) $ret["input"]=trim($matches[1]);
+        if (preg_match('/<h3>Output<\/h3>(.*)<h3>/sU', $content,$matches)) $ret["output"]=trim($matches[1]);
+        if (preg_match('/<h3>Example<\/h3>(.*<\/(?:pre|PRE)>)/sU', $content,$matches)) $ret["sample_in"]=trim($matches[1]);
 
-        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["source"]="";
+        $ret["sample_out"]=$ret["hint"]=$ret["source"]="";
         $ret["special_judge_status"]=0;
 
         $ret=pcrawler_process_info($ret,"spoj","http://www.spoj.com/",false);
