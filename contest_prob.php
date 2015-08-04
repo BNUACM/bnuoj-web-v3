@@ -33,7 +33,7 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
   } else {
 ?>
 <?php
-  if ($show_problem->get_val('vname')=='UESTC') {
+  if (in_array($show_problem->get_val('vname'),array('UESTC','HDU'))) {
 ?>
         <script src="js/Mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
         <script type="text/x-mathjax-config">

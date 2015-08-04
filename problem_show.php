@@ -11,7 +11,7 @@ if ($lastlang==null) $lastlang=1;
 include_once("header.php");
 ?>
 <?php
-if ($show_problem->get_val('vname')=='UESTC') {
+  if (in_array($show_problem->get_val('vname'),array('UESTC','HDU'))) {
 ?>
         <script src="js/Mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
         <script type="text/x-mathjax-config">
