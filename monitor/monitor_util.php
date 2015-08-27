@@ -6,7 +6,7 @@ include_once(dirname(__FILE__)."/../functions/pcrawlers.php");
 
 $timeoutopts = stream_context_create(array('http' =>
     array(
-        'timeout' => 30 
+        'timeout' => 30
     )
 ));
 
@@ -221,10 +221,10 @@ function monitor_lightoj(){
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_monitor.cookie");
-    curl_setopt($ch, CURLOPT_POST, 1); 
+    curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
     $content = curl_exec($ch);
-    curl_close($ch); 
+    curl_close($ch);
 
     $i=10;
     while (true) {
@@ -233,8 +233,8 @@ function monitor_lightoj(){
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_monitor.cookie");
-        $content = curl_exec($ch); 
-        curl_close($ch); 
+        $content = curl_exec($ch);
+        curl_close($ch);
         if (stripos($content, "<h1>Volume List") !== false) break;
         $html=str_get_html($content);
         $table=$html->find("table",1);
@@ -391,7 +391,7 @@ function monitor_openjudge() {
 function monitor_scu() {
     $i=0;
     while (true) {
-        $html=str_get_html(get_url("http://cstest.scu.edu.cn/soj/problems.action?volume=$i"));
+        $html=str_get_html(get_url("http://acm.scu.edu.cn/soj/problems.action?volume=$i"));
         $table=$html->find("table",0);
         $rows=$table->find("tr");
         if (sizeof($rows)<4) break;
@@ -445,7 +445,7 @@ function monitor_njupt() {
             $row=$rows[$j];
             // echo htmlspecialchars($row);
             $pid=$row->find("td",0)->plaintext;
-            
+
             if (trim($pid) == "" || problem_get_id_from_virtual("NJUPT",$pid)) continue;
             echo "NJUPT $pid\n";
             pcrawler_njupt($pid);
@@ -489,7 +489,7 @@ function monitor_acdream() {
             //echo htmlspecialchars($row);
             $pid=$row->find("td",0)->plaintext;
             $got[$pid] = true;
-            
+
             if (trim($pid) == "" || problem_get_id_from_virtual("ACdream",$pid)) continue;
             echo "ACdream $pid\n";
             pcrawler_acdream($pid);

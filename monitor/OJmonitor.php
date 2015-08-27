@@ -7,7 +7,7 @@ include_once(dirname(__FILE__)."/../functions/global.php");
 $maxwaitnum=8;
 $timeoutopts = stream_context_create(array('http' =>
     array(
-        'timeout' => 120 
+        'timeout' => 120
     )
 ));
 
@@ -106,7 +106,7 @@ function check_lightoj() {
     curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_check.cookie");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($ojuser)."&mypassword=".urlencode($ojpass)."&Submit=Login");
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120); 
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120);
     curl_setopt($ch, CURLOPT_TIMEOUT, 120);
     $content = curl_exec($ch);
     curl_close($ch);
@@ -311,7 +311,7 @@ function check_openjudge() {
 
 function check_scu() {
     global $maxwaitnum, $timeoutopts;
-    $html=file_get_html("http://cstest.scu.edu.cn/soj/solutions.action", false, $timeoutopts);
+    $html=file_get_html("http://acm.scu.edu.cn/soj/solutions.action", false, $timeoutopts);
     if ($html==null||$html->find("table",1)==null) return "Down: cannot connect.";
     else {
         $num=0;
