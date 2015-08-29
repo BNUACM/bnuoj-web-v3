@@ -566,15 +566,11 @@ function monitor_uestc() {
     curl_close($ch);
 }
 
-$ojs=$db->get_results("select name from ojinfo where name not like 'BNU'",ARRAY_N);
 
-foreach ($ojs as $one) {
-    $name="monitor_".strtolower($one[0]);
-    echo $name."\n";
-    flush();
-    ob_flush();
-    ob_implicit_flush();
-    $name();
+if ($argc == 2) {
+    $name = "monitor_".$argv[1];
+    if (function_exists($name)) {
+        $name();
+    }
 }
-
 ?>
