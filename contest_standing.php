@@ -105,13 +105,13 @@ if (contest_exist($cid))
     else echo "Contest Running";
 ?>
             </b>
-          </div> 
+          </div>
           <div class="rankcontainer">
 <?php
     if ($locktu==0) $locktu=$fitimeu+1;
     if ($nowtime>=$sttimeu+$srefresh) {
         if ($locktu<$sttimeu||$nowtime>=$fitimeu||contest_passed($cid)) $locktu=$fitimeu;
-        $num_of_problem = 0; 
+        $num_of_problem = 0;
 
         $map2 = array();
         $map3 = array();
@@ -287,7 +287,7 @@ if (contest_exist($cid))
         }
 
 //            print_r($Name_ary[0]);
-        
+
         $totsuc=0;
         $totfal=0;
         if ($has_cha) {
@@ -325,8 +325,8 @@ if (contest_exist($cid))
                     $totfal++;
                 }
             }
-        }            
-        
+        }
+
 // 扫描计算罚时与题数 然后排序
 
         for ($i = 0 ; $i < $iid ; $i++)
@@ -391,7 +391,7 @@ if (contest_exist($cid))
             return 0;
         }
 
-        
+
         usort($Name_ary,"cmp".$ctype);
 
         // if(sizeof($map)>10) $wdt=(sizeof($map)*100+200)."px";
@@ -515,7 +515,8 @@ if (contest_exist($cid))
                 <option value="2">GNU C</option>
                 <option value="3">Oracle Java</option>
                 <option value="4">Free Pascal</option>
-                <option value="5">Python</option>
+                <option value="5">Python2</option>
+                <option value="16">Python3</option>
               </select><br />
             </div>
             <b>Data Detail: </b><br />

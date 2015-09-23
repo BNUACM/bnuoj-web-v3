@@ -25,7 +25,7 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
   $show_problem=new Problem;
   $pid=$prob_info["pid"];
   $label=$prob_info["lable"];
-  $show_problem->set_problem($pid);  
+  $show_problem->set_problem($pid);
   if (!$show_problem->is_valid()) {
 ?>
           <p class="alert alert-error">Problem Unavailable!</p>
@@ -217,7 +217,8 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
                   <option value="2" <?= $lastlang==2?"selected='selected'":"" ?>>GNU C</option>
                   <option value="3" <?= $lastlang==3?"selected='selected'":"" ?>>Oracle Java</option>
                   <option value="4">Free Pascal</option>
-                  <option value="5">Python</option>
+                  <option value="5">Python2</option>
+                  <option value="16">Python3</option>
                   <option value="6">C# (Mono)</option>
                   <option value="7">Fortran</option>
                   <option value="8">Perl</option>
