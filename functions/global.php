@@ -24,11 +24,11 @@ function match_shjs($lang) {
         case "3":
             $lang="java";
             break;
-        case "4":    
+        case "4":
             $lang="pascal";
             break;
         case "5":
-            $lang="python";
+            $lang="python2";
             break;
         case "6":
             $lang="csharp";
@@ -60,6 +60,9 @@ function match_shjs($lang) {
         case "15":
             $lang="cpp";
             break;
+        case "16":
+            $lang="python3";
+            break;
     }
     return $lang;
 }
@@ -74,11 +77,11 @@ function match_lang($lang) {
         case "3":
             $lang="Oracle Java";
             break;
-        case "4":   
+        case "4":
             $lang="Free Pascal";
             break;
         case "5":
-            $lang="Python";
+            $lang="Python2";
             break;
         case "6":
             $lang="C# (Mono)";
@@ -109,6 +112,9 @@ function match_lang($lang) {
             break;
         case "15":
             $lang="CLang++";
+            break;
+        case "16":
+            $lang="Python3";
             break;
     }
     return $lang;
@@ -141,10 +147,10 @@ function convert_str($mixed) {
         return $mixed;
     }else{
         if ($mixed===null) return "";
-        if (get_magic_quotes_gpc()) { 
-            return $mixed; 
+        if (get_magic_quotes_gpc()) {
+            return $mixed;
         }
-        return $db->escape($mixed); 
+        return $db->escape($mixed);
     }
 }
 function hash_password($pwd) {
@@ -172,7 +178,7 @@ function set_cookies($username,$password,$time=0) {
     setcookie($config["cookie_prefix"]."password",$password,$time,$config["base_path"]);
 }
 
-function mkdirs($path, $mode = 0755) { //creates directory tree recursively 
+function mkdirs($path, $mode = 0755) { //creates directory tree recursively
     $dirs = explode('/',$path);
     $pos = strrpos($path, ".");
     if ($pos === false) $subamount=0;
@@ -186,7 +192,7 @@ function mkdirs($path, $mode = 0755) { //creates directory tree recursively
 
 function randomstr($l) {
     $alphabet = "abcdefghijkmnpqrstuwxyzABCDEFGHJKLMNPQRSTUWXYZ23456789";
-    $pass = array(); 
+    $pass = array();
     $alphaLength = strlen($alphabet) - 1;
     for ($i = 0; $i < $l; $i++) {
         $n = rand(0, $alphaLength);

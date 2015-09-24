@@ -270,7 +270,8 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
                   <option value="2" <?= $lastlang==2?"selected='selected'":"" ?>>GNU C</option>
                   <option value="3" <?= $lastlang==3?"selected='selected'":"" ?>>Oracle Java</option>
                   <option value="4">Free Pascal</option>
-                  <option value="5">Python</option>
+                  <option value="5">Python2</option>
+                  <option value="16">Python3</option>
                   <option value="6">C# (Mono)</option>
                   <option value="7">Fortran</option>
                   <option value="8">Perl</option>
@@ -303,7 +304,7 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
           <span id="msgbox" style="display:none"></span>
           <input name='login' class="btn btn-primary" type='submit' value='Submit' />
           <input name='reset' class="btn btn-danger" type='reset' value='Reset' />
-        </div>      
+        </div>
       </form>
     </div>
 
