@@ -102,10 +102,10 @@ function match_lang($lang) {
             $lang="Standard ML";
             break;
         case "12":
-            $lang="Visual C++";
+            $lang="Visual C";
             break;
         case "13":
-            $lang="Visual C";
+            $lang="Visual C++";
             break;
         case "14":
             $lang="CLang";

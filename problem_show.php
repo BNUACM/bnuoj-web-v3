@@ -278,8 +278,8 @@ if (!$show_problem->is_valid()||($show_problem->get_val("hide")==1&&!$current_us
                   <option value="9">Ruby</option>
                   <option value="10">Ada</option>
                   <option value="11">SML</option>
-                  <option value="12">Visual C++</option>
-                  <option value="13">Visual C</option>
+                  <option value="12">Visual C</option>
+                  <option value="13">Visual C++</option>
                   <option value="14">CLang</option>
                   <option value="15">CLang++</option>
                 </select>

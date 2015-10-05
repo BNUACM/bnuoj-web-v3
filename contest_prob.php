@@ -225,8 +225,8 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
                   <option value="9">Ruby</option>
                   <option value="10">Ada</option>
                   <option value="11">SML</option>
-                  <option value="12">Visual C++</option>
-                  <option value="13">Visual C</option>
+                  <option value="12">Visual C</option>
+                  <option value="13">Visual C++</option>
                   <option value="14">CLang</option>
                   <option value="15">CLang++</option>
                 </select>

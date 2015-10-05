@@ -41,8 +41,8 @@ else $start = "0";
                   <option value="9">Ruby</option>
                   <option value="10">Ada</option>
                   <option value="11">SML</option>
-                  <option value="12">Visual C++</option>
-                  <option value="13">Visual C</option>
+                  <option value="12">Visual C</option>
+                  <option value="13">Visual C++</option>
                 </select>
               </label>
               <button type='submit' class="btn btn-primary">Show</button>
