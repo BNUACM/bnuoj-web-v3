@@ -41,7 +41,7 @@ function process_and_get_image($ori,$path,$baseurl,$space_deli,$cookie) {
                                     if ($para["cookie"]!="") curl_setopt($ch, CURLOPT_COOKIEFILE, $para["cookie"]);
                                     curl_setopt($ch, CURLOPT_HEADER, 0);
                                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                                    $content = curl_exec($ch); 
+                                    $content = curl_exec($ch);
                                     curl_close($ch);
                                     //echo $content;
 
@@ -67,7 +67,7 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     $vid=$db->escape($vid);
     $db->query("select pid from problem where vname like '$vname' and vid like '$vid'");
     if ($db->num_rows==0) {
-        $sql_add_pro = "insert into problem 
+        $sql_add_pro = "insert into problem
         (title,description,input,output,sample_in,sample_out,hint,source,author,hide,memory_limit,time_limit,special_judge_status,case_time_limit,basic_solver_value,number_of_testcase,isvirtual,vname,vid,vacnum,vtotalnum) values
         ('".$db->escape($ret["title"])."','".$db->escape($ret["description"])."','".$db->escape($ret["input"])."','".$db->escape($ret["output"])."','".$db->escape($ret["sample_in"])."','".$db->escape($ret["sample_out"])."','".$db->escape($ret["hint"])."','".$db->escape($ret["source"])."','".$db->escape($ret["author"])."','0','".$ret["memory_limit"]."','".$ret["time_limit"]."','".$ret["special_judge_status"]."','".$ret["case_time_limit"]."','0','0',1,'$vname','$vid',".intval($ret['vacnum']).",".intval($ret['vtotalnum']).")";
         $db->query($sql_add_pro);
@@ -75,7 +75,7 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     }
     else {
         list($gnum)=$db->get_row(null,ARRAY_N);
-        $sql_add_pro = "update problem set 
+        $sql_add_pro = "update problem set
                             title='".$db->escape($ret["title"])."',
                             description='".$db->escape($ret["description"])."',
                             input='".$db->escape($ret["input"])."',
@@ -96,7 +96,7 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
                             vtotalnum=".intval($ret['vtotalnum'])."
                             where pid=$gnum";
         $db->query($sql_add_pro);
-    }    
+    }
     return $gnum;
 }
 
@@ -538,7 +538,7 @@ function pcrawler_pku($pid){
     $url = "http://poj.org/problem?id=$pid";
     $content = get_url($url);
     $ret = array();
-    
+
     if (trim($content) == "") return "No problem called PKU $pid.<br>";
     if (stripos($content, "Can not find problem") === false){
         if (preg_match('/<div class="ptt" lang="en-US">(.*)<\/div>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
@@ -641,10 +641,10 @@ function pcrawler_lightoj($pid){
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_crawl.cookie");
-    curl_setopt($ch, CURLOPT_POST, 1); 
+    curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
     $content = curl_exec($ch);
-    curl_close($ch); 
+    curl_close($ch);
 
     $url = "http://www.lightoj.com/volume_showproblem.php?problem=$pid";
 
@@ -652,8 +652,8 @@ function pcrawler_lightoj($pid){
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_crawl.cookie");
-    $content = curl_exec($ch); 
-    curl_close($ch); 
+    $content = curl_exec($ch);
+    curl_close($ch);
 
     $ret = array();
 
@@ -689,7 +689,7 @@ function pcrawler_lightoj_num(){
     curl_setopt($ch, CURLOPT_URL, "http://www.lightoj.com/login_check.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/lightoj_num.cookie");
-    curl_setopt($ch, CURLOPT_POST, 1); 
+    curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "myuserid=".urlencode($config["accounts"]["lightoj"]["username"])."&mypassword=".urlencode($config["accounts"]["lightoj"]["password"])."&Submit=Login");
     $content = curl_exec($ch);
     curl_close($ch);
@@ -701,8 +701,8 @@ function pcrawler_lightoj_num(){
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/lightoj_num.cookie");
-        $content = curl_exec($ch); 
-        curl_close($ch); 
+        $content = curl_exec($ch);
+        curl_close($ch);
         if (stripos($content, "<h1>Volume List") !== false) break;
         $html=str_get_html($content);
         $table=$html->find("table",1);
@@ -847,10 +847,10 @@ function pcrawler_uva_urls() {
             $rows = $html2->find("#col3_content_wrapper table", 0)->find("tr");
             for ($i = 1; $i < sizeof($rows); $i++) {
                 $row = $rows[$i];
-                $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+                $pid = html_entity_decode(trim($row->find("td", 2)->plaintext));
                 $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
                 $pid = substr($pid, 0, -2);
-                $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+                $url = "http://uva.onlinejudge.org/".htmlspecialchars_decode($row->find("td", 2)->find("a", 0)->href);
                 $db->query("select * from vurl where voj='UVA' and vid='$pid'");
                 if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVA' and vid='$pid'");
                 else $db->query("insert into vurl set voj='UVA', vid='$pid', url='$url'");
@@ -872,10 +872,10 @@ function pcrawler_uvalive_urls() {
         $rows = $html2->find(".maincontent table", 0)->find("tr");
         for ($i = 1; $i < sizeof($rows); $i++) {
             $row = $rows[$i];
-            $pid = html_entity_decode(trim($row->find("td", 1)->plaintext));
+            $pid = html_entity_decode(trim($row->find("td", 2)->plaintext));
             $pid = iconv("utf-8", "utf-8//ignore", trim(strstr($pid, '-', true)));
             $pid = substr($pid, 0, -2);
-            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 1)->find("a", 0)->href);
+            $url = "https://icpcarchive.ecs.baylor.edu/".htmlspecialchars_decode($row->find("td", 2)->find("a", 0)->href);
             $db->query("select * from vurl where voj='UVALive' and vid='$pid'");
             if ($db->num_rows > 0) $db->query("update vurl set url='$url' where voj='UVALive' and vid='$pid'");
             else $db->query("insert into vurl set voj='UVALive', vid='$pid', url='$url'");
@@ -956,7 +956,7 @@ function pcrawler_uva($pid){
     $ret = array();
     list($url) = $db->get_row("select url from vurl where voj='UVA' and vid='$pid'", ARRAY_N);
     $content = get_url($url);
-    
+
     if ($url == "") return "No problem called UVA $pid.<br>";
     if (stripos($content, "<h3>") !== false){
         if (preg_match('/<!-- #col3: Main Content.*?<h3>(.*)<\/h3>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
@@ -979,7 +979,7 @@ function pcrawler_uva($pid){
         $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
         $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
         $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
-        
+
         file_put_contents("/var/www/contest/".$pdflink, get_url("http://uva.onlinejudge.org/".$pdflink));
         $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
 
@@ -1042,7 +1042,7 @@ function pcrawler_uvalive($pid){
     $ret = array();
     list($url) = $db->get_row("select url from vurl where voj='UVALive' and vid='$pid'", ARRAY_N);
     $content = get_url($url);
-    
+
     if ($url == "") return "No problem called UVALive $pid.<br>";
     if (stripos($content, "<h3>") !== false){
         if (preg_match('/<h3>(.*)<\/h3>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
@@ -1065,7 +1065,7 @@ function pcrawler_uvalive($pid){
         $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
         $content = preg_replace('/<head[\s\S]*\/head>/', "", $content);
         $content = preg_replace('/<style[\s\S]*\/style>/', "", $content);
-        
+
         file_put_contents("/var/www/contest/".$pdflink, get_url("https://icpcarchive.ecs.baylor.edu/".$pdflink));
         $ret["description"] = "<p><a href='$pdflink' class='bottom_link'>[PDF Link]</a></p>".trim($content);
 
@@ -1197,7 +1197,7 @@ function pcrawler_zju($pid) {
         else $ret["special_judge_status"]=0;
 
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]="";
-        
+
         $ret=pcrawler_process_info($ret,"zju","http://acm.zju.edu.cn/onlinejudge/",false);
         $id=pcrawler_insert_problem($ret,"ZJU",$pid);
         return "ZJU $pid has been crawled as $id.<br>";
@@ -1248,7 +1248,7 @@ function pcrawler_nbut($pid) {
         if ($ret["source"] == "本站或者转载") $ret["source"]="";
 
         $ret["special_judge_status"]=0;
-        
+
         $ret=pcrawler_process_info($ret,"nbut","https://ac.2333.moe/Problem/",false);
         $id=pcrawler_insert_problem($ret,"NBUT",$pid);
         return "NBUT $pid has been crawled as $id.<br>";
@@ -1300,7 +1300,7 @@ function pcrawler_whu($pid) {
 
         if (stripos($content,"<strong>Special Judge</strong>: Yes",0) !== false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
-        
+
         $ret=pcrawler_process_info($ret,"whu","http://acm.whu.edu.cn/land/problem/",false);
         $id=pcrawler_insert_problem($ret,"WHU",$pid);
         return "WHU $pid has been crawled as $id.<br>";
@@ -1351,7 +1351,7 @@ function pcrawler_njupt($pid) {
         if (preg_match('/<b crawl="source"><\/b>(.*)<b\s*crawl="source">/sU', $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
 
         $ret["special_judge_status"]=0;
-        
+
         $ret=pcrawler_process_info($ret,"njupt","http://acm.njupt.edu.cn/acmhome/",false);
         $id=pcrawler_insert_problem($ret,"NJUPT",$pid);
         return "NJUPT $pid has been crawled as $id.<br>";
@@ -1397,7 +1397,7 @@ function pcrawler_aizu($pid) {
 
         $ret["special_judge_status"]=0;
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]="";
-        
+
         $ret=pcrawler_process_info($ret,"aizu","http://judge.u-aizu.ac.jp/onlinejudge/",false);
         $id=pcrawler_insert_problem($ret,"Aizu",$pid);
         return "Aizu $pid has been crawled as $id.<br>";
@@ -1445,7 +1445,7 @@ function pcrawler_acdream($pid) {
 
         if (stripos($content,"class=\"user user-red\">Special Judge</span>",0) !== false) $ret["special_judge_status"]=1;
         else $ret["special_judge_status"]=0;
-        
+
         $ret=pcrawler_process_info($ret,"acdream","http://acdream.info/",false);
         $id=pcrawler_insert_problem($ret,"ACdream",$pid);
         error_log(json_encode($ret));
@@ -1491,7 +1491,7 @@ function pcrawler_codechef($pid) {
 
         $ret["special_judge_status"]=0;
         $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]=$ret["source"]="";
-        
+
         $ret=pcrawler_process_info($ret,"codechef","http://www.codechef.com/problems/",false);
         $id=pcrawler_insert_problem($ret,"CodeChef",$pid);
         return "CodeChef $pid has been crawled as $id.<br>";
@@ -1552,7 +1552,7 @@ function pcrawler_hrbust($pid){
     $url = "http://acm.hrbust.edu.cn/index.php?m=ProblemSet&a=showProblem&problem_id=$pid";
     $content = get_url($url);
     $ret = array();
-    
+
     if (stripos($content, "<td class=\"problem_mod_title\">") !== false){
         if (preg_match('/<td class="problem_mod_name">(.*)<\/td>/sU', $content, $matches)) $ret["title"] = trim($matches[1]);
         if (preg_match('/>Time Limit: (\d*) MS</sU', $content, $matches)) $ret["time_limit"] = $ret["case_time_limit"] = intval(trim($matches[1]));
@@ -1565,7 +1565,7 @@ function pcrawler_hrbust($pid){
         if (preg_match('/<td class="problem_mod_title">Hint<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["hint"] = trim($matches[1]);
         if (preg_match('/<td class="problem_mod_title">Source<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["source"] = trim(strip_tags($matches[1]));
         if (preg_match('/<td class="problem_mod_title">Author<\/td>.*<td class="problem_mod_content">(.*)<\/td><\/tr>(<tr><td class="problem_mod_title">|<\/table>)/sU', $content, $matches)) $ret["author"] = trim(strip_tags($matches[1]));
-        
+
         if (strpos($content, 'Special Judge: <span class="problem_mod_info_sj_yes">Yes</span>') !== false) $ret["special_judge_status"] = 1;
         else $ret["special_judge_status"] = 0;
 
