@@ -1479,24 +1479,26 @@ function pcrawler_acdream_num() {
 }
 
 function pcrawler_codechef($pid) {
-    $url="http://www.codechef.com/problems/$pid";
-    $content=get_url($url);
+    $url="http://www.codechef.com/api/contests/PRACTICE/problems/$pid";
+    $data=json_decode(get_url($url), true);
+    if ($data['status']!=='success') return $data['message'];
     $ret=array();
-    if (stripos($content,"CodeChef</title>")!==false) {
-        if (preg_match('/<h1>(.*)</sU', $content,$matches)) $ret["title"]=trim($matches[1]);
-        if (preg_match('/Time Limit:<\/td>\s*<td>(.*) sec/sU', $content,$matches)) $ret["case_time_limit"]=$ret["time_limit"]=intval(trim($matches[1]))*1000;
-        $ret["memory_limit"]="0";
-        if (preg_match('/<div class="meta">.*<div class="content">(.*)<\/div>.*<hr \/>/sU', $content,$matches)) $ret["description"]=trim($matches[1]);
-        $ret["description"] = str_replace("<h3>All submissions for this problem are available.</h3>", "", $ret["description"]);
-
-        $ret["special_judge_status"]=0;
-        $ret["input"]=$ret["output"]=$ret["sample_in"]=$ret["sample_out"]=$ret["hint"]=$ret["author"]=$ret["source"]="";
-
-        $ret=pcrawler_process_info($ret,"codechef","http://www.codechef.com/problems/",false);
-        $id=pcrawler_insert_problem($ret,"CodeChef",$pid);
-        return "CodeChef $pid has been crawled as $id.<br>";
-    }
-    else return "No problem called CodeChef $pid.<br>";
+    $ret['title']=$data['problem_name'];
+    $ret['time_limit']=$ret['case_time_limit']=intval($data['max_timelimit'])*1000;
+    $ret['memory_limit']=0;
+    $ret['special_judge_status']=0;
+    $ret['author']=$data['problem_author'];
+    if (preg_match('/<\/h3>\n?(<p>.*)(?:<h3>Input|$)/sU', $data['body'], $matches)) $ret['description']=$matches[1];
+    if (preg_match('/<h3>Input<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['input']=$matches[1];
+    if (preg_match('/<h3>Output<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['output']=$matches[1];
+    if (preg_match('/<h3>Constraints<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['input'].=$matches[1];
+    if (preg_match('/<h3>Sub tasks<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['input'].=$matches[1];
+    if (preg_match('/<h3>Example<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['sample_in']=$matches[1];
+    if (preg_match('/<h3>Explanation<\/h3>(.*)(?:<h3>|$)/sU', $data['body'], $matches)) $ret['hint']=$matches[1];
+    $ret["sample_out"]=$ret["source"]="";
+    $ret=pcrawler_process_info($ret,"codechef","http://www.codechef.com/problems/",false);
+    $id=pcrawler_insert_problem($ret,"CodeChef",$pid);
+    return "CodeChef $pid has been crawled as $id.<br>";
 }
 
 function pcrawler_codechef_num() {
