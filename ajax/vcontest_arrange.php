@@ -15,6 +15,7 @@ if ($current_user->is_valid()) {
 
     if ($_POST["localtime"]==1) {
         $dt=new DateTime($start_time,new DateTimeZone($_POST['localtz']));
+        $mytimezone = date_default_timezone_get();
         $dt->setTimezone(new DateTimeZone($mytimezone));
         $start_time=$dt->format('Y-m-d H:i:s');
         $dt=new DateTime($lock_board_time,new DateTimeZone($_POST['localtz']));
@@ -47,15 +48,15 @@ if ($current_user->is_valid()) {
     }
     $n = min($n, sizeof($pid));
 
-    
+
     $stt=strtotime($start_time);
     $edt=strtotime($end_time);
     $lbt=strtotime($lock_board_time);
     $nt=time();
-    
+
     //echo "$title $start_time $end_time $pid[0] $stt $edt $lbt $nt ";
     //echo $_POST['submit'];
-    
+
     if ($title=="") {
         $ret["msg"]="Please input title.";
     }
@@ -69,7 +70,7 @@ if ($current_user->is_valid()) {
         $ret["msg"]="Invalid contest length.";
     }
     else {
-    
+
         $sql_add_con = "insert into contest (title,description,isprivate,lock_board_time,start_time,end_time,hide_others,owner,isvirtual,type,password,owner_viewable) values ('$title'" .
                 ",'$description','$isprivate','$lock_board_time','$start_time','$end_time','$hide_others','$nowuser',1,'$ctype','$pass','$owner_viewable')";
         //$sql_add_con = change_in($sql_add_con);
@@ -116,7 +117,7 @@ if ($current_user->is_valid()) {
             if ($ctype==0) $sql= "insert into contest_problem (cid ,pid,lable) values ('".$cid."','".$pid[$i]."','".$lable[$i]."')";
             else $sql = "insert into contest_problem (cid ,pid,lable,type,base,minp,para_a,para_b,para_c,para_d,para_e) values
                 ('".$cid."','".$pid[$i]."','".$lable[$i]."','".$ptype[$i]."','".$base[$i]."','".$minp[$i]."','".$paraa[$i]."','".$parab[$i]."','".$parac[$i]."','".$parad[$i]."','".$parae[$i]."')";
-            
+
             $que = $db->query($sql);
         }
 
@@ -129,8 +130,8 @@ if ($current_user->is_valid()) {
         $ret["msg"]="Success!";
         $ret["code"]=0;
     }
-    
-} 
+
+}
 else {
     $ret["msg"]="Please login.";
 }
