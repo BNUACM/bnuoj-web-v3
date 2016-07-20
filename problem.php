@@ -1,7 +1,7 @@
 <?php
 $pagetitle="Problem List";
 include_once("header.php");
-if ($_GET["page"]!="") $stp=intval(convert_str($_GET["page"]))-1;
+if (isset($_GET["page"])&&$_GET["page"]!="") $stp=intval(convert_str($_GET["page"]))-1;
 else $stp="0";
 ?>
         <div class="span12">
@@ -50,7 +50,7 @@ if ($current_user->is_valid()) {
 <script type="text/javascript">
 var probperpage=<?= $config["limits"]["problems_per_page"] ?>;
 var pstart=<?= $stp ?>;
-var searchstr="<?= $_GET['search'] ?>";
+var searchstr="<?= isset($_GET['search']) ? $_GET['search'] : "" ?>";
 var ojoptions='<?= $ojoptions ?>';
 </script>
 <script type="text/javascript" src="js/problem.js?<?=filemtime("js/problem.js") ?>"></script>
