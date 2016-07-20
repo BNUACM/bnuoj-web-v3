@@ -100,9 +100,30 @@ function pcrawler_insert_problem($ret,$vname,$vid) {
     return $gnum;
 }
 
+function init_result() {
+    return array(
+        "title"=>"",
+        "description"=>"",
+        "input"=>"",
+        "output"=>"",
+        "sample_in"=>"",
+        "sample_out"=>"",
+        "hint"=>"",
+        "source"=>"",
+        "author"=>"",
+        "memory_limit"=>"",
+        "time_limit"=>"",
+        "special_judge_status"=>"",
+        "case_time_limit"=>"",
+        "vacnum"=>"",
+        "vtotalnum"=>""
+    );
+}
+
 function pcrawler_cf_one($cid,$num,$url,$ret=array(),$default_desc="") {
     global $config;
 
+    $ret = init_result();
     $pid=$cid.$num;
     $content=get_url($url);
     $content_type=get_headers($url,1)["Content-Type"];
@@ -118,8 +139,7 @@ function pcrawler_cf_one($cid,$num,$url,$ret=array(),$default_desc="") {
                 if (preg_match("/output<\\/div>.*<div>(<p>.*)<\\/div>/sU", $content,$matches)) $ret["description"].=trim(html_entity_decode($matches[1]));
                 if (preg_match("/Input<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["input"]=trim($matches[1]);
                 if (preg_match("/Output<\\/div>(.*)<\\/div>/sU", $content,$matches)) $ret["output"]=trim($matches[1]);
-                if (preg_match("/Sample test\\(s\\)<\\/div>(.*<\\/div><\\/div>)<\\/div>/sU", $content,$matches)) $ret["sample_in"]=trim($matches[1]);
-                $ret["sample_out"]="";
+                if (preg_match("/Examples<\\/div>(.*<\\/div><\\/div>)<\\/div>/sU", $content,$matches)) $ret["sample_in"]=trim($matches[1]);
                 if (preg_match("/Note<\\/div>(.*)<\\/div><\\/div>/sU", $content,$matches)) $ret["hint"]=trim(html_entity_decode($matches[1]));
                 if (preg_match("/<th class=\"left\" style=\"width:100%;\">(.*)<\\/th>/sU", $content,$matches)) $ret["source"]=trim(strip_tags($matches[1]));
                 $ret["special_judge_status"]=0;
