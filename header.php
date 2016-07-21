@@ -13,7 +13,10 @@ include_once("functions/users.php");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Le styles -->
-    <link href="<?= file_exists("css/style/bootstrap.".$_COOKIE[$config["cookie_prefix"]."style"].".min.css")?"css/style/bootstrap.".$_COOKIE[$config["cookie_prefix"]."style"].".min.css":"css/style/bootstrap.".$config["default_style"].".min.css" ?>" rel="stylesheet">
+<?php
+$style = isset($_COOKIE[$config["cookie_prefix"]."style"]) && file_exists("css/style/bootstrap.".$_COOKIE[$config["cookie_prefix"]."style"].".min.css")? $_COOKIE[$config["cookie_prefix"]."style"] : $config["default_style"];
+?>
+    <link href="css/style/bootstrap.<?= $style ?>.min.css" rel="stylesheet">
     <link href="css/bnuoj.css?<?=filemtime("css/bnuoj.css") ?>" rel="stylesheet">
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
     <link href="css/DT_bootstrap.css" rel="stylesheet">
@@ -40,7 +43,7 @@ include_once("functions/users.php");
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="<?= $_COOKIE[$config["cookie_prefix"]."fluid_width"]==true?"container-fluid":"container" ?>">
+        <div class="<?= isset_and_equal($_COOKIE, $config["cookie_prefix"]."fluid_width", true)?"container-fluid":"container" ?>">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -125,5 +128,5 @@ var currenttime = '<?=time()?>';
 var cookie_prefix = '<?=$config["cookie_prefix"] ?>';
 var default_style= '<?=$config["default_style"]?>';
 </script>
-    <div class="<?= $_COOKIE[$config["cookie_prefix"]."fluid_width"]==true?"container-fluid":"container" ?>" id="page-content">
+    <div class="<?= isset_and_equal($_COOKIE, $config["cookie_prefix"]."fluid_width", true)?"container-fluid":"container" ?>" id="page-content">
       <div class="row-fluid">

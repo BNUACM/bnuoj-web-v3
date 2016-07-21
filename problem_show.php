@@ -6,8 +6,7 @@ $show_problem=new Problem;
 $show_problem->set_problem($pid);
 if ($show_problem->is_valid() && $show_problem->get_val("hide")==0) $pagetitle="BNUOJ ".$pid." - ".$show_problem->get_val("title");
 else $pagetitle="Problem Unavailable";
-$lastlang=$_COOKIE[$config["cookie_prefix"]."lastlang"];
-if ($lastlang==null) $lastlang=1;
+$lastlang=fetch_default($_COOKIE, $config["cookie_prefix"]."lastlang", 1);
 include_once("header.php");
 ?>
 <?php

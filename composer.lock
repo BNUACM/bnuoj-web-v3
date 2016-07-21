@@ -1,11 +1,56 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f84c2ed2a5720d4356e7eb7a14831713",
+    "hash": "94ad452b75d5471b35692797a5645c7f",
+    "content-hash": "4bdd484ef43967a8e94ea697197127e3",
     "packages": [
+        {
+            "name": "jv2222/ezsql",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezSQL/ezSQL.git",
+                "reference": "473d21355e4ebee015a126be8b406cc9c46da864"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/ezSQL/ezSQL/473d21355e4ebee015a126be8b406cc9c46da864.zip",
+                "reference": "473d21355e4ebee015a126be8b406cc9c46da864",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "cubrid/ez_sql_cubrid.php",
+                    "pdo/ez_sql_pdo.php",
+                    "postgresql/ez_sql_postgresql.php",
+                    "mysql/ez_sql_mysql.php",
+                    "mysqli/ez_sql_mysqli.php",
+                    "sqlsrv/ez_sql_sqlsrv.php",
+                    "oracle8_9/ez_sql_oracle8_9.php",
+                    "sqlite/ez_sql_sqlite.php",
+                    "shared/ez_sql_core.php",
+                    "mssql/ez_sql_mssql.php",
+                    "sybase/ez_sql_sybase.php",
+                    "codeigniter/Ezsql_codeigniter.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Justin Vincent",
+                    "email": "webmaster@justinvincent.com"
+                }
+            ],
+            "description": "PHP class to make interacting with a database ridiculusly easy.",
+            "time": "2016-03-03 07:02:06"
+        },
         {
             "name": "kriswallsmith/buzz",
             "version": "v0.10",
@@ -109,7 +154,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "jv2222/ezsql": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

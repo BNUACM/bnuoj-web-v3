@@ -26,7 +26,7 @@
               <option value="geo">Geo</option>
             </select>
           </label>
-          <label class="checkbox"> <input type="checkbox" id="selwidth" <?= $_COOKIE[$config["cookie_prefix"]."fluid_width"]==true?"checked":"" ?> />Fluid Width?</label>
+          <label class="checkbox"> <input type="checkbox" id="selwidth" <?= isset($_COOKIE[$config["cookie_prefix"]."fluid_width"])&&$_COOKIE[$config["cookie_prefix"]."fluid_width"]==true?"checked":"" ?> />Fluid Width?</label>
         </form>
       </footer>
     </div><!--/.fluid-container-->
