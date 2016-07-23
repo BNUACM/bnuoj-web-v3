@@ -95,6 +95,9 @@ $result=$db->query($query);
 $query="update user set total_submit=total_submit+1 where username='$uname' ";
 $result = $db->query($query);
 
+$ret = array(
+    "runid" => $nowid
+);
 $host=$config["contact"]["server"];
 $port=$config["contact"]["port"];
 $fp = @fsockopen($host,$port,$errno, $errstr);

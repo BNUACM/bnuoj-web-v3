@@ -67,28 +67,21 @@ $result=$db->query($query);
 $query="update user set total_submit=total_submit+1 where username='$uname' ";
 $result = $db->query($query);
 
+$ret = array(
+    "msg" => "Submitted.",
+    "code" => 0,
+    "runid" => $nowid
+);
+
 $host=$config["contact"]["server"];
 $port=$config["contact"]["port"];
 $fp = @fsockopen($host,$port,$errno, $errstr);
-if (!$fp) {
-    $ret["msg"]="Submitted.";
-    $ret["code"]=0;
-    echo json_encode($ret);
-    die();
-}
-else {
+if ($fp) {
     $msg=$config["contact"]["submit"]."\n".$nowid;
     $msg=$msg."\n".$vname;
-    if (@fwrite($fp,$msg)===FALSE) {
-        $ret["msg"]="Submitted.";
-        $ret["code"]=0;
-        echo json_encode($ret);
-        die();
-    }
+    @fwrite($fp,$msg);
     fclose($fp);
 }
-$ret["msg"]="Submitted.";
-$ret["code"]=0;
 echo json_encode($ret);
 
 ?>
