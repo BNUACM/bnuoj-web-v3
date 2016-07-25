@@ -50,7 +50,7 @@ if ($current_user->is_valid()) {
 <script type="text/javascript">
 var probperpage=<?= $config["limits"]["problems_per_page"] ?>;
 var pstart=<?= $stp ?>;
-var searchstr="<?= isset($_GET['search']) ? $_GET['search'] : "" ?>";
+var searchstr=<?= json_encode(isset($_GET['search']) ? $_GET['search'] : "") ?>;
 var ojoptions='<?= $ojoptions ?>';
 </script>
 <script type="text/javascript" src="js/problem.js?<?=filemtime("js/problem.js") ?>"></script>

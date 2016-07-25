@@ -13,8 +13,8 @@ else if($title ==""){
     $ret["msg"]="No Title.";
 }
 else{
-    $pid = convert_str($_GET['pid']);
-    if ($pid!=""&&!problem_exist($pid)) {
+    $pid = intval($_GET['pid']);
+    if ($pid!=0&&!problem_exist($pid)) {
         $ret["msg"]="No Such Problem!";
         echo json_encode($ret);
         die();

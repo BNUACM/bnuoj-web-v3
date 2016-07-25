@@ -10,8 +10,8 @@ $sTable = "mail";
 $sLimit = "";
 if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
 {
-    $sLimit = "LIMIT ".convert_str( $_GET['iDisplayStart'] ).", ".
-        convert_str( $_GET['iDisplayLength'] );
+    $sLimit = "LIMIT ".intval( $_GET['iDisplayStart'] ).", ".
+        intval( $_GET['iDisplayLength'] );
 }
 if(!$current_user->match($user)||!$current_user->is_valid()) $sLimit = "LIMIT 0,0";
 
@@ -24,10 +24,10 @@ if ( isset( $_GET['iSortCol_0'] ) )
         if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" )
         {
             $sOrder .= $aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."
-                ".convert_str( $_GET['sSortDir_'.$i] ) .", ";
+                ".( $_GET['sSortDir_'.$i] == "asc" ? "asc" : "desc" ) .", ";
         }
     }
-    
+
     $sOrder = substr_replace( $sOrder, "", -2 );
     if ( $sOrder == "ORDER BY" )
     {

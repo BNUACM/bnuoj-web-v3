@@ -10,8 +10,8 @@ $sTable = "problem";
 $sLimit = "";
 if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
 {
-    $sLimit = "LIMIT ".convert_str( $_GET['iDisplayStart'] ).", ".
-        convert_str( $_GET['iDisplayLength'] );
+    $sLimit = "LIMIT ".intval( $_GET['iDisplayStart'] ).", ".
+        intval( $_GET['iDisplayLength'] );
 }
 
 //ordering
@@ -24,7 +24,7 @@ if ( isset( $_GET['iSortCol_0'] ) )
         if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" )
         {
             $sOrder .= $aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."
-                ".convert_str( $_GET['sSortDir_'.$i] ) .", ";
+                ".( $_GET['sSortDir_'.$i] == "asc" ? "asc" : "desc") .", ";
         }
     }
 

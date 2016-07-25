@@ -6,7 +6,7 @@ include_once("functions/problems.php");
 
 $scate=array();
 if (isset($_GET['category'])) {
-    $catarr='[{"name": "catenum", "value":"1"}, {"name": "logic", "value":"or"}, {"name":"cate0", "value":"'.$_GET['category'].'"}]';
+    $catarr='[{"name": "catenum", "value":"1"}, {"name": "logic", "value":"or"}, {"name":"cate0", "value":'.json_encode($_GET['category']).'}]';
     $scate[]=htmlspecialchars(problem_get_category_name_from_id(convert_str($_GET['category'])));
 }
 else {
@@ -15,12 +15,12 @@ else {
     $num=0;
     foreach($_POST as $kkey=>$value) {
         if ($kkey=="logic") continue;
-        
+
         $pt=problem_get_category_parent_from_id(convert_str($value));
 
         if (isset($_POST["check".$pt])==$value) continue;
         $scate[]=htmlspecialchars(problem_get_category_name_from_id(convert_str($value)));
-        $catarr.=',{"name":"cate'.$num.'", "value":"'.$value.'"}';
+        $catarr.=',{"name":"cate'.$num.'", "value":'.json_encode($value).'}';
         $num++;
     }
     $catarr.=',{"name":"catenum", "value":"'.$num.'"} ]';
