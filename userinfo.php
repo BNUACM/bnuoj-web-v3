@@ -1,5 +1,5 @@
 <?php
-$pagetitle="Information of ".$_GET['name'];
+$pagetitle="Information of ".htmlspecialchars($_GET['name']);
 include_once("header.php");
 include_once("functions/users.php");
 include_once("functions/sidebars.php");
@@ -73,7 +73,7 @@ if ($show_user->is_valid()) {
 
 <script type="text/javascript" src="js/highcharts.js"></script>
 <script type="text/javascript">
-var nametoc="<?=$name?>";
+var nametoc=<?=json_encode($name)?>;
 </script>
 <script type="text/javascript" src="js/userinfo.js?<?php echo filemtime("js/userinfo.js"); ?>"></script>
 

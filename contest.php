@@ -23,7 +23,7 @@ include_once("functions/contests.php");
             <button id="showtprivate" class="btn btn-info">Private</button>
             <button id="showtpassword" class="btn btn-info">Password</button>
           </div>
-          
+
           <div id="flip-scroll">
               <table width="100%" class="table table-hover table-striped cf basetable" id="contestlist">
                 <thead>
@@ -109,9 +109,9 @@ if ($_GET['clone']==1) {
 var timezone = jstz.determine_timezone();
 $("#localtz").html(timezone.name()+" GMT"+timezone.offset());
 $("#tzinp").val(timezone.name());
-var searchstr='<?=$_GET['search']?>';
+var searchstr=<?=json_encode($_GET['search'])?>;
 var conperpage=<?=$config["limits"]["contests_per_page"]?>;
-var cshowtype='<?=$_GET['type']?>';
+var cshowtype=<?=json_encode($_GET['type'])?>;
 $.fn.problemlist.ojoptions="<?=addslashes($ojoptions)?>";
 </script>
 <script type="text/javascript" src="js/moment.min.js"></script>

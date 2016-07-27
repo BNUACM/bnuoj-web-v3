@@ -9,8 +9,8 @@ $sTable = "status";
 $sLimit = "";
 if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
 {
-    $sLimit = "LIMIT ".convert_str( $_GET['iDisplayStart'] ).", ".
-        convert_str( $_GET['iDisplayLength'] );
+    $sLimit = "LIMIT ".intval( $_GET['iDisplayStart'] ).", ".
+        intval( $_GET['iDisplayLength'] );
 }
 
 $sOrder = "ORDER BY runid desc";

@@ -1,6 +1,6 @@
 <?php
 include_once("functions/contests.php");
-$cid = convert_str($_GET['cid']);
+$cid = intval($_GET['cid']);
 if (contest_exist($cid)) $pagetitle=strip_tags(contest_get_val($cid,"title"));
 else $pagetitle="No Such Contest.";
 include_once("header.php");
@@ -127,7 +127,7 @@ if (contest_exist($cid)&&($current_user->is_root()||contest_get_val($cid,"ispriv
 ?>
         <div class="span12">
           <form id="cpasssub">
-            <div class="input-append"><input type="password" name="cpass" id="contest_password" placeholder="Input password" /><button class="btn btn-primary" type="submit">Confirm</button></div> 
+            <div class="input-append"><input type="password" name="cpass" id="contest_password" placeholder="Input password" /><button class="btn btn-primary" type="submit">Confirm</button></div>
           </form>
         </div>
 

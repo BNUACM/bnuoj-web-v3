@@ -33,7 +33,7 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
   } else {
 ?>
 <?php
-  if (in_array($show_problem->get_val('vname'),array('UESTC','HDU'))) {
+  if (in_array($show_problem->get_val('vname'),array('UESTC','HDU', 'BNU'))) {
 ?>
         <script src="js/Mathjax/MathJax.js?config=TeX-AMS_HTML"></script>
         <script type="text/x-mathjax-config">
@@ -225,8 +225,8 @@ if (!contest_started($cid)||!($current_user->is_root()||contest_get_val($cid,"is
                   <option value="9">Ruby</option>
                   <option value="10">Ada</option>
                   <option value="11">SML</option>
-                  <option value="12">Visual C</option>
-                  <option value="13">Visual C++</option>
+                  <option value="12">Visual C++</option>
+                  <option value="13">Visual C</option>
                   <option value="14">CLang</option>
                   <option value="15">CLang++</option>
                 </select>

@@ -1,7 +1,6 @@
 <?php
 include_once('functions/problems.php');
-$pid = convert_str($_GET['pid']);
-if ($pid=="") $pid="0";
+$pid = intval($_GET['pid']);
 $show_problem=new Problem;
 $show_problem->set_problem($pid);
 if ($show_problem->is_valid() && $show_problem->get_val("hide")==0) $pagetitle="Statistics of Problem ".$pid;

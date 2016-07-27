@@ -6,7 +6,7 @@ $aColumns = array( 'uid', 'username', 'nickname', 'local_ac', 'total_ac', 'total
 $sIndexColumn = "uid";
 $sTable = "ranklist";
 // $sTable = "(
-//     SELECT @rownum := @rownum +1 rownum, ranklist . * 
+//     SELECT @rownum := @rownum +1 rownum, ranklist . *
 //     FROM (
 //         SELECT @rownum :=0
 //     )r, ranklist
@@ -16,8 +16,8 @@ $sTable = "ranklist";
 $sLimit = "";
 if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
 {
-    $sLimit = "LIMIT ".convert_str( $_GET['iDisplayStart'] ).", ".
-        convert_str( $_GET['iDisplayLength'] );
+    $sLimit = "LIMIT ".intval( $_GET['iDisplayStart'] ).", ".
+        intval( $_GET['iDisplayLength'] );
 }
 
 //ordering
@@ -33,10 +33,10 @@ if ( isset( $_GET['iSortCol_0'] ) )
                 else $sOrder .= "local_ac, total_ac, total_submit desc, username desc, ";
             }
             else $sOrder .= $aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."
-                ".convert_str( $_GET['sSortDir_'.$i] ) .", ";
+                ".( $_GET['sSortDir_'.$i] == "asc" ? "asc" : "desc") .", ";
         }
     }
-    
+
     $sOrder = substr_replace( $sOrder, "", -2 );
     if ( $sOrder == "ORDER BY" )
     {
@@ -118,9 +118,9 @@ $sQuery = "
 foreach ( (array)$db->get_results( $sQuery,ARRAY_A ) as $aRow )
 {
     $row = array();
-    list($rank)=$db->get_row("select count(*)+1 from user where local_ac>".$aRow["local_ac"]." or 
-        (local_ac=".$aRow["local_ac"]." and total_ac>".$aRow["total_ac"].") or 
-        (local_ac=".$aRow["local_ac"]." and total_ac=".$aRow["total_ac"]." and total_submit<".$aRow["total_submit"].") or 
+    list($rank)=$db->get_row("select count(*)+1 from user where local_ac>".$aRow["local_ac"]." or
+        (local_ac=".$aRow["local_ac"]." and total_ac>".$aRow["total_ac"].") or
+        (local_ac=".$aRow["local_ac"]." and total_ac=".$aRow["total_ac"]." and total_submit<".$aRow["total_submit"].") or
         (local_ac=".$aRow["local_ac"]." and total_ac=".$aRow["total_ac"]." and total_submit=".$aRow["total_submit"]." and username<'".$aRow["username"]."' )",ARRAY_N);
     $row[]=$rank;
     for ( $i=1 ; $i<count($aColumns) ; $i++ )

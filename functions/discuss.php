@@ -22,12 +22,12 @@ function discuss_load_subject_list(&$res) {
   }
 }
 
-function discuss_load_list($page=1,$pid=null) {
+function discuss_load_list($page=1,$pid=0) {
     global $db,$config;
-    
+
     $discussperpage=$config["limits"]["discuss_per_page"];
     $start=(intval($page)-1)*$discussperpage;
-    if($pid != "") $sql = "select distinct(rid) from time_bbs where pid='$pid' order by time desc limit $start,$discussperpage";
+    if($pid > 0) $sql = "select distinct(rid) from time_bbs where pid='$pid' order by time desc limit $start,$discussperpage";
     else $sql = "select distinct(rid) from time_bbs order by time desc limit $start,$discussperpage";
     //$db->debug_all=true;
     $res=$db->get_results($sql,ARRAY_A);

@@ -2,7 +2,7 @@
 include_once('functions/global.php');
 include_once('functions/sidebars.php');
 
-$proid = convert_str($_GET['pid']);
+$proid = intval($_GET['pid']);
 $page = intval(convert_str($_GET['page']));
 if ($page<1) $page=1;
 $pagetitle="Discuss";
